@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社交激励 - 舞动银龄</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #FF7E67;
+            --secondary-color: #4E8CFF;
+            --light-color: #FFF9F0;
+            --dark-color: #333333;
+            --success-color: #5CB85C;
+            --warning-color: #F0AD4E;
+            --danger-color: #D9534F;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand img {
+            height: 50px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-size: 18px;
+            padding: 10px 25px;
+        }
+
+        .btn-primary:hover {
+            background-color: #FF6B52;
+            border-color: #FF6B52;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('images/elderly-dancing-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .course-card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: transform 0.3s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .course-duration {
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-links h5 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        /* 适老化设计 */
+        .large-text {
+            font-size: 20px;
+        }
+
+        .high-contrast {
+            color: #000;
+            background-color: #fff;
+        }
+
+        .simple-layout {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .clear-navigation {
+            font-size: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        .social-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-content {
+            margin: 15px 0;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        .post-actions {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .post-action {
+            color: #666;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        .post-action:hover {
+            color: var(--primary-color);
+        }
+
+        .challenge-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .challenge-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .challenge-progress {
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+
+        .message-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .message-sender {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+
+        .message-receiver {
+            background-color: #f1f1f1;
+            margin-right: auto;
+        }
+
+        .heritage-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 250px;
+        }
+
+        .heritage-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 15px;
+            color: white;
+        }
+
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        .nav-tabs .nav-link {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">
+            <img src="images/logo.png" alt="舞动银龄">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto clear-navigation">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ai-coach.html">AI教练</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="health.html">健康管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="social.html">社交激励</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">关于我们</a>
+                </li>
+            </ul>
+            <div class="ms-3">
+                <a href="login.html" class="btn btn-outline-primary">登录/注册</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 社交功能 -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title">社交激励</h2>
+        <p class="section-subtitle">与舞友互动交流，共同进步</p>
+
+        <ul class="nav nav-tabs" id="socialTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed" type="button" role="tab">动态广场</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="challenge-tab" data-bs-toggle="tab" data-bs-target="#challenge" type="button" role="tab">打卡挑战</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="heritage-tab" data-bs-toggle="tab" data-bs-target="#heritage" type="button" role="tab">非遗传承</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="message-tab" data-bs-toggle="tab" data-bs-target="#message" type="button" role="tab">私信聊天</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="socialTabsContent">
+            <!-- 动态广场 -->
+            <div class="tab-pane fade show active" id="feed" role="tabpanel">
+                <div class="social-card">
+                    <div class="d-flex">
+                        <img src="images/user4.jpg" alt="用户" class="user-avatar me-3">
+                        <div>
+                            <h5 class="mb-0">张阿姨</h5>
+                            <p class="text-muted mb-0">刚刚 · 济南</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>今天学习了新的广场舞动作，虽然还不熟练，但很开心！坚持打卡第15天~</p>
+                        <img src="images/post1.jpg" alt="舞蹈照片" class="post-image">
+                    </div>
+                    <div class="post-actions">
+                        <a href="#" class="post-action"><i class="far fa-heart me-1"></i> 点赞 (24)</a>
+                        <a href="#" class="post-action"><i class="far fa-comment me-1"></i> 评论 (8)</a>
+                        <a href="#" class="post-action"><i class="fas fa-share-altme-1"></i> 分享</a>
+                    </div>
+                </div>
+
+                <div class="social-card">
+                    <div class="d-flex">
+                        <img src="images/user5.jpg" alt="用户" class="user-avatar me-3">
+                        <div>
+                            <h5 class="mb-0">李叔叔</h5>
+                            <p class="text-muted mb-0">2小时前 · 青岛</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>参加了社区的民族舞表演，虽然紧张但顺利完成，感谢平台的教学视频！</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="images/post2.jpg" alt="舞蹈照片" class="post-image">
+                            </div>
+                            <div class="col-md-6">
+                                <img src="images/post3.jpg" alt="舞蹈照片" class="post-image">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <a href="#" class="post-action"><i class="far fa-heart me-1"></i> 点赞 (36)</a>
+                        <a href="#" class="post-action"><i class="far fa-comment me-1"></i> 评论 (12)</a>
+                        <a href="#" class="post-action"><i class="fas fa-share-alt me-1"></i> 分享</a>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary btn-lg">加载更多</button>
+                </div>
+            </div>
+
+            <!-- 打卡挑战 -->
+            <div class="tab-pane fade" id="challenge" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="challenge-card">
+                            <span class="challenge-badge">进行中</span>
+                            <h3>21天健身舞打卡</h3>
+                            <p>连续21天每天练习健身舞15分钟，养成运动好习惯</p>
+                            <div class="d-flex justify-content-between">
+                                <span>已参与: 1,245人</span>
+                                <span>剩余: 12天</span>
+                            </div>
+                            <div class="challenge-progress">
+                                <div class="progress-bar" style="width: 45%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>我的进度: 9/21天</span>
+                                <span><i class="fas fa-fire text-danger"></i> 连续7天</span>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3">今日打卡</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="challenge-card">
+                            <span class="challenge-badge">新挑战</span>
+                            <h3>民族舞学习月</h3>
+                            <p>学习4种民族舞基础动作，感受传统文化魅力</p>
+                            <div class="d-flex justify-content-between">
+                                <span>已参与: 892人</span>
+                                <span>剩余: 30天</span>
+                            </div>
+                            <div class="challenge-progress">
+                                <div class="progress-bar" style="width: 20%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>我的进度: 1/4种</span>
+                                <span><i class="fas fa-star text-warning"></i> 新加入</span>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3">立即参加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="challenge-card">
+                            <span class="challenge-badge">已完成</span>
+                            <h3>7天广场舞入门</h3>
+                            <p>7天掌握广场舞基本步伐，适合零基础学员</p>
+                            <div class="d-flex justify-content-between">
+                                <span>已参与: 2,156人</span>
+                                <span>状态: 已完成</span>
+                            </div>
+                            <div class="challenge-progress">
+                                <div class="progress-bar" style="width: 100%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>我的成绩: 优秀</span>
+                                <span><i class="fas fa-trophy text-warning"></i> 奖章</span>
+                            </div>
+                            <button class="btn btn-outline-primary w-100 mt-3">查看证书</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="challenge-card">
+                            <span class="challenge-badge">即将开始</span>
+                            <h3>交谊舞双周计划</h3>
+                            <p>14天学会基础交谊舞，可与舞伴一起参加</p>
+                            <div class="d-flex justify-content-between">
+                                <span>已报名: 563人</span>
+                                <span>开始: 3天后</span>
+                            </div>
+                            <div class="text-center py-4">
+                                <i class="far fa-clock fa-2x text-muted"></i>
+                                <p class="mt-2">挑战尚未开始</p>
+                            </div>
+                            <button class="btn btn-outline-primary w-100">预约参加</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 非遗传承 -->
+            <div class="tab-pane fade" id="heritage" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="heritage-card">
+                            <img src="images/heritage1.jpg" alt="非遗舞蹈" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                            <div class="heritage-overlay">
+                                <h4>蒙古族安代舞</h4>
+                                <p>国家级非物质文化遗产</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="heritage-card">
+                            <img src="images/heritage2.jpg" alt="非遗舞蹈" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                            <div class="heritage-overlay">
+                                <h4>藏族锅庄舞</h4>
+                                <p>国家级非物质文化遗产</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="heritage-card">
+                            <img src="images/heritage3.jpg" alt="非遗舞蹈" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                            <div class="heritage-overlay">
+                                <h4>傣族孔雀舞</h4>
+                                <p>国家级非物质文化遗产</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="social-card mt-4">
+                    <h3>非遗舞蹈学习社区</h3>
+                    <p>加入我们的非遗舞蹈学习小组，与传承人互动交流，学习传统舞蹈文化。</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="images/teacher2.jpg" alt="老师" class="rounded-circle me-3" width="60">
+                                <div>
+                                    <h5 class="mb-0">非遗传承人 - 张老师</h5>
+                                    <p class="text-muted mb-0">蒙古族安代舞传承人</p>
+                                </div>
+                            </div>
+                            <p>"安代舞是蒙古族传统舞蹈，希望通过这个平台让更多老年人了解和传承这一文化遗产。"</p>
+                            <button class="btn btn-primary">加入学习小组</button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="images/teacher3.jpg" alt="老师" class="rounded-circle me-3" width="60">
+                                <div>
+                                    <h5 class="mb-0">非遗传承人 - 李老师</h5>
+                                    <p class="text-muted mb-0">傣族孔雀舞传承人</p>
+                                </div>
+                            </div>
+                            <p>"孔雀舞动作优美，适合老年人练习，既能锻炼身体又能感受傣族文化魅力。"</p>
+                            <button class="btn btn-primary">加入学习小组</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 私信聊天 -->
+            <div class="tab-pane fade" id="message" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="social-card">
+                            <h4>我的消息</h4>
+                            <div class="list-group">
+                                <a href="#" class="list-group-item list-group-item-action active">
+                                    <div class="d-flex align-items-center">
+                                        <img src="images/user6.jpg" alt="用户" class="rounded-circle me-3" width="50">
+                                        <div>
+                                            <h6 class="mb-0">王阿姨</h6>
+                                            <small>昨天 15:23</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <img src="images/user7.jpg" alt="用户" class="rounded-circle me-3" width="50">
+                                        <div>
+                                            <h6 class="mb-0">舞蹈学习小组</h6>
+                                            <small>昨天 10:45</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <img src="images/user8.jpg" alt="用户" class="rounded-circle me-3" width="50">
+                                        <div>
+                                            <h6 class="mb-0">李叔叔</h6>
+                                            <small>11月12日</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="social-card">
+                            <div class="d-flex align-items-center mb-4">
+                                <img src="images/user6.jpg" alt="用户" class="rounded-circle me-3" width="50">
+                                <div>
+                                    <h5 class="mb-0">与王阿姨的对话</h5>
+                                </div>
+                            </div>
+
+                            <div class="message-list">
+                                <div class="message-item message-receiver">
+                                    <p>张阿姨，您昨天的舞蹈视频我看了，跳得真好！</p>
+                                    <small>昨天 15:23</small>
+                                </div>
+                                <div class="message-item message-sender">
+                                    <p>谢谢夸奖！我跟着平台的课程练习了一个月了</p>
+                                    <small>昨天 15:25</small>
+                                </div>
+                                <div class="message-item message-receiver">
+                                    <p>我也想学，能推荐一下适合初学者的课程吗？</p>
+                                    <small>昨天 15:26</small>
+                                </div>
+                                <div class="message-item message-sender">
+                                    <p>可以从"广场舞基础入门"开始，我当初就是学这个</p>
+                                    <small>昨天 15:28</small>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="输入消息...">
+                                    <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> 发送</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="images/logo-white.png" alt="舞动银龄" class="mb-3" width="150">
+                <p>专为老年人设计的舞蹈教学与健康管理平台，让银龄生活更精彩。</p>
+            </div>
+            <div class="col-md-2">
+                <div class="footer-links">
+                    <h5>快速链接</h5>
+                    <ul>
+                        <li><a href="#">首页</a></li>
+                        <li><a href="ai-coach.html">AI教练</a></li>
+                        <li><a href="health.html">健康管理</a></li>
+                        <li><a href="social.html">社交激励</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="footer-links">
+                    <h5>帮助中心</h5>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">使用教程</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="footer-links">
+                    <h5>联系我们</h5>
+                    <ul>
+                        <li><i class="fas fa-phone me-2"></i> 400-123-4567</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@wudongyinling.com</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 山东省济南市</li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-2"><i class="fab fa-weixin fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-weibo fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-qq fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 舞动银龄 版权所有</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body>
+</html>

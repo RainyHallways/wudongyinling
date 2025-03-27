@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞动银龄 - 健康管理</title>
+    <style>
+        :root {
+            --primary-color: #5c6bc0;
+            --secondary-color: #ff7043;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Hiragino Sans GB", "SimHei", sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .mobile-menu {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            text-align: center;
+            margin: 40px 0;
+            color: var(--primary-color);
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background-color: var(--white);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 运动处方样式 */
+        .prescription-form {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            background-color: var(--white);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .submit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .submit-btn:hover {
+            background-color: #ff5722;
+        }
+        
+        .prescription-result {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+        
+        .prescription-title {
+            font-size: 24px;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .prescription-item {
+            margin-bottom: 15px;
+        }
+        
+        .prescription-item h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        /* 健康监测样式 */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .health-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .health-card-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .health-value {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .health-normal {
+            color: var(--success-color);
+        }
+        
+        .health-warning {
+            color: var(--warning-color);
+        }
+        
+        .health-danger {
+            color: var(--danger-color);
+        }
+        
+        .health-chart {
+            height: 150px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .health-history {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        /* 慢性病训练方案样式 */
+        .training-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .training-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .training-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .training-content {
+            padding: 20px;
+        }
+        
+        .training-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .training-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            margin-bottom: 15px;
+        }
+        
+        .training-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .training-btn:hover {
+            background-color: #3949ab;
+        }
+        
+        .training-schedule {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+        
+        .schedule-title {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .schedule-day {
+            text-align: center;
+            padding: 10px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .schedule-content {
+            padding: 15px;
+        }
+        
+        .schedule-item {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--light-gray);
+        }
+        
+        .schedule-time {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .schedule-activity {
+            margin-top: 5px;
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 90px;
+                left: 0;
+                width: 100%;
+                flex-direction: column;
+                background-color: var(--white);
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                text-align: center;
+                z-index: 99;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="/api/placeholder/60/60" alt="舞动银龄logo">
+                <h1>舞动银龄</h1>
+            </div>
+            <nav>
+                <div class="mobile-menu">&#9776;</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="ai-coach.html">AI教练</a></li>
+                    <li><a href="#" class="active">健康管理</a></li>
+                    <li><a href="social.html">社交激励</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1 class="page-title">个性化健康管理系统</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('prescription')">生成运动处方</button>
+            <button class="tab" onclick="openTab('monitoring')">健康数据监测</button>
+            <button class="tab" onclick="openTab('chronic')">慢性病训练方案</button>
+        </div>
+        
+        <!-- 运动处方 -->
+        <div id="prescription" class="tab-content active">
+            <div class="prescription-form">
+                <h2 style="margin-bottom: 20px; text-align: center;">个人信息</h2>
+                
+                <div class="form-group">
+                    <label class="form-label" for="age">年龄</label>
+                    <input type="number" id="age" class="form-input" placeholder="请输入您的年龄">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="gender">性别</label>
+                    <select id="gender" class="form-select">
+                        <option value="">请选择</option>
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="height">身高 (cm)</label>
+                    <input type="number" id="height" class="form-input" placeholder="请输入您的身高">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weight">体重 (kg)</label>
+                    <input type="number" id="weight" class="form-input" placeholder="请输入您的体重">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">健康状况 (可多选)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hypertension">
+                            <label for="hypertension">高血压</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="diabetes">
+                            <label for="diabetes">糖尿病</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="heart">
+                            <label for="heart">心脏病史</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="arthritis">
+                            <label for="arthritis">关节炎</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="osteoporosis">
+                            <label for="osteoporosis">骨质疏松</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="activity">日常活动水平</label>
+                    <select id="activity" class="form-select">
+                        <option value="">请选择</option>
+                        <option value="low">低 (几乎不运动)</option>
+                        <option value="medium">中 (每周1-2次轻度活动)</option>
+                        <option value="high">高 (每周3次以上活动)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">运动喜好 (可多选)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="dance">
+                            <label for="dance">舞蹈</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="walking">
+                            <label for="walking">散步</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="swimming">
+                            <label for="swimming">游泳</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="taichi">
+                            <label for="taichi">太极</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="yoga">
+                            <label for="yoga">瑜伽</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="generatePrescription()">生成运动处方</button>
+            </div>
+            
+            <div class="prescription-result" id="prescription-result" style="display: none;">
+                <h2 class="prescription-title">张先生的专属运动处方</h2>
+                
+                <div class="prescription-item">
+                    <h3>推荐活动类型</h3>
+                    <p>根据您的健康状况和喜好，我们推荐以下活动：</p>
+                    <ul>
+                        <li>温和太极 (每周3次，每次30分钟)</li>
+                        <li>关节友好型广场舞 (每周2次，每次20分钟)</li>
+                        <li>缓和步行 (每天，每次15-20分钟)</li>
+                    </ul>
+                </div>
+                
+                <div class="prescription-item">
+                    <h3>运动注意事项</h3>
+                    <p>由于您有高血压和关节炎病史，请注意：</p>
+                    <ul>
+                        <li>避免剧烈运动和快速转身动作</li>
+                        <li>运动前后测量血压</li>
+                        <li>感到不适时立即停止</li>
+                        <li>保持充分水分摄入</li>
+                    </ul>
+                </div>
+                
+                <div class="prescription-item">
+                    <h3>推荐运动课程</h3>
+                    <p>以下是我们平台上适合您的课程：</p>
+                    <ul>
+                        <li><a href="#">关节保护健身操</a></li>
+                        <li><a href="#">心脏友好型广场舞</a></li>
+                        <li><a href="#">24式太极拳基础教学</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 健康数据监测 -->
+        <div id="monitoring" class="tab-content">
+            <div class="health-grid">
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>❤️</span> 血压 (mmHg)
+                    </h3>
+                    <div class="health-value health-warning">138/85</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="血压趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本周平均: 135/83</span>
+                        <span>上周平均: 140/88</span>
+                    </div>
+                </div>
+                
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>📈</span> 血糖 (mmol/L)
+                    </h3>
+                    <div class="health-value health-normal">5.4</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="血糖趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本周平均: 5.6</span>
+                        <span>上周平均: 5.8</span>
+                    </div>
+                </div>
+                
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>🏃‍♂️</span> 每日步数
+                    </h3>
+                    <div class="health-value health-normal">5,823</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="步数趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本周平均: 5,472</span>
+                        <span>上周平均: 4,895</span>
+                    </div>
+                </div>
+                
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>⏱️</span> 睡眠质量
+                    </h3>
+                    <div class="health-value health-warning">6.2小时</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="睡眠趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本周平均: 6.4小时</span>
+                        <span>上周平均: 6.5小时</span>
+                    </div>
+                </div>
+                
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>⚖️</span> 体重 (kg)
+                    </h3>
+                    <div class="health-value health-warning">78.5</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="体重趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本月平均: 79.2</span>
+                        <span>上月平均: 80.1</span>
+                    </div>
+                </div>
+                
+                <div class="health-card">
+                    <h3 class="health-card-title">
+                        <span>🧠</span> 心理健康
+                    </h3>
+                    <div class="health-value health-normal">良好</div>
+                    <div class="health-chart">
+                        <img src="/api/placeholder/300/150" alt="心理健康趋势图">
+                    </div>
+                    <div class="health-history">
+                        <span>本周状态: 积极</span>
+                        <span>上周状态: 中性</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prescription-result">
+                <h2 class="prescription-title">健康评估报告</h2>
+                
+                <div class="prescription-item">
+                    <h3>健康总览</h3>
+                    <p>您的整体健康状况良好，但有以下几点需要注意：</p>
+                    <ul>
+                        <li>血压略高于正常值，建议适当增加有氧运动</li>
+                        <li>睡眠时间不足，可能影响血压和整体健康</li>
+                        <li>体重指数略高，建议控制饮食并增加运动量</li>
+                    </ul>
+                </div>
+                
+                <div class="prescription-item">
+                    <h3>运动建议</h3>
+                    <p>结合您的健康数据，我们建议：</p>
+                    <ul>
+                        <li>每天清晨进行15-20分钟舒缓太极</li>
+                        <li>每周3次30分钟广场舞</li>
+                        <li>晚饭后进行30分钟慢走</li>
+                    </ul>
+                </div>
+                
+                <div class="prescription-item">
+                    <h3>饮食建议</h3>
+                    <ul>
+                        <li>减少钠的摄入，控制食盐用量</li>
+                        <li>增加蔬菜水果摄入</li>
+                        <li>保持充足水分，每天至少1500ml</li>
+                        <li>少食多餐，控制总热量</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 慢性病训练方案 -->
+        <div id="chronic" class="tab-content">
+            <div class="training-plans">
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="高血压康复训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">高血压舒缓训练</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 12节</span>
+                            <span>总时长: 4周</span>
+                        </div>
+                        <p>专为高血压人群设计的舒缓训练，通过缓和有氧运动和呼吸练习，帮助稳定血压。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="糖尿病康复训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">糖尿病平衡训练</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 16节</span>
+                            <span>总时长: 5周</span>
+                        </div>
+                        <p>针对糖尿病患者的专项训练，通过合适强度的运动帮助控制血糖，提高胰岛素敏感性。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="关节炎康复训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">关节友好舞蹈</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 10节</span>
+                            <span>总时长: 3周</span>
+                        </div>
+                        <p>为关节炎患者设计的低冲击舞蹈，通过缓和动作增强关节灵活性，减轻疼痛。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="骨质疏松康复训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">骨密度提升计划</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 14节</span>
+                            <span>总时长: 6周</span>
+                        </div>
+                        <p>针对骨质疏松患者设计的抗阻力训练和负重运动，安全有效地增强骨骼强度。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="心脏病康复训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">心脏康复训练</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 18节</span>
+                            <span>总时长: 6周</span>
+                        </div>
+                        <p>为心脏病患者设计的循序渐进康复训练，提高心肺功能，增强心脏健康。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <img src="/api/placeholder/400/200" alt="平衡训练" class="training-img">
+                    <div class="training-content">
+                        <h3 class="training-title">防跌倒平衡训练</h3>
+                        <div class="training-meta">
+                            <span>课程数量: 8节</span>
+                            <span>总时长: 3周</span>
+                        </div>
+                        <p>通过平衡练习和核心力量训练，增强老年人的稳定性和协调性，有效预防跌倒。</p>
+                        <button class="training-btn" onclick="showSchedule()">查看训练计划</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="training-schedule" id="training-schedule">
+                <h2 class="schedule-title">高血压舒缓训练 - 第一周训练计划</h2>
+                
+                <div class="schedule-grid">
+                    <div class="schedule-day">星期一</div>
+                    <div class="schedule-day">星期二</div>
+                    <div class="schedule-day">星期三</div>
+                    <div class="schedule-day">星期四</div>
+                    <div class="schedule-day">星期五</div>
+                    <div class="schedule-day">星期六</div>
+                    <div class="schedule-day">星期日</div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 9:00-9:30</span>
+                            <span class="schedule-activity">呼吸调节太极</span>
+                        </div>
+                        <div class="schedule-item">
+                            <span class="schedule-time">下午 4:00-4:20</span>
+                            <span class="schedule-activity">缓和步行</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 10:00-10:30</span>
+                            <span class="schedule-activity">舒缓伸展</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 9:00-9:30</span>
+                            <span class="schedule-activity">缓和广场舞</span>
+                        </div>
+                        <div class="schedule-item">
+                            <span class="schedule-time">下午 4:00-4:20</span>
+                            <span class="schedule-activity">平衡训练</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 10:00-10:30</span>
+                            <span class="schedule-activity">休息日</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 9:00-9:30</span>
+                            <span class="schedule-activity">坐式舞蹈</span>
+                        </div>
+                        <div class="schedule-item">
+                            <span class="schedule-time">下午 4:00-4:20</span>
+                            <span class="schedule-activity">深呼吸练习</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">上午 10:00-10:30</span>
+                            <span class="schedule-activity">轻度瑜伽</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-content">
+                        <div class="schedule-item">
+                            <span class="schedule-time">全天</span>
+                            <span class="schedule-activity">休息日</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="logo">
+                <h1 style="color: white;">舞动银龄</h1>
+            </div>
+            <div class="footer-links">
+                <a href="#">隐私政策</a>
+                <a href="#">用户协议</a>
+                <a href="#">联系我们</a>
+                <a href="#">帮助中心</a>
+            </div>
+            <p>© 2025 舞动银龄 版权所有</p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        
+        // 切换标签页
+        function openTab(tabName) {
+            var i, tabContent, tabs;
+            
+            // 隐藏所有标签内容
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            
+            // 移除所有标签的激活状态
+            tabs = document.getElementsByClassName("tab");
+            for (i = 0; i < tabs.length; i++) {
+                tabs[i].className = tabs[i].className.replace(" active", "");
+            }
+            
+            // 显示当前标签内容并添加激活状态
+            document.getElementById(tabName).style.display = "block";
+            event.currentTarget.className += " active";
+        }
+        
+        // 生成运动处方
+        function generatePrescription() {
+            document.getElementById('prescription-result').style.display = 'block';
+            // 在实际应用中，这里会根据用户输入生成个性化处方
+        }
+        
+        // 显示训练计划
+        function showSchedule() {
+            document.getElementById('training-schedule').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
