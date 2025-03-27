@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI教练 - 舞动银龄</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #FF7E67;
+      --secondary-color: #4E8CFF;
+      --light-color: #FFF9F0;
+      --dark-color: #333333;
+      --success-color: #5CB85C;
+      --warning-color: #F0AD4E;
+      --danger-color: #D9534F;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--dark-color);
+      background-color: var(--light-color);
+    }
+
+    .navbar {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand img {
+      height: 50px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      font-size: 18px;
+      padding: 10px 25px;
+    }
+
+    .btn-primary:hover {
+      background-color: #FF6B52;
+      border-color: #FF6B52;
+    }
+
+    .hero-section {
+      background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('images/elderly-dancing-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+
+    .feature-card {
+      background-color: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+      height: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    .course-card {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      transition: transform 0.3s;
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .course-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .course-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .course-duration {
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      padding: 50px 0 20px;
+    }
+
+    .footer-links h5 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .footer-links ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .copyright {
+      border-top: 1px solid #444;
+      padding-top: 20px;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    /* 适老化设计 */
+    .large-text {
+      font-size: 20px;
+    }
+
+    .high-contrast {
+      color: #000;
+      background-color: #fff;
+    }
+
+    .simple-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .clear-navigation {
+      font-size: 20px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.2rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chat-container {
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .chat-header {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .chat-messages {
+      height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      max-width: 80%;
+    }
+
+    .user-message {
+      background-color: #e3f2fd;
+      padding: 10px 15px;
+      border-radius: 18px 18px 0 18px;
+      margin-left: auto;
+    }
+
+    .ai-message {
+      background-color: #f1f1f1;
+      padding: 10px 15px;
+      border-radius: 18px 18px 18px 0;
+      margin-right: auto;
+    }
+
+    .chat-input {
+      display: flex;
+      align-items: center;
+      background-color: #f9f9f9;
+      border-radius: 25px;
+      padding: 10px 15px;
+    }
+
+    .mic-btn {
+      background-color: var(--primary-color);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      margin-right: 15px;
+    }
+
+    .input-field {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .send-btn, .camera-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--primary-color);
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .video-preview {
+      width: 100%;
+      height: 200px;
+      background-color: #eee;
+      border-radius: 10px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+    }
+
+    .course-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">
+      <img src="images/logo.png" alt="舞动银龄">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto clear-navigation">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">首页</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="ai-coach.html">AI教练</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="health.html">健康管理</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="social.html">社交激励</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">关于我们</a>
+        </li>
+      </ul>
+      <div class="ms-3">
+        <a href="login.html" class="btn btn-outline-primary">登录/注册</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- 视频播放区 -->
+<section class="py-5">
+  <div class="container">
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/example" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">广场舞基础教学 - 第一课</h2>
+      <div>
+        <button class="btn btn-outline-secondary me-2"><i class="far fa-heart"></i> 收藏</button>
+        <button class="btn btn-outline-secondary"><i class="fas fa-share-alt"></i> 分享</button>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-4">
+      <img src="images/teacher1.jpg" alt="老师" class="rounded-circle me-3" width="60">
+      <div>
+        <h5 class="mb-0">王老师</h5>
+        <p class="text-muted mb-0">专业舞蹈教练，10年教学经验</p>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h4>课程描述</h4>
+      <p>本课程适合零基础学员学习广场舞的基本步伐和动作，通过分解教学让您轻松掌握广场舞的基本技巧。</p>
+    </div>
+
+    <div class="mb-4">
+      <h4>课程目录</h4>
+      <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>1. 热身运动</span>
+          <span class="badge bg-primary rounded-pill">5:23</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center active">
+          <span>2. 基本步伐教学</span>
+          <span class="badge bg-primary rounded-pill">12:45</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>3. 手臂动作配合</span>
+          <span class="badge bg-primary rounded-pill">8:32</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>4. 完整舞蹈练习</span>
+          <span class="badge bg-primary rounded-pill">15:10</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- AI教练聊天 -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="section-title">AI舞蹈教练</h2>
+    <p class="section-subtitle">上传您的舞蹈视频或语音提问，获取专业指导</p>
+
+    <div class="chat-container">
+      <div class="chat-header d-flex align-items-center">
+        <div class="mic-btn">
+          <i class="fas fa-microphone"></i>
+        </div>
+        <h4 class="mb-0">舞蹈智能评价助手</h4>
+      </div>
+
+      <div class="chat-messages">
+        <div class="message user-message">
+          <p>我这段舞蹈练习效果怎么样?</p>
+        </div>
+        <div class="message ai-message">
+          <p>1.节奏与协调性问题:易出现抢拍或慢拍，手脚动作不同步。<br>
+            建议:用手机节拍器辅助练习，先分解动作跟节奏，熟练后再连贯。</p>
+          <p>2.动作幅度与重心问题:因担心摔倒而动作拘谨，重心偏移不稳。<br>
+            建议:穿防滑鞋，手扶椅子练习伸展动作，逐步增加幅度。</p>
+          <p>3.体态与呼吸问题:含胸驼背或憋气跳舞。<br>
+            建议:保持挺胸收腹，每4拍深呼吸一次，可对镜练习。</p>
+          <p>4.表情管理问题:过于紧张导致表情僵硬。<br>
+            建议:想象舞蹈场景(如草原、节日)，自然流露情绪。</p>
+        </div>
+      </div>
+
+      <div class="video-preview">
+        <i class="fas fa-video fa-3x"></i>
+        <span class="ms-2">视频预览</span>
+      </div>
+
+      <div class="chat-input">
+        <div class="mic-btn">
+          <i class="fas fa-microphone"></i>
+        </div>
+        <input type="text" class="input-field" placeholder="按住说话或输入问题...">
+        <button class="camera-btn"><i class="fas fa-camera"></i></button>
+        <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 相关课程 -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="section-title">更多推荐课程</h2>
+    <p class="section-subtitle">选择您感兴趣的课程继续学习</p>
+
+    <div class="course-list">
+      <div class="course-card">
+        <img src="images/course5.jpg" alt="舞蹈课程" class="course-img">
+        <div class="p-3">
+          <h4 class="course-title">广场舞进阶技巧</h4>
+          <p class="course-duration"><i class="far fa-clock"></i> 10节课 · 中级水平</p>
+          <a href="course-detail.html" class="btn btn-primary w-100">开始学习</a>
+        </div>
+      </div>
+      <div class="course-card">
+        <img src="images/course6.jpg" alt="舞蹈课程" class="course-img">
+        <div class="p-3">
+          <h4 class="course-title">民族舞精选</h4>
+          <p class="course-duration"><i class="far fa-clock"></i> 8节课 · 中级水平</p>
+          <a href="course-detail.html" class="btn btn-primary w-100">开始学习</a>
+        </div>
+      </div>
+      <div class="course-card">
+        <img src="images/course7.jpg" alt="舞蹈课程" class="course-img">
+        <div class="p-3">
+          <h4 class="course-title">健身舞每日练</h4>
+          <p class="course-duration"><i class="far fa-clock"></i> 30节课 · 适合所有人</p>
+          <a href="course-detail.html" class="btn btn-primary w-100">开始学习</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="images/logo-white.png" alt="舞动银龄" class="mb-3" width="150">
+                <p>专为老年人设计的舞蹈教学与健康管理平台，让银龄生活更精彩。</p>
+            </div>
+            <div class="col-md-2">
+                <div class="footer-links">
+                    <h5>快速链接</h5>
+                    <ul>
+                        <li><a href="#">首页</a></li>
+                        <li><a href="ai-coach.html">AI教练</a></li>
+                        <li><a href="health.html">健康管理</a></li>
+                        <li><a href="social.html">社交激励</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="footer-links">
+                    <h5>帮助中心</h5>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">使用教程</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="footer-links">
+                    <h5>联系我们</h5>
+                    <ul>
+                        <li><i class="fas fa-phone me-2"></i> 400-123-4567</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@wudongyinling.com</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 山东省济南市</li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-2"><i class="fab fa-weixin fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-weibo fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-qq fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 舞动银龄 版权所有</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

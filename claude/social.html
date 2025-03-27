@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞动银龄 - 社交激励</title>
+    <style>
+        :root {
+            --primary-color: #5c6bc0;
+            --secondary-color: #ff7043;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Hiragino Sans GB", "SimHei", sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .mobile-menu {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            text-align: center;
+            margin: 40px 0;
+            color: var(--primary-color);
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background-color: var(--white);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 挑战卡片样式 */
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .challenge-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .challenge-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .challenge-content {
+            padding: 20px;
+        }
+        
+        .challenge-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .challenge-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #777;
+        }
+        
+        .challenge-progress {
+            background-color: var(--light-gray);
+            height: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+        }
+        
+        .challenge-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .challenge-btn:hover {
+            background-color: #ff5722;
+        }
+        
+        /* 非遗文化卡片样式 */
+        .culture-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .culture-header {
+            position: relative;
+        }
+        
+        .culture-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .culture-title-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 20px;
+            color: white;
+        }
+        
+        .culture-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .culture-origin {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .culture-content {
+            padding: 20px;
+        }
+        
+        .culture-desc {
+            margin-bottom: 20px;
+        }
+        
+        .culture-features {
+            margin-bottom: 20px;
+        }
+        
+        .culture-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-icon {
+            min-width: 30px;
+            height: 30px;
+            background-color: var(--light-gray);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+        }
+        
+        .instructor-section {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .instructor-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .instructor-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .instructor-info p {
+            color: #777;
+            font-size: 16px;
+        }
+        
+        /* 视频分享样式 */
+        .videos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .video-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .video-info {
+            padding: 20px;
+        }
+        
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-size: 16px;
+            color: #777;
+        }
+        
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .video-upload-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto 40px;
+            box-shadow: var(--shadow);
+        }
+        
+        .video-upload-btn:hover {
+            background-color: #ff5722;
+            transform: translateY(-3px);
+        }
+        
+        /* 聊天界面样式 */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            z-index: 999;
+            display: none;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chat-close {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .message-received {
+            align-self: flex-start;
+            background-color: var(--light-gray);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message-sent {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .chat-send {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+        
+        .chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99;
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 90px;
+                left: 0;
+                width: 100%;
+                flex-direction: column;
+                background-color: var(--white);
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                text-align: center;
+                z-index: 99;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+            
+            .challenge-title, .culture-title {
+                font-size: 20px;
+            }
+            
+            .chat-container {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="/api/placeholder/60/60" alt="舞动银龄logo">
+                <h1>舞动银龄</h1>
+            </div>
+            <nav>
+                <div class="mobile-menu">&#9776;</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="ai-coach.html">AI教练</a></li>
+                    <li><a href="health-management.html">健康管理</a></li>
+                    <li><a href="#" class="active">社交激励</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1 class="page-title">社区互动与分享</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('challenges')">舞蹈打卡挑战</button>
+            <button class="tab" onclick="openTab('culture')">非遗文化传承</button>
+            <button class="tab" onclick="openTab('videos')">视频分享</button>
+        </div>
+        
+        <!-- 舞蹈打卡挑战 -->
+        <div id="challenges" class="tab-content active">
+            <div class="challenges-grid">
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="春日活力挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">春日活力广场舞挑战</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 1,245人</span>
+                            <span>剩余时间: 8天</span>
+                        </div>
+                        <p>连续21天学习春季主题广场舞，每日坚持30分钟，收获满满活力！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 65%;"></div>
+                        </div>
+                        <span>已完成 14/21 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="太极入门挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">太极养生14天入门</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 897人</span>
+                            <span>剩余时间: 10天</span>
+                        </div>
+                        <p>从太极基本站桩到简化24式，14天入门太极精髓，提升身体平衡力！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 30%;"></div>
+                        </div>
+                        <span>已完成 4/14 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="民族舞蹈挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">民族舞蹈传承月</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 658人</span>
+                            <span>剩余时间: 20天</span>
+                        </div>
+                        <p>体验中国五大民族经典舞蹈，每周一个舞种，感受多彩中华文化！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 25%;"></div>
+                        </div>
+                        <span>已完成 7/30 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="舞步精进挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">舞步精进30天</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 536人</span>
+                            <span>剩余时间: 25天</span>
+                        </div>
+                        <p>针对常见广场舞舞步进行专项训练，30天后舞蹈水平全面提升！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 15%;"></div>
+                        </div>
+                        <span>已完成 5/30 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="舞伴挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">舞伴同行挑战</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 324对</span>
+                            <span>剩余时间: 12天</span>
+                        </div>
+                        <p>邀请舞伴一起参与，学习双人舞步，共同进步，共享欢乐！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 40%;"></div>
+                        </div>
+                        <span>已完成 8/20 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <img src="/api/placeholder/400/200" alt="健康瑜伽挑战" class="challenge-img">
+                    <div class="challenge-content">
+                        <h3 class="challenge-title">关节友好瑜伽挑战</h3>
+                        <div class="challenge-meta">
+                            <span>参与人数: 729人</span>
+                            <span>剩余时间: 18天</span>
+                        </div>
+                        <p>专为老年人设计的关节友好型瑜伽，缓解疼痛，增强关节灵活性！</p>
+                        <div class="challenge-progress">
+                            <div class="progress-bar" style="width: 35%;"></div>
+                        </div>
+                        <span>已完成 7/21 天</span>
+                        <button class="challenge-btn">今日打卡</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 非遗文化传承 -->
+        <div id="culture" class="tab-content">
+            <div class="culture-card">
+                <div class="culture-header">
+                    <img src="/api/placeholder/800/400" alt="秧歌" class="culture-img">
+                    <div class="culture-title-overlay">
+                        <h2 class="culture-title">东北秧歌</h2>
+                        <p class="culture-origin">起源于中国东北地区的传统民间舞蹈</p>
+                    </div>
+                </div>
+                <div class="culture-content">
+                    <div class="culture-desc">
+                        <p>东北秧歌是流行于中国东北地区的一种民间舞蹈艺术形式，具有浓郁的乡土气息和欢快的节奏感。它起源于农耕文化，最初是农民在春耕、秋收时为祈求丰收而表演的一种舞蹈。</p>
+                        <p>秧歌舞蹈动作大开大合，热情奔放，讲究"扭、摆、晃、颤"，体现了东北人民开朗豪爽的性格特点。舞蹈中常使用手绢、扇子等道具，增添了表演的生动性和观赏性。</p>
+                    </div>
+                    
+                    <div class="culture-features">
+                        <h3 style="margin-bottom: 15px;">艺术特点</h3>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>动作特点：以"扭"为主，腰部动作丰富，步伐灵活</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>表演形式：有单人、双人和集体表演，可自由组合</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>音乐伴奏：多用唢呐、大鼓、小锣等民间乐器</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>服饰特点：鲜艳的花棉袄、大花裤，女子多带头花</div>
+                        </div>
+                    </div>
+                    
+                    <div class="instructor-section">
+                        <img src="/api/placeholder/100/100" alt="传承人照片" class="instructor-img">
+                        <div class="instructor-info">
+                            <h3>李淑芳</h3>
+                            <p>国家级非物质文化遗产东北秧歌传承人</p>
+                            <p>从艺60余年，致力于秧歌艺术的保护与传承</p>
+                        </div>
+                    </div>
+                    
+                    <button class="challenge-btn" style="margin-top: 20px;">学习经典秧歌课程</button>
+                </div>
+            </div>
+            
+            <div class="culture-card" style="margin-top: 40px;">
+                <div class="culture-header">
+                    <img src="/api/placeholder/800/400" alt="傣族孔雀舞" class="culture-img">
+                    <div class="culture-title-overlay">
+                        <h2 class="culture-title">傣族孔雀舞</h2>
+                        <p class="culture-origin">云南傣族地区的传统舞蹈艺术</p>
+                    </div>
+                </div>
+                <div class="culture-content">
+                    <div class="culture-desc">
+                        <p>傣族孔雀舞是中国云南西双版纳傣族自治州傣族人民的传统舞蹈，被誉为"东方舞蹈明珠"。这种舞蹈模仿孔雀的优美动作，展现孔雀开屏、觅食、饮水、戏水、梳理羽毛等生活场景。</p>
+                        <p>傣族孔雀舞动作轻盈典雅，手指、手腕、颈部动作尤为重要，要求舞者具有较强的柔韧性和表现力。舞蹈中，舞者通过指、腕、臂、颈的灵活配合，展现孔雀的高贵气质和优美姿态。</p>
+                    </div>
+                    
+                    <div class="culture-features">
+                        <h3 style="margin-bottom: 15px;">艺术特点</h3>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>动作特点：手指弯曲如孔雀嘴，手臂舒展如翅膀</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>表演形式：多为独舞或小型集体舞</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>音乐伴奏：傣族传统乐器伴奏，节奏舒缓悠扬</div>
+                        </div>
+                        <div class="culture-feature">
+                            <div class="feature-icon">✓</div>
+                            <div>服饰特点：穿傣族传统服装，点缀孔雀元素装饰</div>
+                        </div>
+                    </div>
+                    
+                    <div class="instructor-section">
+                        <img src="/api/placeholder/100/100" alt="传承人照片" class="instructor-img">
+                        <div class="instructor-info">
+                            <h3>杨丽娜</h3>
+                            <p>傣族孔雀舞非物质文化遗产传承人</p>
+                            <p>云南艺术学院民族舞蹈教师，从事孔雀舞教学40余年</p>
+                        </div>
+                    </div>
+                    
+                    <button class="challenge-btn" style="margin-top: 20px;">学习简化版孔雀舞</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 视频分享 -->
+        <div id="videos" class="tab-content">
+            <button class="video-upload-btn">+ 上传我的舞蹈视频</button>
+            
+            <div class="videos-container">
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="广场舞视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">我跳的广场舞《幸福的花儿开》</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">张阿姨</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 125</span>
+                            <span>👁️ 1.2k</span>
+                            <span>3天前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="太极视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">今天学会了24式太极拳第一段</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">王叔叔</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 98</span>
+                            <span>👁️ 876</span>
+                            <span>1周前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="舞蹈视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">我和老伴的双人舞表演</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">李奶奶</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 215</span>
+                            <span>👁️ 1.8k</span>
+                            <span>2天前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="舞蹈视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">学习民族舞第一课</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">刘阿姨</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 86</span>
+                            <span>👁️ 723</span>
+                            <span>5天前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="舞蹈视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">广场舞大赛我获奖啦！</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">赵奶奶</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 312</span>
+                            <span>👁️ 2.5k</span>
+                            <span>1天前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="/api/placeholder/400/200" alt="舞蹈视频">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">跳舞一个月的进步</h3>
+                        <div class="user-info">
+                            <img src="/api/placeholder/50/50" alt="用户头像" class="user-avatar">
+                            <span class="user-name">吴大爷</span>
+                        </div>
+                        <div class="video-stats">
+                            <span>👍 156</span>
+                            <span>👁️ 1.4k</span>
+                            <span>4天前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 私聊对话按钮 -->
+    <div class="chat-button" onclick="toggleChat()">💬</div>
+    
+    <!-- 私聊对话窗口 -->
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+            <h3><img src="/api/placeholder/30/30" alt="用户头像" style="border-radius: 50%;"> 王阿姨</h3>
+            <span class="chat-close" onclick="toggleChat()">✕</span>
+        </div>
+        <div class="chat-messages">
+            <div class="chat-message message-received">
+                你好！我看到你最近加入了太极养生挑战，感觉怎么样？
+            </div>
+            <div class="chat-message message-sent">
+                挺好的！已经坚持一周了，感觉身体柔韧性有所提高。你也在参加吗？
+            </div>
+            <div class="chat-message message-received">
+                是的，我已经完成10天了。对了，这周六社区有舞蹈活动，你要一起参加吗？
+            </div>
+            <div class="chat-message message-sent">
+                好啊！具体什么时间？
+            </div>
+            <div class="chat-message message-received">
+                上午9点到11点，在社区文化中心。到时候我们可以一起去！
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="输入消息..." aria-label="输入消息">
+            <button class="chat-send">➤</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="logo">
+                <h1 style="color: white;">舞动银龄</h1>
+            </div>
+            <div class="footer-links">
+                <a href="#">隐私政策</a>
+                <a href="#">用户协议</a>
+                <a href="#">联系我们</a>
+                <a href="#">帮助中心</a>
+            </div>
+            <p>© 2025 舞动银龄 版权所有</p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        
+        // 切换标签页
+        function openTab(tabName) {
+            var i, tabContent, tabs;
+            
+            // 隐藏所有标签内容
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            
+            // 移除所有标签的激活状态
+            tabs = document.getElementsByClassName("tab");
+            for (i = 0; i < tabs.length; i++) {
+                tabs[i].className = tabs[i].className.replace(" active", "");
+            }
+            
+            // 显示当前标签内容并添加激活状态
+            document.getElementById(tabName).style.display = "block";
+            event.currentTarget.className += " active";
+        }
+        
+        // 切换聊天窗口
+        function toggleChat() {
+            var chatContainer = document.getElementById('chat-container');
+            var chatButton = document.querySelector('.chat-button');
+            
+            if (chatContainer.style.display === 'block') {
+                chatContainer.style.display = 'none';
+                chatButton.style.display = 'flex';
+            } else {
+                chatContainer.style.display = 'block';
+                chatButton.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
