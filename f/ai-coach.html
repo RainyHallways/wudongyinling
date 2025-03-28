@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞动银龄 - AI教练</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5c6bc0;
+            --secondary-color: #ff7043;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Hiragino Sans GB", "SimHei", sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            margin-bottom: 0;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .mobile-menu {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-size: 18px;
+            padding: 10px 25px;
+        }
+        .btn-primary:hover {
+            background-color: #4a58b0;
+            border-color: #4a58b0;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            text-align: center;
+            margin: 40px 0;
+            color: var(--primary-color);
+        }
+        
+        .search-bar {
+            display: flex;
+            margin: 0 auto 40px;
+            max-width: 600px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 50px 0 0 50px;
+            outline: none;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            font-size: 18px;
+            border-radius: 0 50px 50px 0;
+            cursor: pointer;
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            background-color: var(--white);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .video-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .video-info {
+            padding: 20px;
+        }
+        
+        .video-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 16px;
+        }
+        
+        .video-difficulty {
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .beginner {
+            background-color: #a5d6a7;
+            color: #1b5e20;
+        }
+        
+        .intermediate {
+            background-color: #90caf9;
+            color: #0d47a1;
+        }
+        
+        .advanced {
+            background-color: #ef9a9a;
+            color: #b71c1c;
+        }
+        
+        .microphone-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 90;
+        }
+        
+        .microphone-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 视频播放页面样式 */
+        .video-player-container {
+            display: none;
+            flex-direction: column;
+            margin: 40px 0;
+        }
+        
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .video-player iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-description {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+        
+        .video-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        /* AI 对话界面 */
+        .chat-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chat-container {
+            width: 90%;
+            max-width: 500px;
+            height: 80%;
+            background-color: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-chat {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: var(--light-gray);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message-video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .voice-record-btn {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 50px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .camera-btn, .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 50px 0 20px;
+        }
+        .footer-links h5 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            color: white;
+        }
+        .copyright {
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 90px;
+                left: 0;
+                width: 100%;
+                flex-direction: column;
+                background-color: var(--white);
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                text-align: center;
+                z-index: 99;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-bar input, .search-bar button {
+                border-radius: 50px;
+                width: 100%;
+            }
+            
+            .categories {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                justify-content: flex-start;
+            }
+            
+            .microphone-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="/api/placeholder/60/60" alt="舞动银龄logo">
+                <h1>舞动银龄</h1>
+            </div>
+            <nav>
+                <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+                <ul class="nav-links">
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="#" class="active">AI教练</a></li>
+                    <li><a href="health-management.html">健康管理</a></li>
+                    <li><a href="social.html">社交激励</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+        <div class="ms-3">
+            <a href="login.html" class="btn btn-outline-primary">登录/注册</a>
+        </div>
+    </div>
+    </header>
+    
+    <div class="container">
+        <h1 class="page-title">AI 智能舞蹈教练</h1>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="搜索舞蹈课程..." aria-label="搜索舞蹈课程">
+            <button>搜索</button>
+        </div>
+        
+        <div class="categories">
+            <button class="category-btn active">全部课程</button>
+            <button class="category-btn">广场舞</button>
+            <button class="category-btn">太极</button>
+            <button class="category-btn">民族舞</button>
+            <button class="category-btn">交谊舞</button>
+            <button class="category-btn">健身操</button>
+        </div>
+        
+        <!-- 课程列表 -->
+        <div id="video-list">
+            <div class="videos-grid">
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="经典广场舞" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">经典广场舞《幸福的花儿开》</h3>
+                        <div class="video-meta">
+                            <span>4.8 <i class="fas fa-star"></i></span>
+                            <span>10分钟</span>
+                        </div>
+                        <span class="video-difficulty beginner">初级</span>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="太极教学" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">24式太极拳基础教学</h3>
+                        <div class="video-meta">
+                            <span>4.9 <i class="fas fa-star"></i></span>
+                            <span>15分钟</span>
+                        </div>
+                        <span class="video-difficulty beginner">初级</span>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="民族舞教学" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">傣族舞《雨中花》基本动作</h3>
+                        <div class="video-meta">
+                            <span>4.7 <i class="fas fa-star"></i></span>
+                            <span>12分钟</span>
+                        </div>
+                        <span class="video-difficulty intermediate">中级</span>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="交谊舞教学" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">慢四步交谊舞入门教程</h3>
+                        <div class="video-meta">
+                            <span>4.6 <i class="fas fa-star"></i></span>
+                            <span>8分钟</span>
+                        </div>
+                        <span class="video-difficulty beginner">初级</span>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="健身操教学" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">关节保护健身操</h3>
+                        <div class="video-meta">
+                            <span>4.9 <i class="fas fa-star"></i></span>
+                            <span>10分钟</span>
+                        </div>
+                        <span class="video-difficulty beginner">初级</span>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="showVideoPlayer()">
+                    <img src="/api/placeholder/400/200" alt="广场舞教学" class="video-thumbnail">
+                    <div class="video-info">
+                        <h3 class="video-title">动感广场舞《欢乐的歌》</h3>
+                        <div class="video-meta">
+                        <span>4.5 <i class="fas fa-star"></i></span>
+                        <span>12分钟</span>
+                        </div>
+                        <span class="video-difficulty intermediate">中级</span>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        
+                        <!-- 视频播放区域 -->
+                        <div id="video-player-section" class="video-player-container">
+                        <div class="video-player">
+                        <img src="/api/placeholder/800/450" alt="视频播放器">
+                        </div>
+                        
+                        <div class="video-description">
+                        <h2>经典广场舞《幸福的花儿开》</h2>
+                        <p>难度：<span class="video-difficulty beginner">初级</span></p>
+                        <p>时长：10分钟</p>
+                        <hr style="margin: 20px 0;">
+                        <p>这是一套适合老年人的经典广场舞教程，动作轻柔简单，非常适合初学者。本课程由专业舞蹈老师讲解，通过分解动作教学，让您轻松学会每一个舞步。跟随视频学习，既能锻炼身体又能愉悦心情！</p>
+                        
+                        <div class="video-actions">
+                        <button class="action-btn">
+                        <i class="fas fa-heart"></i> 收藏
+                        </button>
+                        <button class="action-btn">
+                        <i class="fas fa-share-alt"></i> 分享
+                        </button>
+                        <button class="action-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i> 返回列表
+                        </button>
+                        </div>
+                        </div>
+                        </div>
+                        
+                        <!-- 麦克风按钮 -->
+                        <div class="microphone-btn" onclick="openChat()">
+                        <i class="fas fa-microphone"></i>
+                        </div>
+                        </div>
+                        
+                        <!-- AI 对话界面 -->
+                        <div class="chat-overlay" id="chat-overlay">
+                        <div class="chat-container">
+                        <div class="chat-header">
+                        <h2>舞蹈智能评价助手</h2>
+                        <span class="close-chat" onclick="closeChat()"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="chat-messages">
+                        <div class="message ai-message">
+                        您好！我是您的AI舞蹈助手，请上传您的舞蹈视频，我可以帮您分析舞蹈动作并提供改进建议。
+                        </div>
+                        <div class="message user-message">
+                        <img src="/api/placeholder/300/200" alt="用户舞蹈视频" class="message-video">
+                        我这段舞蹈练习效果怎么样?
+                        </div>
+                        <div class="message ai-message">
+                        <p><strong>1.节奏与协调性</strong><br>
+                        问题:易出现抢拍或慢拍，手脚动作不同步。<br>
+                        建议:用手机节拍器辅助练习，先分解动作跟节奏，熟练后再连贯。</p>
+                        
+                        <p><strong>2.动作幅度与重心</strong><br>
+                        问题:因担心摔倒而动作拘谨，重心偏移不稳。<br>
+                        建议:穿防滑鞋，手扶椅子练习伸展动作，逐步增加幅度。</p>
+                        
+                        <p><strong>3.体态与呼吸</strong><br>
+                        问题:含胸驼背或憋气跳舞。<br>
+                        建议:保持挺胸收腹，每4拍深呼吸一次，可对镜练习。</p>
+                        
+                        <p><strong>4.表情管理</strong><br>
+                        问题:过于紧张导致表情僵硬。<br>
+                        建议:想象舞蹈场景(如草原、节日)，自然流露情绪。</p>
+                        </div>
+                        </div>
+                        <div class="chat-input">
+                        <div class="voice-record-btn">按住说话</div>
+                        <div class="chat-actions">
+                        <button class="camera-btn"><i class="fas fa-camera"></i></button>
+                        <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        <footer style="background-color: #333333;">
+                        <div class="container">
+                        <div class="row">
+                        <div class="col-md-4">
+                        <img src="images/logo-white.png" alt="舞动银龄" class="mb-3" width="150">
+                        <p>专为老年人设计的舞蹈教学与健康管理平台，让银龄生活更精彩。</p>
+                        </div>
+                        <div class="col-md-2">
+                        <div class="footer-links">
+                        <h5>快速链接</h5>
+                        <ul>
+                        <li><a href="#">首页</a></li>
+                        <li><a href="ai-coach.html">AI教练</a></li>
+                        <li><a href="health.html">健康管理</a></li>
+                        <li><a href="social.html">社交激励</a></li>
+                        </ul>
+                        </div>
+                        </div>
+                        <div class="col-md-3">
+                        <div class="footer-links">
+                        <h5>帮助中心</h5>
+                        <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">使用教程</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        </ul>
+                        </div>
+                        </div>
+                        <div class="col-md-3">
+                        <div class="footer-links">
+                        <h5>联系我们</h5>
+                        <ul>
+                        <li><i class="fas fa-phone me-2"></i> 400-123-4567</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@wudongyinling.com</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 山东省济南市</li>
+                        </ul>
+                        <div class="mt-3">
+                        <a href="#" class="text-white me-2"><i class="fab fa-weixin fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-weibo fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-qq fa-lg"></i></a>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        <div class="copyright">
+                        <p>&copy; 2023 舞动银龄 版权所有</p>
+                        </div>
+                        </div>
+                        </footer>
+                        <script>
+                        // 移动端菜单切换
+                        document.querySelector('.mobile-menu').addEventListener('click', function() {
+                        document.querySelector('.nav-links').classList.toggle('active');
+                        });
+                        
+                        // 显示视频播放器
+                        function showVideoPlayer() {
+                        document.getElementById('video-list').style.display = 'none';
+                        document.getElementById('video-player-section').style.display = 'flex';
+                        }
+                        
+                        // 返回视频列表
+                        function goBack() {
+                        document.getElementById('video-list').style.display = 'block';
+                        document.getElementById('video-player-section').style.display = 'none';
+                        }
+                        
+                        // 打开AI对话
+                        function openChat() {
+                        document.getElementById('chat-overlay').style.display = 'flex';
+                        }
+                        
+                        // 关闭AI对话
+                        function closeChat() {
+                        document.getElementById('chat-overlay').style.display = 'none';
+                        }
+                        </script></body>
+                        </html>

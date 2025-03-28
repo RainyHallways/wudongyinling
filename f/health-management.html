@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康管理 - 舞动银龄</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5c6bc0;
+            --secondary-color: #ff7043;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Hiragino Sans GB", "SimHei", sans-serif;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo img {
+            height: 60px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            margin-bottom: 0;
+        }
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        .mobile-menu {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-size: 18px;
+            padding: 10px 25px;
+        }
+        .btn-primary:hover {
+            background-color: #4a58b0;
+            border-color: #4a58b0;
+        }
+        .page-title {
+            font-size: 32px;
+            text-align: center;
+            margin: 40px 0;
+            color: var(--primary-color);
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        .tab {
+            padding: 12px 24px;
+            background-color: var(--white);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        .tab.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* 健康卡片样式 */
+        .health-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            height: 100%;
+        }
+        .health-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .health-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .data-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .data-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .data-label {
+            font-size: 1rem;
+            color: #666;
+        }
+        .data-status {
+            font-size: 1rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .plan-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .plan-date {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .plan-content {
+            margin-top: 10px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 30px;
+        }
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 50px 0 20px;
+        }
+        .footer-links h5 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            color: white;
+        }
+        .copyright {
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 90px;
+                left: 0;
+                width: 100%;
+                flex-direction: column;
+                background-color: var(--white);
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                text-align: center;
+                z-index: 99;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .page-title {
+                font-size: 28px;
+            }
+            .tabs {
+                flex-wrap: wrap;
+            }
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="/api/placeholder/60/60" alt="舞动银龄logo">
+                <h1>舞动银龄</h1>
+            </div>
+            <nav>
+                <div class="mobile-menu">&#9776;</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="ai-coach.html">AI教练</a></li>
+                    <li><a href="#" class="active">健康管理</a></li>
+                    <li><a href="social.html">社交激励</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+        <div class="ms-3">
+            <a href="login.html" class="btn btn-outline-primary">登录/注册</a>
+        </div>
+    </div>
+    </header>
+    <div class="container">
+        <h1 class="page-title">健康管理</h1>
+        <p class="section-subtitle" style="text-align: center; margin-bottom: 40px; color: #666;">关注您的健康数据，科学安排舞蹈训练</p>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-file-prescription"></i>
+                    </div>
+                    <h3 class="health-title">运动处方</h3>
+                    <p>根据您的健康状况和体能水平，生成个性化的舞蹈训练计划。</p>
+                    <a href="#prescription" class="btn btn-outline-primary mt-3">查看处方</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3 class="health-title">健康监测</h3>
+                    <p>实时监测您的血压、心率等健康数据，确保舞蹈训练安全。</p>
+                    <a href="#monitor" class="btn btn-outline-primary mt-3">查看数据</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3 class="health-title">慢性病训练</h3>
+                    <p>针对高血压、糖尿病等慢性病设计的专项舞蹈训练方案。</p>
+                    <a href="#chronic" class="btn btn-outline-primary mt-3">查看方案</a>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('prescription')">运动处方</button>
+            <button class="tab" onclick="openTab('monitor')">健康监测</button>
+            <button class="tab" onclick="openTab('chronic')">慢性病训练</button>
+        </div>
+
+        <!-- 运动处方 -->
+        <div id="prescription" class="tab-content active">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="data-card">
+                        <h4>您的运动处方</h4>
+                        <p>根据您的健康评估结果，为您推荐以下舞蹈训练计划：</p>
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item">每周3-5次舞蹈训练</li>
+                            <li class="list-group-item">每次训练时间30-45分钟</li>
+                            <li class="list-group-item">以中低强度广场舞为主</li>
+                            <li class="list-group-item">训练前后各5分钟热身和放松</li>
+                        </ul>
+                        <button class="btn btn-primary">生成新处方</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="data-card">
+                        <h4>运动建议</h4>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i> 您的当前运动量适中，继续保持！
+                        </div>
+                        <p>1. 选择平坦、安全的场地进行舞蹈训练</p>
+                        <p>2. 穿着舒适的运动鞋和宽松衣物</p>
+                        <p>3. 训练前后适量补充水分</p>
+                        <p>4. 如感到不适，立即停止训练</p>
+                        <p>5. 定期监测血压和心率变化</p>
+                    </div>
+                </div>
+            </div>
+            <div class="data-card">
+                <h4>运动进度</h4>
+                <div class="chart-container">
+                    <img src="/api/placeholder/300/150" alt="运动进度图表" class="img-fluid">
+                </div>
+            </div>
+        </div>
+
+        <!-- 健康监测 -->
+        <div id="monitor" class="tab-content">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="data-card text-center">
+                        <div class="data-value">125/82</div>
+                        <div class="data-label">血压 (mmHg)</div>
+                        <div class="data-status status-normal">正常</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="data-card text-center">
+                        <div class="data-value">78</div>
+                        <div class="data-label">心率 (次/分)</div>
+                        <div class="data-status status-normal">正常</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="data-card text-center">
+                        <div class="data-value">6.2</div>
+                        <div class="data-label">血糖 (mmol/L)</div>
+                        <div class="data-status status-warning">偏高</div>
+                    </div>
+                </div>
+            </div>
+            <div class="data-card">
+                <h4>健康数据趋势</h4>
+                <div class="chart-container">
+                    <img src="/api/placeholder/300/150" alt="健康数据趋势图表" class="img-fluid">
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-primary me-2"><i class="fas fa-plus"></i> 添加记录</button>
+                    <button class="btn btn-outline-primary"><i class="fas fa-share-alt"></i> 分享给医生</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 慢性病训练 -->
+        <div id="chronic" class="tab-content">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> 以下是为您量身定制的慢性病专项训练方案，请根据身体状况调整训练强度。
+            </div>
+            <div class="plan-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="plan-date">2023年11月15日 周三</div>
+                    <span class="badge bg-primary">高血压专项</span>
+                </div>
+                <div class="plan-content">
+                    <p><strong>训练内容：</strong> 舒缓型民族舞基础训练</p>
+                    <p><strong>训练时长：</strong> 30分钟 (含5分钟热身和放松)</p>
+                    <p><strong>注意事项：</strong> 训练前后测量血压，避免头部快速转动动作</p>
+                </div>
+            </div>
+            <div class="plan-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="plan-date">2023年11月17日 周五</div>
+                    <span class="badge bg-success">糖尿病专项</span>
+                </div>
+                <div class="plan-content">
+                    <p><strong>训练内容：</strong> 中低强度健身舞</p>
+                    <p><strong>训练时长：</strong> 35分钟 (含5分钟热身和放松)</p>
+                    <p><strong>注意事项：</strong> 训练前后测量血糖，准备糖果预防低血糖</p>
+                </div>
+            </div>
+            <div class="plan-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="plan-date">2023年11月19日 周日</div>
+                    <span class="badge bg-warning text-dark">关节保健</span>
+                </div>
+                <div class="plan-content">
+                    <p><strong>训练内容：</strong> 水中舞蹈基础训练</p>
+                    <p><strong>训练时长：</strong> 25分钟 (含5分钟热身和放松)</p>
+                    <p><strong>注意事项：</strong> 水温保持在28-30℃，避免剧烈动作</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-primary btn-lg">生成下周训练计划</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 健康小贴士 -->
+    <section class="py-5" style="background-color: var(--background-color);">
+        <div class="container">
+            <h2 class="page-title">健康小贴士</h2>
+            <p class="section-subtitle" style="text-align: center; margin-bottom: 40px; color: #666;">老年人舞蹈训练注意事项</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="health-card">
+                        <h4><i class="fas fa-heartbeat me-2" style="color: var(--danger-color);"></i> 心血管健康</h4>
+                        <p>1. 训练前后测量血压和心率</p>
+                        <p>2. 避免突然剧烈运动</p>
+                        <p>3. 保持均匀呼吸，不要憋气</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="health-card">
+                        <h4><i class="fas fa-bone me-2" style="color: var(--primary-color);"></i> 骨骼关节</h4>
+                        <p>1. 选择低冲击舞蹈动作</p>
+                        <p>2. 避免过度扭转关节</p>
+                        <p>3. 穿有良好支撑的运动鞋</p>
+                        </div>
+                        </div>
+                        <div class="col-md-4">
+                        <div class="health-card">
+                        <h4><i class="fas fa-utensils me-2" style="color: var(--success-color);"></i> 营养补充</h4>
+                        <p>1. 训练前后适量补充水分</p>
+                        <p>2. 可携带少量糖果预防低血糖</p>
+                        <p>3. 训练后补充蛋白质</p>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        </section>
+                        
+                        <footer style="background-color: #333333;">
+                        <div class="container">
+                        <div class="row">
+                        <div class="col-md-4">
+                        <img src="images/logo-white.png" alt="舞动银龄" class="mb-3" width="150">
+                        <p>专为老年人设计的舞蹈教学与健康管理平台，让银龄生活更精彩。</p>
+                        </div>
+                        <div class="col-md-2">
+                        <div class="footer-links">
+                        <h5>快速链接</h5>
+                        <ul>
+                        <li><a href="#">首页</a></li>
+                        <li><a href="ai-coach.html">AI教练</a></li>
+                        <li><a href="health.html">健康管理</a></li>
+                        <li><a href="social.html">社交激励</a></li>
+                        </ul>
+                        </div>
+                        </div>
+                        <div class="col-md-3">
+                        <div class="footer-links">
+                        <h5>帮助中心</h5>
+                        <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">使用教程</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        </ul>
+                        </div>
+                        </div>
+                        <div class="col-md-3">
+                        <div class="footer-links">
+                        <h5>联系我们</h5>
+                        <ul>
+                        <li><i class="fas fa-phone me-2"></i> 400-123-4567</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@wudongyinling.com</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 山东省济南市</li>
+                        </ul>
+                        <div class="mt-3">
+                        <a href="#" class="text-white me-2"><i class="fab fa-weixin fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-weibo fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-qq fa-lg"></i></a>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        <div class="copyright">
+                        <p>&copy; 2023 舞动银龄 版权所有</p>
+                        </div>
+                        </div>
+                        </footer>
+                        
+                        <script>
+                        // 移动端菜单切换
+                        document.querySelector('.mobile-menu').addEventListener('click', function() {
+                        document.querySelector('.nav-links').classList.toggle('active');
+                        });
+                        
+                        // 切换标签页
+                        function openTab(tabName) {
+                        var i, tabContent, tabs;
+                        // 隐藏所有标签内容
+                        tabContent = document.getElementsByClassName("tab-content");
+                        for (i = 0; i < tabContent.length; i++) {
+                        tabContent[i].style.display = "none";
+                        }
+                        // 移除所有标签的激活状态
+                        tabs = document.getElementsByClassName("tab");
+                        for (i = 0; i < tabs.length; i++) {
+                        tabs[i].className = tabs[i].className.replace(" active", "");
+                        }
+                        // 显示当前标签内容并添加激活状态
+                        document.getElementById(tabName).style.display = "block";
+                        event.currentTarget.className += " active";
+                        }
+                        
+                        // 生成运动处方
+                        function generatePrescription() {
+                        document.getElementById('prescription-result').style.display = 'block';
+                        // 在实际应用中，这里会根据用户输入生成个性化处方
+                        }
+                        
+                        // 显示训练计划
+                        function showSchedule() {
+                        document.getElementById('training-schedule').scrollIntoView({
+                        behavior: 'smooth'
+                        });
+                        }
+                        </script>
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body>
+                        </html>
