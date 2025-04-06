@@ -1,0 +1,474 @@
+<template>
+  <div class="health-management">
+    <h1 class="page-title">健康管理</h1>
+    <p class="section-subtitle">关注您的健康数据，科学安排舞蹈训练</p>
+
+    <!-- 健康卡片区域 -->
+    <el-row :gutter="20">
+      <el-col :span="8" v-for="card in healthCards" :key="card.id">
+        <el-card class="health-card">
+          <div class="health-icon">
+            <el-icon :size="40">
+              <component :is="card.icon" />
+            </el-icon>
+          </div>
+          <h3 class="health-title">{{ card.title }}</h3>
+          <p>{{ card.description }}</p>
+          <el-button type="primary" link @click="scrollToSection(card.target)">
+            {{ card.buttonText }}
+          </el-button>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 标签页区域 -->
+    <el-tabs v-model="activeTab" class="mt-4">
+      <!-- 运动处方 -->
+      <el-tab-pane label="运动处方" name="prescription">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-card>
+              <template #header>
+                <div class="card-header">
+                  <span>您的运动处方</span>
+                </div>
+              </template>
+              <p>根据您的健康评估结果，为您推荐以下舞蹈训练计划：</p>
+              <el-descriptions :column="1" border>
+                <el-descriptions-item v-for="(item, index) in prescription" 
+                  :key="index" 
+                  :label="item.label">
+                  {{ item.content }}
+                </el-descriptions-item>
+              </el-descriptions>
+              <el-button type="primary" class="mt-3">生成新处方</el-button>
+            </el-card>
+          </el-col>
+          <el-col :span="12">
+            <el-card>
+              <template #header>
+                <div class="card-header">
+                  <span>运动建议</span>
+                </div>
+              </template>
+              <el-alert
+                type="success"
+                :closable="false"
+                show-icon>
+                您的当前运动量适中，继续保持！
+              </el-alert>
+              <el-timeline class="mt-3">
+                <el-timeline-item
+                  v-for="(advice, index) in exerciseAdvice"
+                  :key="index"
+                  :type="advice.type">
+                  {{ advice.content }}
+                </el-timeline-item>
+              </el-timeline>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+
+      <!-- 健康监测 -->
+      <el-tab-pane label="健康监测" name="monitor">
+        <el-row :gutter="20">
+          <el-col :span="8" v-for="metric in healthMetrics" :key="metric.id">
+            <el-card class="text-center health-metric-card">
+              <div class="data-value">{{ metric.value }}</div>
+              <div class="data-label">{{ metric.label }}</div>
+              <el-tag :type="metric.status.type" class="mt-2">
+                {{ metric.status.text }}
+              </el-tag>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-card class="mt-4">
+          <template #header>
+            <div class="card-header">
+              <span>健康数据记录</span>
+            </div>
+          </template>
+          <div class="button-group">
+            <el-button type="primary">
+              <el-icon><Plus /></el-icon>
+              添加记录
+            </el-button>
+            <el-button>
+              <el-icon><Share /></el-icon>
+              分享给医生
+            </el-button>
+          </div>
+        </el-card>
+      </el-tab-pane>
+
+      <!-- 慢性病训练 -->
+      <el-tab-pane label="慢性病训练" name="chronic">
+        <el-alert
+          type="info"
+          show-icon
+          :closable="false"
+          class="mb-4">
+          以下是为您量身定制的慢性病专项训练方案，请根据身体状况调整训练强度。
+        </el-alert>
+
+        <div v-for="plan in trainingPlans" :key="plan.date" class="mb-4">
+          <el-card>
+            <div class="d-flex justify-content-between align-items-center plan-header">
+              <div class="plan-date">{{ plan.date }}</div>
+              <el-tag :type="plan.type">{{ plan.category }}</el-tag>
+            </div>
+            <el-descriptions class="mt-3" :column="1" border>
+              <el-descriptions-item label="训练内容">
+                {{ plan.content }}
+              </el-descriptions-item>
+              <el-descriptions-item label="训练时长">
+                {{ plan.duration }}
+              </el-descriptions-item>
+              <el-descriptions-item label="注意事项">
+                {{ plan.notes }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+        </div>
+
+        <div class="text-center mt-4">
+          <el-button type="primary" size="large">
+            生成下周训练计划
+          </el-button>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+
+    <!-- 健康小贴士 -->
+    <div class="health-tips mt-5">
+      <h2 class="section-title">健康小贴士</h2>
+      <p class="section-subtitle">老年人舞蹈训练注意事项</p>
+      
+      <el-row :gutter="20">
+        <el-col :span="8" v-for="tip in healthTips" :key="tip.id">
+          <el-card class="health-tip-card">
+            <template #header>
+              <div class="d-flex align-items-center">
+                <el-icon :size="24" :color="tip.iconColor">
+                  <component :is="tip.icon" />
+                </el-icon>
+                <span class="ms-2">{{ tip.title }}</span>
+              </div>
+            </template>
+            <el-timeline>
+              <el-timeline-item
+                v-for="(item, index) in tip.items"
+                :key="index"
+                :type="tip.type">
+                {{ item }}
+              </el-timeline-item>
+            </el-timeline>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import Icons from '../utils/icons'
+import {
+  Plus,
+  Share
+} from '@element-plus/icons-vue'
+
+// 当前激活的标签页
+const activeTab = ref('prescription')
+
+// 健康卡片数据
+const healthCards = ref([
+  {
+    id: 1,
+    icon: Icons.Document,
+    title: '运动处方',
+    description: '根据您的健康状况和体能水平，生成个性化的舞蹈训练计划。',
+    buttonText: '查看处方',
+    target: 'prescription'
+  },
+  {
+    id: 2,
+    icon: Icons.Monitor,
+    title: '健康监测',
+    description: '实时监测您的血压、心率等健康数据，确保舞蹈训练安全。',
+    buttonText: '查看数据',
+    target: 'monitor'
+  },
+  {
+    id: 3,
+    icon: Icons.Calendar,
+    title: '慢性病训练',
+    description: '针对高血压、糖尿病等慢性病设计的专项舞蹈训练方案。',
+    buttonText: '查看方案',
+    target: 'chronic'
+  }
+])
+
+// 运动处方数据
+const prescription = ref([
+  { label: '训练频率', content: '每周3-5次舞蹈训练' },
+  { label: '单次时长', content: '每次训练时间30-45分钟' },
+  { label: '运动强度', content: '以中低强度广场舞为主' },
+  { label: '注意事项', content: '训练前后各5分钟热身和放松' }
+])
+
+// 运动建议
+const exerciseAdvice = ref([
+  { type: 'primary', content: '选择平坦、安全的场地进行舞蹈训练' },
+  { type: 'success', content: '穿着舒适的运动鞋和宽松衣物' },
+  { type: 'warning', content: '训练前后适量补充水分' },
+  { type: 'danger', content: '如感到不适，立即停止训练' },
+  { type: 'info', content: '定期监测血压和心率变化' }
+])
+
+// 健康指标数据
+const healthMetrics = ref([
+  {
+    id: 1,
+    value: '125/82',
+    label: '血压 (mmHg)',
+    status: { type: 'success', text: '正常' }
+  },
+  {
+    id: 2,
+    value: '78',
+    label: '心率 (次/分)',
+    status: { type: 'success', text: '正常' }
+  },
+  {
+    id: 3,
+    value: '6.2',
+    label: '血糖 (mmol/L)',
+    status: { type: 'warning', text: '偏高' }
+  }
+])
+
+// 训练计划数据
+const trainingPlans = ref([
+  {
+    date: '2025年3月28日 周五',
+    type: 'primary',
+    category: '高血压专项',
+    content: '舒缓型民族舞基础训练',
+    duration: '30分钟 (含5分钟热身和放松)',
+    notes: '训练前后测量血压，避免头部快速转动动作'
+  },
+  {
+    date: '2025年3月30日 周天',
+    type: 'success',
+    category: '糖尿病专项',
+    content: '中低强度健身舞',
+    duration: '35分钟 (含5分钟热身和放松)',
+    notes: '训练前后测量血糖，准备糖果预防低血糖'
+  },
+  {
+    date: '2025年4月1日 周二',
+    type: 'warning',
+    category: '关节保健',
+    content: '水中舞蹈基础训练',
+    duration: '25分钟 (含5分钟热身和放松)',
+    notes: '水温保持在28-30℃，避免剧烈动作'
+  }
+])
+
+// 健康小贴士
+const healthTips = ref([
+  {
+    id: 1,
+    icon: Icons.Heart,
+    iconColor: '#f56c6c',
+    title: '心血管健康',
+    type: 'danger',
+    items: [
+      '训练前后测量血压和心率',
+      '避免突然剧烈运动',
+      '保持均匀呼吸，不要憋气'
+    ]
+  },
+  {
+    id: 2,
+    icon: Icons.Trophy,
+    iconColor: '#409eff',
+    title: '骨骼关节',
+    type: 'primary',
+    items: [
+      '选择低冲击舞蹈动作',
+      '避免过度扭转关节',
+      '穿有良好支撑的运动鞋'
+    ]
+  },
+  {
+    id: 3,
+    icon: Icons.Apple,
+    iconColor: '#67c23a',
+    title: '营养补充',
+    type: 'success',
+    items: [
+      '训练前后适量补充水分',
+      '可携带少量糖果预防低血糖',
+      '训练后补充蛋白质'
+    ]
+  }
+])
+
+// 滚动到指定区域
+const scrollToSection = (section) => {
+  activeTab.value = section
+  const element = document.querySelector(`#${section}`)
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+</script>
+
+<style scoped>
+.health-management {
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 32px;
+  text-align: center;
+  margin: 40px 0;
+  color: var(--primary-color);
+}
+
+.section-subtitle {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #666;
+}
+
+.health-card {
+  height: 100%;
+  text-align: center;
+  padding: 25px;
+}
+
+.health-icon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.health-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.data-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.data-label {
+  font-size: 1rem;
+  color: #666;
+  margin: 10px 0;
+}
+
+.health-metric-card {
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.plan-date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.health-tip-card {
+  height: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* 自定义工具类 */
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.mt-5 {
+  margin-top: 3rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.ms-2 {
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 28px;
+  }
+  
+  .health-title {
+    font-size: 1.2rem;
+  }
+  
+  .data-value {
+    font-size: 2rem;
+  }
+}
+</style> 
