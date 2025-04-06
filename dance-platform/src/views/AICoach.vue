@@ -1,140 +1,128 @@
 <template>
   <div class="ai-coach">
     <h1 class="page-title">AI 智能教练</h1>
-    <p class="section-subtitle">实时动作识别与纠正，为您提供专业指导</p>
+    <p class="section-subtitle">实时分析您的舞蹈动作，提供专业指导</p>
 
-    <!-- 主要功能区域 -->
-    <el-row :gutter="20">
-      <!-- 左侧：视频显示区域 -->
-      <el-col :span="16">
+    <!-- 视频区域 -->
+    <el-row :gutter="20" class="mt-4">
+      <el-col :xs="24" :sm="24" :md="24" :lg="16">
         <el-card class="video-section">
           <div class="video-container">
             <div class="video-placeholder">
-              <el-icon :size="64"><component :is="videoCameraIcon" /></el-icon>
-              <p>正在准备摄像头...</p>
-              <el-button type="primary" size="large" @click="startCamera">
-                开始练习
-              </el-button>
+              <el-icon :size="50"><VideoCameraFilled /></el-icon>
+              <h3>准备开始练习</h3>
+              <p>请启动摄像头，选择一种舞蹈开始练习</p>
             </div>
           </div>
           <div class="video-controls">
-            <el-button-group>
-              <el-button type="primary" :icon="videoPlayIcon">开始录制</el-button>
-              <el-button type="danger" :icon="videoPauseIcon">停止</el-button>
-              <el-button :icon="refreshRightIcon">重新开始</el-button>
-            </el-button-group>
+            <el-button type="primary" size="large" @click="startCamera">
+              <el-icon><VideoCamera /></el-icon>
+              启动摄像头
+            </el-button>
           </div>
         </el-card>
+      </el-col>
 
-        <!-- 动作评分 -->
-        <el-card class="score-section mt-4">
+      <el-col :xs="24" :sm="24" :md="24" :lg="8">
+        <el-card class="score-section">
           <template #header>
             <div class="card-header">
-              <span>动作评分</span>
-              <el-tag type="success">得分：85分</el-tag>
+              <span>实时得分</span>
             </div>
           </template>
           <el-row :gutter="20">
-            <el-col :span="8" v-for="score in scores" :key="score.name">
-              <div class="score-item">
-                <el-progress
-                  type="dashboard"
-                  :percentage="score.value"
-                  :color="score.color"
-                >
-                  <template #default="{ percentage }">
-                    <span class="progress-label">
-                      {{ score.name }}<br/>
-                      <span class="percentage">{{ percentage }}%</span>
-                    </span>
-                  </template>
-                </el-progress>
-              </div>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="85" :width="100" status="success">
+                <template #default>
+                  <div class="percentage">85<span>分</span></div>
+                  <div class="progress-label">总体评分</div>
+                </template>
+              </el-progress>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="92" :width="100" color="#409eff">
+                <template #default>
+                  <div class="percentage">92<span>分</span></div>
+                  <div class="progress-label">动作协调</div>
+                </template>
+              </el-progress>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="78" :width="100" color="#e6a23c">
+                <template #default>
+                  <div class="percentage">78<span>分</span></div>
+                  <div class="progress-label">节奏感</div>
+                </template>
+              </el-progress>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
+    </el-row>
 
-      <!-- 右侧：动作指导和反馈 -->
-      <el-col :span="8">
+    <!-- 动作指导与建议 -->
+    <el-row :gutter="20" class="mt-4">
+      <el-col :xs="24" :sm="24" :md="12">
         <el-card class="guidance-section">
           <template #header>
             <div class="card-header">
-              <span>动作指导</span>
-              <el-tag>正在学习：广场舞基础步伐</el-tag>
+              <span>动作要点</span>
             </div>
           </template>
-          
-          <!-- 实时反馈 -->
           <div class="feedback-container">
-            <div v-for="feedback in realtimeFeedback" :key="feedback.id" 
-              :class="['feedback-item', feedback.type]">
-              <el-icon>
-                <component :is="feedback.icon" />
-              </el-icon>
-              <span>{{ feedback.message }}</span>
+            <div 
+              v-for="point in keyPoints" 
+              :key="point.id" 
+              class="feedback-item"
+              :style="{ backgroundColor: `${point.color}10`, color: point.color }"
+            >
+              <el-icon><Check /></el-icon>
+              {{ point.content }}
             </div>
           </div>
-
-          <!-- 动作要点 -->
-          <div class="key-points mt-4">
-            <h3>动作要点</h3>
-            <el-timeline>
-              <el-timeline-item
-                v-for="point in keyPoints"
-                :key="point.id"
-                :type="point.type"
-                :color="point.color"
-              >
-                {{ point.content }}
-              </el-timeline-item>
-            </el-timeline>
-          </div>
         </el-card>
-
-        <!-- 练习建议 -->
-        <el-card class="suggestions-section mt-4">
+      </el-col>
+      
+      <el-col :xs="24" :sm="24" :md="12">
+        <el-card class="suggestions-section">
           <template #header>
             <div class="card-header">
               <span>练习建议</span>
             </div>
           </template>
           <el-collapse v-model="activeCollapse">
-            <el-collapse-item
-              v-for="suggestion in suggestions"
-              :key="suggestion.id"
-              :title="suggestion.title"
+            <el-collapse-item 
+              v-for="suggestion in suggestions" 
+              :key="suggestion.id" 
+              :title="suggestion.title" 
               :name="suggestion.id"
             >
-              <p>{{ suggestion.content }}</p>
+              {{ suggestion.content }}
             </el-collapse-item>
           </el-collapse>
         </el-card>
       </el-col>
     </el-row>
 
-    <!-- 历史记录 -->
-    <el-card class="history-section mt-4">
-      <template #header>
-        <div class="card-header">
-          <span>练习历史</span>
-          <el-button type="primary" link>查看完整记录</el-button>
-        </div>
-      </template>
-      <el-table :data="practiceHistory" style="width: 100%">
-        <el-table-column prop="date" label="日期" width="180" />
-        <el-table-column prop="duration" label="时长" width="120" />
-        <el-table-column prop="dance" label="舞蹈类型" width="150" />
-        <el-table-column prop="score" label="评分" width="120">
-          <template #default="scope">
-            <el-tag :type="scope.row.score >= 80 ? 'success' : 'warning'">
-              {{ scope.row.score }}分
-            </el-tag>
+    <!-- 练习历史 -->
+    <el-row class="mt-4">
+      <el-col :span="24">
+        <el-card class="history-section">
+          <template #header>
+            <div class="card-header">
+              <span>练习历史</span>
+            </div>
           </template>
-        </el-table-column>
-        <el-table-column prop="improvement" label="改进建议" />
-      </el-table>
-    </el-card>
+          <el-table :data="practiceHistory" stripe style="width: 100%">
+            <el-table-column prop="date" label="日期时间" />
+            <el-table-column prop="duration" label="时长" />
+            <el-table-column prop="dance" label="舞蹈类型" />
+            <el-table-column prop="score" label="得分" />
+            <el-table-column prop="improvement" label="改进建议" />
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -301,7 +289,7 @@ const startCamera = () => {
 }
 
 .score-section {
-  margin-top: 20px;
+  height: 100%;
 }
 
 .score-item {
@@ -309,7 +297,7 @@ const startCamera = () => {
 }
 
 .progress-label {
-  font-size: 14px;
+  font-size: 18px;
   color: #606266;
   line-height: 1.4;
 }
@@ -379,7 +367,7 @@ const startCamera = () => {
   }
   
   .ai-coach {
-    margin-bottom: 100px;
+    margin-bottom: 60px;
   }
 }
 
@@ -394,14 +382,6 @@ const startCamera = () => {
   
   .score-item {
     margin-bottom: 20px;
-  }
-  
-  .ai-coach {
-    margin-bottom: 120px;
-  }
-  
-  .suggestions-section {
-    margin-bottom: 40px;
   }
 }
 </style> 

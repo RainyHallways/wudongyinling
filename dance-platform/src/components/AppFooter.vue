@@ -61,12 +61,13 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
   padding: 50px 0 20px;
 
   h5 {
-    font-size: 1.2rem;
+    font-size: 20px;
     margin-bottom: 20px;
   }
 
   p {
     color: #ccc;
+    font-size: 18px;
   }
 
   .footer-links {
@@ -77,11 +78,13 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 
       li {
         margin-bottom: 10px;
+        font-size: 18px;
 
         a {
           color: #ccc;
           text-decoration: none;
           transition: color 0.3s;
+          font-size: 18px;
 
           &:hover {
             color: white;

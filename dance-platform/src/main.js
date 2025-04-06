@@ -7,6 +7,7 @@ import 'element-plus/dist/index.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import './styles/index.css'
 import './styles/utilities.css'
+import './style.css'
 import App from './App.vue'
 import router from './router'
 
@@ -21,6 +22,7 @@ app.use(createPinia())
 app.use(router)
 app.use(ElementPlus, {
   locale: zhCn,
+  size: 'large',
 })
 
 // 为测试方便，添加默认的用户令牌

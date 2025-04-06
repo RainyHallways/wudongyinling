@@ -319,11 +319,11 @@ const contactInfo = ref([
   }
 
   .member-title {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .member-bio {
-    font-size: 14px;
+    font-size: 18px;
   }
 }
 </style> 

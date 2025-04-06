@@ -5,7 +5,7 @@
 
     <!-- 健康卡片区域 -->
     <el-row :gutter="20">
-      <el-col :span="8" v-for="card in healthCards" :key="card.id">
+      <el-col :xs="24" :sm="24" :md="8" :lg="8" v-for="card in healthCards" :key="card.id">
         <el-card class="health-card">
           <div class="health-icon">
             <el-icon :size="40">
@@ -20,13 +20,25 @@
         </el-card>
       </el-col>
     </el-row>
-
+<br>
     <!-- 标签页区域 -->
-    <el-tabs v-model="activeTab" class="mt-4">
+    <div class="custom-tabs">
+      <!-- 自定义标签页按钮 -->
+      <div class="tabs-container">
+        <button 
+          v-for="tab in tabOptions" 
+          :key="tab.name"
+          :class="['tab-button', { active: activeTab === tab.name }]"
+          @click="activeTab = tab.name"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
+
       <!-- 运动处方 -->
-      <el-tab-pane label="运动处方" name="prescription">
+      <div v-show="activeTab === 'prescription'" class="tab-content">
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :xs="24" :sm="24" :md="12">
             <el-card>
               <template #header>
                 <div class="card-header">
@@ -44,7 +56,7 @@
               <el-button type="primary" class="mt-3">生成新处方</el-button>
             </el-card>
           </el-col>
-          <el-col :span="12">
+          <el-col :xs="24" :sm="24" :md="12">
             <el-card>
               <template #header>
                 <div class="card-header">
@@ -68,12 +80,12 @@
             </el-card>
           </el-col>
         </el-row>
-      </el-tab-pane>
+      </div>
 
       <!-- 健康监测 -->
-      <el-tab-pane label="健康监测" name="monitor">
+      <div v-show="activeTab === 'monitor'" class="tab-content">
         <el-row :gutter="20">
-          <el-col :span="8" v-for="metric in healthMetrics" :key="metric.id">
+          <el-col :xs="24" :sm="12" :md="8" v-for="metric in healthMetrics" :key="metric.id">
             <el-card class="text-center health-metric-card">
               <div class="data-value">{{ metric.value }}</div>
               <div class="data-label">{{ metric.label }}</div>
@@ -100,10 +112,10 @@
             </el-button>
           </div>
         </el-card>
-      </el-tab-pane>
+      </div>
 
       <!-- 慢性病训练 -->
-      <el-tab-pane label="慢性病训练" name="chronic">
+      <div v-show="activeTab === 'chronic'" class="tab-content">
         <el-alert
           type="info"
           show-icon
@@ -137,8 +149,8 @@
             生成下周训练计划
           </el-button>
         </div>
-      </el-tab-pane>
-    </el-tabs>
+      </div>
+    </div>
 
     <!-- 健康小贴士 -->
     <div class="health-tips mt-5">
@@ -146,7 +158,7 @@
       <p class="section-subtitle">老年人舞蹈训练注意事项</p>
       
       <el-row :gutter="20">
-        <el-col :span="8" v-for="tip in healthTips" :key="tip.id">
+        <el-col :xs="24" :sm="24" :md="8" v-for="tip in healthTips" :key="tip.id">
           <el-card class="health-tip-card">
             <template #header>
               <div class="d-flex align-items-center">
@@ -181,6 +193,13 @@ import {
 
 // 当前激活的标签页
 const activeTab = ref('prescription')
+
+// 标签页选项
+const tabOptions = [
+  { name: 'prescription', label: '运动处方' },
+  { name: 'monitor', label: '健康监测' },
+  { name: 'chronic', label: '慢性病训练' }
+]
 
 // 健康卡片数据
 const healthCards = ref([
@@ -421,6 +440,47 @@ const scrollToSection = (section) => {
   text-align: center;
 }
 
+/* 自定义标签页样式 */
+.custom-tabs {
+  margin-bottom: 40px;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background-color: var(--white);
+  color: var(--text-color);
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+  min-width: 120px;
+  text-align: center;
+}
+
+.tab-button.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* 自定义工具类 */
 .d-flex {
   display: flex;
@@ -469,6 +529,52 @@ const scrollToSection = (section) => {
   
   .data-value {
     font-size: 2rem;
+  }
+  
+  .health-card {
+    margin-bottom: 20px;
+  }
+  
+  .health-metric-card {
+    margin-bottom: 15px;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .button-group .el-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .health-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+  
+  .plan-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .el-descriptions__label {
+    width: 30%;
+  }
+  
+  .health-tips .el-timeline {
+    padding-left: 10px;
+  }
+  
+  .tab-button {
+    flex: 1;
+    padding: 10px 15px;
+    min-width: 100px;
+    font-size: 16px;
   }
 }
 </style> 

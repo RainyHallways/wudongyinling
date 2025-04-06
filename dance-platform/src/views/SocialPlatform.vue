@@ -3,178 +3,187 @@
     <h1 class="page-title">社交激励</h1>
     <p class="section-subtitle">与舞友互动交流，共同进步</p>
     
-    <!-- 标签页 -->
-    <div class="tabs">
-      <el-tabs v-model="activeTab">
-        <el-tab-pane label="动态广场" name="feed">
-          <!-- 动态广场内容 -->
-          <div class="social-cards">
-            <el-card v-for="post in posts" :key="post.id" class="social-card">
-              <div class="d-flex">
-                <el-avatar :src="post.avatar" :size="50" class="me-3" />
+    <!-- 标签页 - 改用自定义样式取代el-tabs -->
+    <div class="custom-tabs">
+      <div class="tabs-container">
+        <button 
+          v-for="tab in tabOptions" 
+          :key="tab.name"
+          :class="['tab-button', { active: activeTab === tab.name }]"
+          @click="activeTab = tab.name"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
+      
+      <!-- 动态广场内容 -->
+      <div v-show="activeTab === 'feed'" class="tab-content">
+        <div class="social-cards">
+          <el-card v-for="post in posts" :key="post.id" class="social-card">
+            <div class="d-flex">
+              <el-avatar :src="post.avatar" :size="50" class="me-3" />
+              <div>
+                <h5 class="mb-0">{{ post.username }}</h5>
+                <p class="text-muted mb-0">{{ post.time }} · {{ post.location }}</p>
+              </div>
+            </div>
+            <div class="post-content">
+              <p>{{ post.content }}</p>
+              <el-image v-if="post.image" :src="post.image" class="post-image" fit="cover" />
+            </div>
+            <div class="post-actions">
+              <el-button text @click="handleLike(post)">
+                <el-icon><StarFilled /></el-icon>
+                点赞 ({{ post.likes }})
+              </el-button>
+              <el-button text @click="handleComment(post)">
+                <el-icon><ChatDotRound /></el-icon>
+                评论 ({{ post.comments }})
+              </el-button>
+              <el-button text @click="handleShare(post)">
+                <el-icon><Share /></el-icon>
+                分享
+              </el-button>
+            </div>
+          </el-card>
+          <div class="text-center mt-4">
+            <el-button type="primary" plain>加载更多</el-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 打卡挑战内容 -->
+      <div v-show="activeTab === 'challenge'" class="tab-content">
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="12" :md="12" :lg="12" v-for="challenge in challenges" :key="challenge.id">
+            <el-card class="challenge-card">
+              <el-tag :type="challenge.status.type" class="challenge-badge">
+                {{ challenge.status.text }}
+              </el-tag>
+              <h3>{{ challenge.title }}</h3>
+              <p>{{ challenge.description }}</p>
+              <div class="d-flex justify-content-between">
+                <span>已参与: {{ challenge.participants }}人</span>
+                <span>{{ challenge.timeLeft }}</span>
+              </div>
+              <el-progress 
+                :percentage="challenge.progress" 
+                :status="challenge.progressStatus"
+              />
+              <div class="d-flex justify-content-between">
+                <span>我的进度: {{ challenge.myProgress }}</span>
+                <span>
+                  <el-icon :class="challenge.streakIcon.class">
+                    <component :is="challenge.streakIcon.name" />
+                  </el-icon>
+                  {{ challenge.streakText }}
+                </span>
+              </div>
+              <el-button type="primary" class="w-100 mt-3">
+                {{ challenge.actionText }}
+              </el-button>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 非遗传承内容 -->
+      <div v-show="activeTab === 'heritage'" class="tab-content">
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="12" :md="8" :lg="8" v-for="dance in heritageDances" :key="dance.id">
+            <div class="heritage-card">
+              <el-image :src="dance.image" fit="cover" class="heritage-image" />
+              <div class="heritage-overlay">
+                <h4>{{ dance.title }}</h4>
+                <p>{{ dance.description }}</p>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+
+        <el-card class="mt-4">
+          <h3>非遗舞蹈学习社区</h3>
+          <p>加入我们的非遗舞蹈学习小组，与传承人互动交流，学习传统舞蹈文化。</p>
+          <el-row :gutter="20" class="mt-4">
+            <el-col :xs="24" :sm="24" :md="12" v-for="teacher in heritageTeachers" :key="teacher.id">
+              <div class="d-flex align-items-center mb-3">
+                <el-avatar :src="teacher.avatar" :size="60" class="me-3" />
                 <div>
-                  <h5 class="mb-0">{{ post.username }}</h5>
-                  <p class="text-muted mb-0">{{ post.time }} · {{ post.location }}</p>
+                  <h5 class="mb-0">{{ teacher.name }}</h5>
+                  <p class="text-muted mb-0">{{ teacher.title }}</p>
                 </div>
               </div>
-              <div class="post-content">
-                <p>{{ post.content }}</p>
-                <el-image v-if="post.image" :src="post.image" class="post-image" fit="cover" />
+              <p>{{ teacher.description }}</p>
+              <el-button type="primary">加入学习小组</el-button>
+            </el-col>
+          </el-row>
+        </el-card>
+      </div>
+
+      <!-- 私信聊天内容 -->
+      <div v-show="activeTab === 'message'" class="tab-content">
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="24" :md="8">
+            <el-card>
+              <template #header>
+                <div class="card-header">
+                  <span>我的消息</span>
+                </div>
+              </template>
+              <el-menu :default-active="activeChat">
+                <el-menu-item 
+                  v-for="chat in chatList" 
+                  :key="chat.id" 
+                  :index="chat.id"
+                  @click="selectChat(chat)"
+                >
+                  <div class="d-flex align-items-center">
+                    <el-avatar :src="chat.avatar" :size="50" class="me-3" />
+                    <div>
+                      <h6 class="mb-0">{{ chat.name }}</h6>
+                      <small>{{ chat.lastTime }}</small>
+                    </div>
+                  </div>
+                </el-menu-item>
+              </el-menu>
+            </el-card>
+          </el-col>
+          <el-col :xs="24" :sm="24" :md="16">
+            <el-card v-if="currentChat">
+              <template #header>
+                <div class="d-flex align-items-center">
+                  <el-avatar :src="currentChat.avatar" :size="50" class="me-3" />
+                  <div>
+                    <h5 class="mb-0">与{{ currentChat.name }}的对话</h5>
+                  </div>
+                </div>
+              </template>
+              <div class="message-list">
+                <div 
+                  v-for="message in currentChat.messages" 
+                  :key="message.id"
+                  :class="['message-item', message.isSender ? 'message-sender' : 'message-receiver']"
+                >
+                  <p>{{ message.content }}</p>
+                  <small>{{ message.time }}</small>
+                </div>
               </div>
-              <div class="post-actions">
-                <el-button text @click="handleLike(post)">
-                  <el-icon><StarFilled /></el-icon>
-                  点赞 ({{ post.likes }})
-                </el-button>
-                <el-button text @click="handleComment(post)">
-                  <el-icon><ChatDotRound /></el-icon>
-                  评论 ({{ post.comments }})
-                </el-button>
-                <el-button text @click="handleShare(post)">
-                  <el-icon><Share /></el-icon>
-                  分享
-                </el-button>
+              <div class="mt-3">
+                <el-input
+                  v-model="newMessage"
+                  placeholder="输入消息..."
+                  :suffix-icon="Promotion"
+                  @keyup.enter="sendMessage"
+                >
+                  <template #append>
+                    <el-button @click="sendMessage">发送</el-button>
+                  </template>
+                </el-input>
               </div>
             </el-card>
-            <div class="text-center mt-4">
-              <el-button type="primary" plain>加载更多</el-button>
-            </div>
-          </div>
-        </el-tab-pane>
-
-        <el-tab-pane label="打卡挑战" name="challenge">
-          <!-- 打卡挑战内容 -->
-          <el-row :gutter="20">
-            <el-col :span="12" v-for="challenge in challenges" :key="challenge.id">
-              <el-card class="challenge-card">
-                <el-tag :type="challenge.status.type" class="challenge-badge">
-                  {{ challenge.status.text }}
-                </el-tag>
-                <h3>{{ challenge.title }}</h3>
-                <p>{{ challenge.description }}</p>
-                <div class="d-flex justify-content-between">
-                  <span>已参与: {{ challenge.participants }}人</span>
-                  <span>{{ challenge.timeLeft }}</span>
-                </div>
-                <el-progress 
-                  :percentage="challenge.progress" 
-                  :status="challenge.progressStatus"
-                />
-                <div class="d-flex justify-content-between">
-                  <span>我的进度: {{ challenge.myProgress }}</span>
-                  <span>
-                    <el-icon :class="challenge.streakIcon.class">
-                      <component :is="challenge.streakIcon.name" />
-                    </el-icon>
-                    {{ challenge.streakText }}
-                  </span>
-                </div>
-                <el-button type="primary" class="w-100 mt-3">
-                  {{ challenge.actionText }}
-                </el-button>
-              </el-card>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-
-        <el-tab-pane label="非遗传承" name="heritage">
-          <!-- 非遗传承内容 -->
-          <el-row :gutter="20">
-            <el-col :span="8" v-for="dance in heritageDances" :key="dance.id">
-              <div class="heritage-card">
-                <el-image :src="dance.image" fit="cover" class="heritage-image" />
-                <div class="heritage-overlay">
-                  <h4>{{ dance.title }}</h4>
-                  <p>{{ dance.description }}</p>
-                </div>
-              </div>
-            </el-col>
-          </el-row>
-
-          <el-card class="mt-4">
-            <h3>非遗舞蹈学习社区</h3>
-            <p>加入我们的非遗舞蹈学习小组，与传承人互动交流，学习传统舞蹈文化。</p>
-            <el-row :gutter="20" class="mt-4">
-              <el-col :span="12" v-for="teacher in heritageTeachers" :key="teacher.id">
-                <div class="d-flex align-items-center mb-3">
-                  <el-avatar :src="teacher.avatar" :size="60" class="me-3" />
-                  <div>
-                    <h5 class="mb-0">{{ teacher.name }}</h5>
-                    <p class="text-muted mb-0">{{ teacher.title }}</p>
-                  </div>
-                </div>
-                <p>{{ teacher.description }}</p>
-                <el-button type="primary">加入学习小组</el-button>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-tab-pane>
-
-        <el-tab-pane label="私信聊天" name="message">
-          <!-- 私信聊天内容 -->
-          <el-row :gutter="20">
-            <el-col :span="8">
-              <el-card>
-                <template #header>
-                  <div class="card-header">
-                    <span>我的消息</span>
-                  </div>
-                </template>
-                <el-menu :default-active="activeChat">
-                  <el-menu-item 
-                    v-for="chat in chatList" 
-                    :key="chat.id" 
-                    :index="chat.id"
-                    @click="selectChat(chat)"
-                  >
-                    <div class="d-flex align-items-center">
-                      <el-avatar :src="chat.avatar" :size="50" class="me-3" />
-                      <div>
-                        <h6 class="mb-0">{{ chat.name }}</h6>
-                        <small>{{ chat.lastTime }}</small>
-                      </div>
-                    </div>
-                  </el-menu-item>
-                </el-menu>
-              </el-card>
-            </el-col>
-            <el-col :span="16">
-              <el-card v-if="currentChat">
-                <template #header>
-                  <div class="d-flex align-items-center">
-                    <el-avatar :src="currentChat.avatar" :size="50" class="me-3" />
-                    <div>
-                      <h5 class="mb-0">与{{ currentChat.name }}的对话</h5>
-                    </div>
-                  </div>
-                </template>
-                <div class="message-list">
-                  <div 
-                    v-for="message in currentChat.messages" 
-                    :key="message.id"
-                    :class="['message-item', message.isSender ? 'message-sender' : 'message-receiver']"
-                  >
-                    <p>{{ message.content }}</p>
-                    <small>{{ message.time }}</small>
-                  </div>
-                </div>
-                <div class="mt-3">
-                  <el-input
-                    v-model="newMessage"
-                    placeholder="输入消息..."
-                    :suffix-icon="Promotion"
-                    @keyup.enter="sendMessage"
-                  >
-                    <template #append>
-                      <el-button @click="sendMessage">发送</el-button>
-                    </template>
-                  </el-input>
-                </div>
-              </el-card>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-      </el-tabs>
+          </el-col>
+        </el-row>
+      </div>
     </div>
   </div>
 </template>
@@ -186,6 +195,14 @@ import { ElMessage } from 'element-plus'
 
 // 当前激活的标签页
 const activeTab = ref('feed')
+
+// 标签选项
+const tabOptions = [
+  { name: 'feed', label: '动态广场' },
+  { name: 'challenge', label: '打卡挑战' },
+  { name: 'heritage', label: '非遗传承' },
+  { name: 'message', label: '私信聊天' }
+]
 
 // 动态广场数据
 const posts = ref([
@@ -433,6 +450,47 @@ const sendMessage = () => {
   color: #666;
 }
 
+/* 自定义标签页样式，模仿HTML版本 */
+.custom-tabs {
+  margin-bottom: 40px;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background-color: var(--white);
+  color: var(--text-color);
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  text-align: center;
+}
+
+.tab-button.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .social-card {
   margin-bottom: 20px;
 }
@@ -449,26 +507,30 @@ const sendMessage = () => {
 }
 
 .post-actions {
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--light-gray);
   padding-top: 15px;
   display: flex;
-  gap: 20px;
+  justify-content: flex-start;
+  gap: 15px;
 }
 
 .challenge-card {
-  position: relative;
   margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 .challenge-badge {
   position: absolute;
   top: 15px;
   right: 15px;
+  border-radius: 20px;
+  padding: 5px 10px;
 }
 
 .heritage-card {
   position: relative;
-  border-radius: 8px;
+  border-radius: 15px;
   overflow: hidden;
   margin-bottom: 20px;
   height: 250px;
@@ -477,6 +539,7 @@ const sendMessage = () => {
 .heritage-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 .heritage-overlay {
@@ -492,7 +555,7 @@ const sendMessage = () => {
 .message-list {
   max-height: 500px;
   overflow-y: auto;
-  padding: 15px;
+  margin-bottom: 15px;
 }
 
 .message-item {
@@ -508,13 +571,27 @@ const sendMessage = () => {
 }
 
 .message-receiver {
-  background-color: var(--border-color);
+  background-color: var(--light-gray);
   margin-right: auto;
 }
 
 @media (max-width: 768px) {
   .page-title {
     font-size: 28px;
+  }
+  
+  .post-image {
+    max-height: 300px;
+  }
+  
+  .heritage-card {
+    height: 200px;
+  }
+  
+  .tab-button {
+    flex: 1;
+    padding: 10px 15px;
+    min-width: 100px;
   }
 }
 </style> 

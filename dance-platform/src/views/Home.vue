@@ -1,69 +1,91 @@
 <template>
   <div class="home">
-    <!-- 头部横幅 -->
-    <div class="banner">
-      <div class="banner-content">
-        <h1>欢迎来到舞蹈平台</h1>
-        <p>探索舞蹈的魅力，享受运动的快乐</p>
-        <el-button type="primary" size="large" @click="startLearning">
-          开始学习
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 功能特点展示 -->
-    <div class="features section">
+    <!-- 英雄区域 -->
+    <section class="hero-section">
       <div class="container">
-        <h2 class="section-title">平台特色</h2>
-        <el-row :gutter="30">
-          <el-col :span="8" v-for="feature in features" :key="feature.title">
-            <el-card class="feature-card">
-              <el-icon :size="40" class="feature-icon">
-                <component :is="feature.icon" />
-              </el-icon>
-              <h3>{{ feature.title }}</h3>
-              <p>{{ feature.description }}</p>
-            </el-card>
-          </el-col>
-        </el-row>
+        <h1 class="hero-title">舞动青春，乐享银龄</h1>
+        <p class="hero-subtitle">专为老年人设计的智能舞蹈学习平台，让舞蹈变得简单、健康、有趣！</p>
+        <div class="d-flex justify-content-center gap-3">
+          <el-button type="primary" size="large" @click="navigateTo('/coach')">开始学习</el-button>
+          <el-button plain size="large" @click="scrollToFeatures">了解更多</el-button>
+        </div>
       </div>
-    </div>
-
+    </section>
+<br />
+    <!-- 特色功能 -->
+    <section id="features" class="py-5">
+      <div class="container">
+        <h2 class="section-title">我们的特色服务</h2>
+        <div class="features-grid">
+          <div class="feature-card" @click="navigateTo('/coach')">
+            <div class="feature-icon">👨‍🏫</div>
+            <h3 class="feature-title">AI 教练</h3>
+            <p class="feature-desc">智能舞蹈教学与动作纠正，让您在家也能享受专业指导</p>
+          </div>
+          <div class="feature-card" @click="navigateTo('/health')">
+            <div class="feature-icon">❤️</div>
+            <h3 class="feature-title">健康管理</h3>
+            <p class="feature-desc">根据您的身体状况，为您定制专属运动方案，实时监测健康数据</p>
+          </div>
+          <div class="feature-card" @click="navigateTo('/social')">
+            <div class="feature-icon">🎉</div>
+            <h3 class="feature-title">社交激励</h3>
+            <p class="feature-desc">结交志同道合的朋友，共同参与舞蹈挑战，传承非遗文化</p>
+          </div>
+        </div>
+      </div>
+    </section>
+<br/>
     <!-- 热门课程 -->
-    <div class="popular-courses container">
-      <h2 class="section-title">热门课程</h2>
-      <el-row :gutter="20">
-        <el-col :span="6" v-for="course in popularCourses" :key="course.id">
-          <el-card class="course-card" :body-style="{ padding: '0px' }">
-            <img :src="course.image" class="course-image">
-            <div class="course-info">
-              <h3>{{ course.title }}</h3>
-              <p>{{ course.description }}</p>
-              <div class="course-footer">
-                <span>{{ course.duration }}</span>
-                <el-button type="primary" link>
-                  立即学习
-                </el-button>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <h2 class="section-title">热门舞蹈课程</h2>
+        <p class="section-subtitle">选择您感兴趣的舞蹈开始学习</p>
+
+        <div class="row">
+          <div class="col-md-3" v-for="course in courses" :key="course.id">
+            <div class="course-card">
+              <img :src="course.image" :alt="course.title" class="course-img">
+              <div class="p-3">
+                <h4 class="course-title">{{ course.title }}</h4>
+                <p class="course-duration"><i class="far fa-clock"></i> {{ course.duration }} · {{ course.level }}</p>
+                <el-button type="primary" class="w-100" @click="navigateTo('/dance-courses')">开始学习</el-button>
               </div>
             </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+          </div>
+        </div>
 
-    <!-- 学习统计 -->
-    <div class="statistics">
-      <div class="container">
-        <el-row :gutter="30">
-          <el-col :span="6" v-for="stat in statistics" :key="stat.label">
-            <div class="stat-item">
-              <div class="stat-value">{{ stat.value }}</div>
-              <div class="stat-label">{{ stat.label }}</div>
-            </div>
-          </el-col>
-        </el-row>
+        <div class="text-center mt-4">
+          <el-button plain type="primary" size="large" @click="navigateTo('/dance-courses')">浏览更多课程</el-button>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- 用户评价 -->
+    <section class="py-5">
+      <div class="container">
+        <h2 class="section-title">用户评价</h2>
+        <p class="section-subtitle">听听大家怎么说</p>
+
+        <div class="row">
+          <div class="col-md-4" v-for="review in reviews" :key="review.id">
+            <div class="feature-card">
+              <div class="d-flex align-items-center mb-3">
+                <img :src="review.avatar" :alt="review.name" class="rounded-circle me-3" width="60">
+                <div>
+                  <h5 class="mb-0">{{ review.name }}</h5>
+                  <div class="text-warning">
+                    <i class="fas fa-star" v-for="n in review.stars" :key="n"></i>
+                    <i class="fas fa-star-half-alt" v-if="review.halfStar"></i>
+                  </div>
+                </div>
+              </div>
+              <p>{{ review.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -73,171 +95,362 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const features = ref([
-  {
-    icon: 'VideoCameraFilled',
-    title: 'AI 智能教练',
-    description: '实时动作识别和纠正，为您提供专业指导'
-  },
-  {
-    icon: 'UserFilled',
-    title: '社交平台',
-    description: '结识志同道合的舞伴，分享舞蹈心得'
-  },
-  {
-    icon: 'DataLine',
-    title: '健康管理',
-    description: '科学的运动数据追踪，合理规划训练'
-  }
-])
-
-const popularCourses = ref([
+// 课程数据
+const courses = ref([
   {
     id: 1,
-    title: '街舞入门课程',
-    description: '零基础学习街舞的最佳选择',
-    image: '/images/courses/street-dance.jpg',
-    duration: '12课时'
+    title: '广场舞基础入门',
+    image: '/images/gcw.jpeg',
+    duration: '12节课',
+    level: '适合初学者'
   },
   {
     id: 2,
-    title: '现代舞基础',
-    description: '体验现代舞的艺术魅力',
-    image: '/images/courses/modern-dance.jpg',
-    duration: '10课时'
+    title: '民族舞精选',
+    image: '/images/mzw.jpg',
+    duration: '8节课',
+    level: '中级水平'
   },
   {
     id: 3,
-    title: '拉丁舞初级',
-    description: '热情奔放的拉丁舞蹈',
-    image: '/images/courses/latin-dance.jpg',
-    duration: '15课时'
+    title: '健身舞每日练',
+    image: '/images/jsw.png',
+    duration: '30节课',
+    level: '适合所有人'
   },
   {
     id: 4,
-    title: '中国古典舞',
-    description: '传统文化的优美展现',
-    image: '/images/courses/classical-dance.jpg',
-    duration: '8课时'
+    title: '交谊舞基础',
+    image: '/images/jyw.jpg',
+    duration: '10节课',
+    level: '双人学习'
   }
 ])
 
-const statistics = ref([
-  { value: '100,000+', label: '注册用户' },
-  { value: '500+', label: '精品课程' },
-  { value: '50+', label: '专业导师' },
-  { value: '98%', label: '学员好评' }
+// 用户评价数据
+const reviews = ref([
+  {
+    id: 1,
+    name: '张玉梅',
+    avatar: '/images/zym.png',
+    stars: 5,
+    halfStar: false,
+    content: '"这个平台的AI教练太神奇了，能指出我跳舞时的小毛病，现在我跳得越来越好了！"'
+  },
+  {
+    id: 2,
+    name: '王德福',
+    avatar: '/images/wdf.png',
+    stars: 5,
+    halfStar: false,
+    content: '"健康管理功能很实用，能监测我的血压和心率，跳舞时更安心了。"'
+  },
+  {
+    id: 3,
+    name: '陈淑芬',
+    avatar: '/images/csf.png',
+    stars: 4,
+    halfStar: true,
+    content: '"在社交平台认识了很多舞友，大家一起打卡互相鼓励，跳舞更有动力了！"'
+  }
 ])
 
-const startLearning = () => {
-  router.push('/coach')
+// 导航方法
+const navigateTo = (path) => {
+  router.push(path)
+}
+
+// 滚动到特色部分
+const scrollToFeatures = () => {
+  document.getElementById('features').scrollIntoView({ 
+    behavior: 'smooth' 
+  })
 }
 </script>
 
 <style scoped>
-.banner {
-  height: 500px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.hero-section {
+  background: linear-gradient(135deg, #6a74cc, #8e99f3);
+  padding: 80px 0;
   text-align: center;
+  color: white;
 }
 
-.banner-content h1 {
-  font-size: 48px;
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
   margin-bottom: 20px;
 }
 
-.banner-content p {
-  font-size: 20px;
+.hero-subtitle {
+  font-size: 1.5rem;
   margin-bottom: 30px;
 }
 
-.feature-card {
+.btn-primary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  font-size: 18px;
+  padding: 10px 25px;
+}
+
+.btn-primary:hover {
+  background-color: #e05a2b;
+  border-color: #e05a2b;
+}
+
+.btn-outline-light {
+  color: white;
+  border-color: white;
+  font-size: 18px;
+  padding: 10px 25px;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-size: 18px;
+  padding: 10px 25px;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 30px;
   text-align: center;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: var(--white);
+  border-radius: 15px;
   padding: 30px;
-  height: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
 
 .feature-icon {
-  color: var(--primary-color);
+  font-size: 60px;
   margin-bottom: 20px;
 }
 
-.feature-card h3 {
-  margin: 15px 0;
-  font-size: 20px;
+.feature-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: var(--primary-color);
 }
 
-.popular-courses {
-  margin-bottom: 60px;
+.feature-desc {
+  font-size: 18px;
+  color: #666;
+}
+
+.bg-light {
+  background-color: #f8f9fa;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.col-md-3, .col-md-4 {
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.col-md-3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+.col-md-4 {
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
 }
 
 .course-card {
-  height: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+  transition: transform 0.3s;
+  background-color: var(--white);
 }
 
-.course-image {
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.course-img {
   width: 100%;
-  height: 160px;
+  height: 180px;
   object-fit: cover;
 }
 
-.course-info {
-  padding: 15px;
+.course-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 10px 0;
 }
 
-.course-info h3 {
-  margin: 0 0 10px 0;
-  font-size: 18px;
-}
-
-.course-info p {
-  color: #666;
-  font-size: 14px;
+.course-duration {
+  color: #777;
+  font-size: 0.9rem;
   margin-bottom: 15px;
 }
 
-.course-footer {
+.gap-3 {
+  gap: 1rem;
+}
+
+.d-flex {
   display: flex;
-  justify-content: space-between;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.align-items-center {
   align-items: center;
 }
 
-.statistics {
-  background-color: #f8f9fa;
-  padding: 60px 0;
+.mb-3 {
+  margin-bottom: 1rem;
 }
 
-.stat-item {
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.me-3 {
+  margin-right: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.p-3 {
+  padding: 1rem;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.text-center {
   text-align: center;
 }
 
-.stat-value {
-  font-size: 36px;
-  font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 10px;
+.text-warning {
+  color: #ffc107;
 }
 
-.stat-label {
-  color: #666;
-  font-size: 16px;
+.rounded-circle {
+  border-radius: 50%;
 }
 
 @media (max-width: 768px) {
-  .banner {
-    height: 400px;
+  .hero-title {
+    font-size: 2rem;
   }
 
-  .banner-content h1 {
-    font-size: 36px;
+  .hero-subtitle {
+    font-size: 1.2rem;
   }
 
-  .banner-content p {
-    font-size: 18px;
+  .section-title {
+    font-size: 1.8rem;
   }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .col-md-3, .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+:deep(.el-button--primary) {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  font-size: 18px;
+  padding: 10px 25px;
+  height: auto;
+  line-height: 1.5;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #e05a2b;
+  border-color: #e05a2b;
+}
+
+:deep(.el-button--primary.is-plain) {
+  color: var(--primary-color);
+  background-color: transparent;
+  border-color: var(--primary-color);
+}
+
+:deep(.el-button--primary.is-plain:hover) {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+:deep(.el-button.is-plain) {
+  color: white;
+  background-color: transparent;
+  border-color: white;
+  font-size: 18px;
+  padding: 10px 25px;
+  height: auto;
+  line-height: 1.5;
+}
+
+:deep(.el-button.is-plain:hover) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 删除这些不再需要的样式 */
+.btn-primary,
+.btn-primary:hover,
+.btn-outline-light,
+.btn-outline-primary,
+.btn-outline-primary:hover {
+  display: none;
 }
 </style> 

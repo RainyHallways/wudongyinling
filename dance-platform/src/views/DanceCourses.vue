@@ -18,21 +18,23 @@
     </div>
 
     <!-- 分类筛选 -->
-    <div class="categories">
-      <el-radio-group v-model="activeCategory" size="large">
-        <el-radio-button label="all">全部课程</el-radio-button>
-        <el-radio-button label="square">广场舞</el-radio-button>
-        <el-radio-button label="taichi">太极</el-radio-button>
-        <el-radio-button label="folk">民族舞</el-radio-button>
-        <el-radio-button label="social">交谊舞</el-radio-button>
-        <el-radio-button label="fitness">健身操</el-radio-button>
-      </el-radio-group>
+    <div class="course-tabs">
+      <div class="tabs-container">
+        <div 
+          v-for="(category, index) in categories" 
+          :key="index"
+          :class="['tab-button', activeCategory === category.value ? 'active' : '']"
+          @click="activeCategory = category.value"
+        >
+          {{ category.label }}
+        </div>
+      </div>
     </div>
 
     <!-- 课程列表 -->
     <div class="courses-container" v-show="!showVideoPlayer">
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" v-for="course in filteredCourses" :key="course.id">
+        <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in filteredCourses" :key="course.id">
           <el-card class="course-card" shadow="hover" @click="showCourseDetails(course)">
             <el-image :src="course.thumbnail" fit="cover" class="course-thumbnail" />
             <div class="course-info">
@@ -59,23 +61,28 @@
     <!-- 视频播放区域 -->
     <div v-show="showVideoPlayer" class="video-player-section">
       <el-card>
-        <div class="video-player">
-          <el-image v-if="currentCourse" :src="currentCourse.videoSrc" fit="cover" class="player-image" />
-        </div>
-        
-        <div class="video-details">
-          <h2>{{ currentCourse?.title }}</h2>
-          <p>难度：<el-tag :type="getDifficultyType(currentCourse?.difficulty)">{{ currentCourse?.difficulty }}</el-tag></p>
-          <p>时长：{{ currentCourse?.duration }}</p>
-          <el-divider />
-          <p>{{ currentCourse?.description }}</p>
-          
-          <div class="video-actions">
-            <el-button :icon="Star" text>收藏</el-button>
-            <el-button :icon="Share" text>分享</el-button>
-            <el-button :icon="Back" text @click="goBackToList">返回列表</el-button>
-          </div>
-        </div>
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="24" :md="16">
+            <div class="video-player">
+              <el-image v-if="currentCourse" :src="currentCourse.videoSrc" fit="cover" class="player-image" />
+            </div>
+          </el-col>
+          <el-col :xs="24" :sm="24" :md="8">
+            <div class="video-details">
+              <h2>{{ currentCourse?.title }}</h2>
+              <p>难度：<el-tag :type="getDifficultyType(currentCourse?.difficulty)">{{ currentCourse?.difficulty }}</el-tag></p>
+              <p>时长：{{ currentCourse?.duration }}</p>
+              <el-divider />
+              <p>{{ currentCourse?.description }}</p>
+              
+              <div class="video-actions">
+                <el-button :icon="Star" text>收藏</el-button>
+                <el-button :icon="Share" text>分享</el-button>
+                <el-button :icon="Back" text @click="goBackToList">返回列表</el-button>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
       </el-card>
     </div>
 
@@ -215,6 +222,16 @@ const courses = ref([
   }
 ])
 
+// 分类数据
+const categories = [
+  { value: 'all', label: '全部课程' },
+  { value: 'square', label: '广场舞' },
+  { value: 'taichi', label: '太极' },
+  { value: 'folk', label: '民族舞' },
+  { value: 'social', label: '交谊舞' },
+  { value: 'fitness', label: '健身操' }
+]
+
 // 根据搜索和分类过滤课程
 const filteredCourses = computed(() => {
   let result = courses.value
@@ -308,10 +325,39 @@ const sendChatMessage = () => {
   margin: 0 auto 30px;
 }
 
-.categories {
+.course-tabs {
   display: flex;
   justify-content: center;
   margin-bottom: 40px;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background-color: #fff;
+  color: var(--text-color);
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.tab-button:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .course-card {
@@ -444,7 +490,11 @@ const sendChatMessage = () => {
 }
 
 @media (max-width: 768px) {
-  .categories {
+  .page-title {
+    font-size: 28px;
+  }
+  
+  .course-tabs {
     overflow-x: auto;
     padding-bottom: 10px;
   }
@@ -457,6 +507,37 @@ const sendChatMessage = () => {
     width: 50px;
     height: 50px;
     font-size: 20px;
+  }
+  
+  .video-player {
+    margin-bottom: 20px;
+  }
+  
+  .video-details {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-bar {
+    max-width: 100%;
+  }
+  
+  .course-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 15px;
+  }
+  
+  .tabs-container {
+    display: inline-flex;
+    padding: 5px 0;
+    min-width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .tab-button {
+    flex: 0 0 auto;
   }
 }
 </style> 
