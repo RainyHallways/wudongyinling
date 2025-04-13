@@ -7,25 +7,33 @@
         <div class="logo">
           <h1>舞动银龄</h1>
         </div>
-        <nav>
-          <div class="mobile-menu">&#9776;</div>
-          <ul class="nav-links">
-            <li><router-link to="/" exact>首页</router-link></li>
-            <li><router-link to="/coach">AI教练</router-link></li>
-            <li><router-link to="/health">健康管理</router-link></li>
-            <li><router-link to="/social">社交激励</router-link></li>
-            <li><router-link to="/dance-courses">舞蹈课程</router-link></li>
-            <li><router-link to="/about">关于我们</router-link></li>
-          </ul>
-        </nav>
-        <div class="ms-3">
-          <template v-if="isLoggedIn">
-            <span class="welcome-text">欢迎，{{ username }}</span>
-            <a @click="logout" class="nav-item">退出登录</a>
-          </template>
-          <template v-else>
-            <router-link to="/login" class="btn btn-outline-primary">登录/注册</router-link>
-          </template>
+        
+        <!-- 添加一个汉堡菜单按钮 -->
+        <div class="mobile-toggle" @click="toggleMobileMenu">
+          <el-icon size="24"><Menu /></el-icon>
+        </div>
+
+        <div class="nav-wrapper" :class="{ 'nav-active': isMobileMenuOpen }">
+          <nav>
+            <ul class="nav-links">
+              <li><router-link to="/" @click="closeMobileMenu">首页</router-link></li>
+              <li><router-link to="/coach" @click="closeMobileMenu">AI教练</router-link></li>
+              <li><router-link to="/health" @click="closeMobileMenu">健康管理</router-link></li>
+              <li><router-link to="/social" @click="closeMobileMenu">社交激励</router-link></li>
+              <li><router-link to="/dance-courses" @click="closeMobileMenu">舞蹈课程</router-link></li>
+              <li><router-link to="/about" @click="closeMobileMenu">关于我们</router-link></li>
+            </ul>
+          </nav>
+          
+          <div class="auth-buttons">
+            <template v-if="isLoggedIn">
+              <span class="welcome-text">欢迎，{{ username }}</span>
+              <el-button link @click="logout">退出登录</el-button>
+            </template>
+            <template v-else>
+              <router-link to="/login" class="login-btn">登录/注册</router-link>
+            </template>
+          </div>
         </div>
       </div>
     </header>
@@ -93,6 +101,7 @@
 import { RouterView, useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Menu } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -101,14 +110,20 @@ const userInfo = ref(null)
 const isLoggedIn = computed(() => !!userInfo.value)
 const username = computed(() => userInfo.value?.username || '未登录')
 
+// 移动端菜单状态
+const isMobileMenuOpen = ref(false)
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
+
 // 初始化时获取用户信息
 onMounted(() => {
   checkLoginStatus()
-  
-  // 绑定移动端菜单事件
-  document.querySelector('.mobile-menu').addEventListener('click', function() {
-    document.querySelector('.nav-links').classList.toggle('active')
-  })
 })
 
 // 检查登录状态
@@ -161,93 +176,129 @@ const logout = () => {
 header {
   background-color: var(--white);
   box-shadow: var(--shadow);
-  padding: 15px 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  margin-right: 40px;
 }
 
 .logo h1 {
   font-size: 28px;
   color: var(--primary-color);
-  font-weight: bold;
   margin: 0;
+}
+
+.nav-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav-links {
   display: flex;
+  gap: 20px;
   list-style: none;
-  gap: 30px;
-  margin-bottom: 0;
+  margin: 0;
   padding: 0;
 }
 
 .nav-links a {
   color: var(--text-color);
   text-decoration: none;
-  font-size: 20px;
   padding: 8px 16px;
   border-radius: 20px;
+  white-space: nowrap;
   transition: all 0.3s ease;
 }
 
-.nav-links a:hover, 
+.nav-links a:hover,
 .nav-links a.router-link-active {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: white;
 }
 
-.mobile-menu {
-  display: none;
-  font-size: 30px;
-  cursor: pointer;
-}
-
-.btn-outline-primary {
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: 20px;
 }
 
 .welcome-text {
-  padding: 0 15px;
   color: var(--text-color);
 }
 
-.nav-item {
+.login-btn {
   color: var(--primary-color);
-  cursor: pointer;
   text-decoration: none;
   padding: 8px 16px;
+  border: 1px solid var(--primary-color);
   border-radius: 20px;
   transition: all 0.3s ease;
 }
 
-.nav-item:hover {
-  background-color: rgba(92, 107, 192, 0.1);
+.login-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.mobile-toggle {
+  display: none;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .mobile-toggle {
+    display: block;
+    margin-left: auto;
+  }
+
+  .nav-wrapper {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+  }
+
+  .nav-wrapper.nav-active {
+    display: flex;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .nav-links a {
+    display: block;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .auth-buttons {
+    margin: 20px 0 0 0;
+    justify-content: center;
+    width: 100%;
+  }
 }
 
 /* 主要内容区域 */
@@ -349,7 +400,7 @@ footer h5 {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .mobile-menu {
+  .mobile-toggle {
     display: block;
   }
   
@@ -377,4 +428,4 @@ footer h5 {
     margin-bottom: 20px;
   }
 }
-</style> 
+</style>
