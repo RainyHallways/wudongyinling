@@ -9,7 +9,7 @@ const routes = [
     name: 'Home',
     component: Home,
     meta: {
-      title: '首页 - 舞动银龄',
+      title: '舞动银龄 - 首页',
       requiresAuth: false
     }
   },
@@ -64,6 +64,61 @@ const routes = [
     component: () => import('../views/DanceCourses.vue'),
     meta: {
       title: '舞蹈课程 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/user-agreement',
+    name: 'UserAgreement',
+    component: () => import('@/views/UserAgreement.vue'),
+    meta: {
+      title: '用户协议 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: () => import('@/views/PrivacyPolicy.vue'),
+    meta: {
+      title: '隐私政策 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/originality-guarantee',
+    name: 'OriginalityGuarantee',
+    component: () => import('@/views/UserOriginalityGuarantee.vue'),
+    meta: {
+      title: '原创性保证 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/original-license',
+    name: 'OriginalLicense',
+    component: () => import('@/views/OriginalLicenseAgreement.vue'),
+    meta: {
+      title: '原创授权协议 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/faq',
+    name: 'FAQ',
+    component: () => import('@/views/FAQ.vue'),
+    meta: {
+      title: '常见问题 - 舞动银龄',
+      requiresAuth: false
+    }
+  },
+
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: () => import('@/views/Contact.vue'),
+    meta: {
+      title: '联系我们 - 舞动银龄',
       requiresAuth: false
     }
   },
@@ -125,4 +180,4 @@ router.afterEach((to, from) => {
   console.log(`从 ${from.name} 页面跳转到 ${to.name} 页面`)
 })
 
-export default router 
+export default router

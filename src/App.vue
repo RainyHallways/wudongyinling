@@ -53,24 +53,25 @@
           </div>
           <div class="col-md-2">
             <div class="footer-links">
-              <h5>快速链接</h5>
               <ul>
                 <li><router-link to="/">首页</router-link></li>
                 <li><router-link to="/coach">AI教练</router-link></li>
                 <li><router-link to="/health">健康管理</router-link></li>
                 <li><router-link to="/social">社交激励</router-link></li>
                 <li><router-link to="/dance-courses">舞蹈课程</router-link></li>
+                <li><router-link to="/about">关于我们</router-link></li>
               </ul>
             </div>
           </div>
           <div class="col-md-3">
             <div class="footer-links">
-              <h5>帮助中心</h5>
               <ul>
-                <li><a href="#">常见问题</a></li>
-                <li><a href="#">使用教程</a></li>
-                <li><a href="#">联系我们</a></li>
-                <li><a href="#">隐私政策</a></li>
+                <li><router-link to="/faq">常见问题</router-link></li>
+                <li><router-link to="/contact">联系我们</router-link></li>
+                <li><router-link to="/privacy-policy">隐私政策</router-link></li>
+                <li><router-link to="/user-agreement">用户协议</router-link></li>
+                <li><router-link to="/originality-guarantee">原创性保证</router-link></li>
+                <li><router-link to="/original-license">原创授权协议</router-link></li>
               </ul>
             </div>
           </div>
