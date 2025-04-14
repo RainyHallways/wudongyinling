@@ -178,6 +178,18 @@ const scrollToFeatures = () => {
   z-index: 1;
 }
 
+/* 添加遮罩层 */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2); /* 40%的黑色遮罩 */
+  z-index: 1;
+}
+
 .hero-section .container {
   position: absolute;
   top: 50%;
@@ -188,20 +200,21 @@ const scrollToFeatures = () => {
   padding: 0 20px;
   color: white;
   text-align: center;
+  z-index: 2; /* 确保文字在遮罩层之上 */
 }
 
 .hero-title {
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* 减小文字阴影，因为已经有遮罩 */
   letter-spacing: 0.05em;
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
   margin-bottom: 30px;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* 减小文字阴影，因为已经有遮罩 */
   line-height: 1.4;
 }
 
