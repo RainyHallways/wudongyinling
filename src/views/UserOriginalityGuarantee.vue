@@ -65,7 +65,7 @@
 
 <style scoped>
 .agreement-page {
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
 .page-title {
@@ -76,7 +76,7 @@
 }
 
 .agreement-content {
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   font-size: 18px;
   line-height: 1.8;
 }
@@ -92,9 +92,8 @@
 
 .section h2 {
   font-size: 22px;
-  margin: 8px 0; /* 从10px改为8px，减少标题上下间距 */
+  margin: 8px 0;
   color: var(--primary-color);
-  padding-top: 8px; /* 从10px改为8px，减少上部内边距 */
 }
 
 /* 优化段落间距 */
@@ -121,7 +120,7 @@
 }
 
 .signature-section {
-  margin-top: 30px; /* 从40px改为30px，减少签名区域与上方内容的间距 */
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 12px; /* 从15px改为12px，减少签名项之间的间距 */

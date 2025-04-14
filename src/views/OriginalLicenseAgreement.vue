@@ -98,7 +98,7 @@
 
 <style scoped>
 .agreement-page {
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
 .page-title {
@@ -109,7 +109,7 @@
 }
 
 .agreement-content {
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   font-size: 18px;
   line-height: 1.8;
 }
@@ -125,9 +125,8 @@
 
 .section h2 {
   font-size: 22px;
-  margin: 10px 0; /* 从margin-bottom: 15px改为margin: 10px 0 */
+  margin: 8px 0;
   color: var(--primary-color);
-  padding-top: 10px; /* 新增,增加上部内边距 */
 }
 
 /* 优化段落间距 */
@@ -152,7 +151,7 @@
 }
 
 .signature-section {
-  margin-top: 40px;
+  margin-top: 10px;
 }
 
 .signature-row {
