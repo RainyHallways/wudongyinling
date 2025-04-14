@@ -56,7 +56,7 @@
         </div>
 
         <div class="text-center mt-4">
-          <el-button plain type="primary" size="large" @click="navigateTo('/dance-courses')">浏览更多课程</el-button>
+          <el-button type="primary" size="large" @click="navigateTo('/dance-courses')">浏览更多课程</el-button>
         </div>
       </div>
     </section>
@@ -426,8 +426,8 @@ const scrollToFeatures = () => {
 }
 
 :deep(.el-button--primary) {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  background-color: #daa01b;
+  border-color: #daa01b;
   font-size: 18px;
   padding: 10px 25px;
   height: auto;
@@ -435,20 +435,20 @@ const scrollToFeatures = () => {
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #e05a2b;
-  border-color: #e05a2b;
+  background-color: #ff8a65;
+  border-color: #ff8a65;
 }
 
 :deep(.el-button--primary.is-plain) {
-  color: var(--primary-color);
+  color: #daa01b;
   background-color: transparent;
-  border-color: var(--primary-color);
+  border-color: #daa01b;
 }
 
 :deep(.el-button--primary.is-plain:hover) {
-  background-color: var(--primary-color);
+  background-color: #daa01b;
   color: white;
-  border-color: var(--primary-color);
+  border-color: #daa01b;
 }
 
 :deep(.el-button.is-plain) {

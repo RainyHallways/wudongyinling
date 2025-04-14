@@ -5,7 +5,7 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <h1>舞动银龄</h1>
+          <img src="/public/fonticon.png" alt="舞动银龄" class="logo-img">
         </div>
         
         <!-- 添加一个汉堡菜单按钮 -->
@@ -156,8 +156,8 @@ const logout = () => {
 
 <style>
 :root {
-  --primary-color: #5c6bc0;
-  --secondary-color: #ff7043;
+  --primary-color: #b07a26;
+  --secondary-color: #daa01b;
   --background-color: #f5f5f5;
   --text-color: #333;
   --light-gray: #e0e0e0;
@@ -175,7 +175,7 @@ const logout = () => {
 
 /* 导航栏样式 */
 header {
-  background-color: var(--white);
+  background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
   box-shadow: var(--shadow);
   position: sticky;
   top: 0;
@@ -193,12 +193,15 @@ header {
 
 .logo {
   margin-right: 40px;
+  width: 120px;
+  display: flex;
+  align-items: center;
 }
 
-.logo h1 {
-  font-size: 28px;
-  color: var(--primary-color);
-  margin: 0;
+.logo-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .nav-wrapper {
@@ -217,7 +220,7 @@ header {
 }
 
 .nav-links a {
-  color: var(--text-color);
+  color: var(--white);
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 20px;
@@ -227,7 +230,7 @@ header {
 
 .nav-links a:hover,
 .nav-links a.router-link-active {
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
   color: white;
 }
 
@@ -239,21 +242,45 @@ header {
 }
 
 .welcome-text {
-  color: var(--text-color);
+  color: var(--white);
 }
 
 .login-btn {
-  color: var(--primary-color);
+  color: var(--white);
   text-decoration: none;
   padding: 8px 16px;
-  border: 1px solid var(--primary-color);
+  border: 1px solid var(--white);
   border-radius: 20px;
   transition: all 0.3s ease;
 }
 
 .login-btn:hover {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--white);
+  color: var(--primary-gradient-start);
+}
+
+/* 主按钮样式 */
+.primary-btn {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
+
+/* 次要按钮样式 */
+.secondary-btn {
+  background-color: var(--tertiary-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* 确认按钮样式 */
+.confirm-btn {
+  background-color: var(--confirm-color) !important;
+  color: white !important;
+}
+
+/* 社交按钮样式 */
+.social-btn {
+  background-color: var(--social-color) !important;
+  color: var(--text-color) !important;
 }
 
 .mobile-toggle {
