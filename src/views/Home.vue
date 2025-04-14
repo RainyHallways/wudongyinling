@@ -173,7 +173,9 @@ const scrollToFeatures = () => {
   position: relative;
   width: 100%;
   padding-top: 100%; /* 1:1 Aspect Ratio */
-  background: url('/background.png') center/cover no-repeat;
+  background: #8e99f3 url('/background.png') center/cover no-repeat;
+  aspect-ratio: 1/1; /* 现代浏览器支持 */
+  z-index: 1;
 }
 
 .hero-section .container {
@@ -192,11 +194,15 @@ const scrollToFeatures = () => {
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  letter-spacing: 0.05em;
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
   margin-bottom: 30px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  line-height: 1.4;
 }
 
 .btn-primary {
@@ -397,10 +403,12 @@ const scrollToFeatures = () => {
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
   }
 
   .hero-subtitle {
     font-size: 1.2rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   }
 
   .section-title {
