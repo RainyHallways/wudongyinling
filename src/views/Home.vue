@@ -170,10 +170,22 @@ const scrollToFeatures = () => {
 
 <style scoped>
 .hero-section {
-  background: linear-gradient(135deg, #6a74cc, #8e99f3);
-  padding: 80px 0;
-  text-align: center;
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  background: url('/background.png') center/cover no-repeat;
+}
+
+.hero-section .container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
   color: white;
+  text-align: center;
 }
 
 .hero-title {
