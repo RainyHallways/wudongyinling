@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import auth, users, courses, health, prescriptions, challenges
+from app.api.v1 import auth, users, courses, health, prescriptions, challenges, chat, ai_analysis
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +24,8 @@ app.include_router(courses.router, prefix=f"{settings.API_V1_STR}/courses", tags
 app.include_router(health.router, prefix=f"{settings.API_V1_STR}/health", tags=["健康记录"])
 app.include_router(prescriptions.router, prefix=f"{settings.API_V1_STR}/prescriptions", tags=["运动处方"])
 app.include_router(challenges.router, prefix=f"{settings.API_V1_STR}/challenges", tags=["打卡挑战"])
+app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["聊天"])
+app.include_router(ai_analysis.router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI分析"])
 
 @app.get("/")
 async def root():
