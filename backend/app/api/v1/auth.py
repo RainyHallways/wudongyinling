@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form, Body
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from ...core.config import settings
 from ...core.database import get_db
 from ...models.user import User
-from ...schemas.user import Token
+from ...schemas.user import Token, UserInDB
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -42,17 +42,12 @@ def authenticate_user(db: Session, username: str, password: str):
         return None
     return user
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 async def login(
-    db: Session = Depends(get_db),
-    form_data: Optional[OAuth2PasswordRequestForm] = Depends(),
-    json_data: Optional[LoginData] = None
+    data: LoginData,
+    db: Session = Depends(get_db)
 ):
-    # 优先使用JSON数据
-    username = json_data.username if json_data else form_data.username
-    password = json_data.password if json_data else form_data.password
-    
-    user = authenticate_user(db, username, password)
+    user = authenticate_user(db, data.username, data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -65,7 +60,17 @@ async def login(
         data={"sub": user.username},
         expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser
+        }
+    }
 
 @router.post("/register")
 async def register(
