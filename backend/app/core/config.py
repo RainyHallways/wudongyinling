@@ -1,31 +1,30 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import List
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI舞蹈教练系统"
     API_V1_STR: str = "/api/v1"
     
-    # JWT配置
-    SECRET_KEY: str = "your-secret-key-here"  # 在生产环境中应该使用环境变量
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24小时
-    
     # 数据库配置
-    MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "your-password"
-    MYSQL_HOST: str = "localhost"
-    MYSQL_PORT: str = "3306"
-    MYSQL_DB: str = "dance_coach"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "mysql+pymysql://dance_admin:dance123456@localhost/dance_coach")
     
-    # MiniCPM-V API配置
-    MINICPM_V_API_URL: Optional[str] = None
-    MINICPM_V_API_KEY: Optional[str] = None
+    # JWT配置
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-here")
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     
-    @property
-    def SQLALCHEMY_DATABASE_URL(self) -> str:
-        return f"mysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
+    # 跨域配置
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:5174"]
+    
+    # 文件上传配置
+    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "uploads")
+    MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", "104857600"))  # 100MB in bytes
 
     class Config:
-        env_file = ".env"
+        case_sensitive = True
 
 settings = Settings() 
