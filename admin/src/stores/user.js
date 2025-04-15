@@ -8,15 +8,22 @@ export const useUserStore = defineStore('user', {
     userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}')
   }),
 
+  getters: {
+    isLoggedIn: (state) => !!state.token,
+    username: (state) => state.userInfo.username || ''
+  },
+
   actions: {
     async login(data) {
       try {
         const res = await userApi.login(data)
         this.token = res.access_token
+        this.userInfo = res.user
         localStorage.setItem('token', res.access_token)
+        localStorage.setItem('userInfo', JSON.stringify(res.user))
         return true
       } catch (error) {
-        ElMessage.error('登录失败')
+        ElMessage.error(error.response?.data?.message || '登录失败')
         return false
       }
     },

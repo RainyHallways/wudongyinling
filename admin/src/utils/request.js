@@ -1,59 +1,62 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '../router'
 
-const service = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
-  timeout: 5000
+// 创建 axios 实例
+const request = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  timeout: 15000
 })
 
 // 请求拦截器
-service.interceptors.request.use(
-  config => {
+request.interceptors.request.use(
+  (config) => {
+    // 从 localStorage 获取 token
     const token = localStorage.getItem('token')
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  error => {
+  (error) => {
     console.error('请求错误:', error)
     return Promise.reject(error)
   }
 )
 
 // 响应拦截器
-service.interceptors.response.use(
-  response => {
-    return response.data
+request.interceptors.response.use(
+  (response) => {
+    const res = response.data
+    // 如果响应成功，直接返回数据
+    return res
   },
-  error => {
+  (error) => {
     console.error('响应错误:', error)
-    
+    // 处理错误响应
     if (error.response) {
       switch (error.response.status) {
         case 401:
+          // 未授权，清除 token 并跳转到登录页
           localStorage.removeItem('token')
-          router.push('/login')
+          window.location.href = '/login'
           break
         case 403:
-          ElMessage.error('没有权限')
+          ElMessage.error('没有权限访问该资源')
           break
         case 404:
           ElMessage.error('请求的资源不存在')
           break
         case 500:
-          ElMessage.error('服务器错误')
+          ElMessage.error('服务器内部错误')
           break
         default:
-          ElMessage.error(error.response.data.detail || '未知错误')
+          ElMessage.error(error.response.data.message || '发生未知错误')
       }
     } else {
-      ElMessage.error('网络错误，请检查您的网络连接')
+      ElMessage.error('网络连接失败，请检查网络设置')
     }
-    
     return Promise.reject(error)
   }
 )
 
-export default service 
+export default request 

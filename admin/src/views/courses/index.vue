@@ -117,7 +117,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import courseApi from '@/api/course'
+import { courseApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()

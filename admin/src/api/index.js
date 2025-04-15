@@ -22,6 +22,7 @@ export const courseApi = {
 export const healthApi = {
   getRecords: (params) => request.get('/health', { params }),
   createRecord: (data) => request.post('/health', data),
+  updateRecord: (id, data) => request.put(`/health/${id}`, data),
   deleteRecord: (id) => request.delete(`/health/${id}`),
   getRealtimeData: (userId) => `/health/ws/${userId}` // WebSocket URL
 }
@@ -46,7 +47,7 @@ export const challengeApi = {
 // AI分析API
 export const aiApi = {
   analyzeVideo: (data) => request.post('/ai/analyze', data),
-  getFeedback: (videoId) => request.post(`/ai/feedback/${videoId}`),
+  getFeedback: (videoId) => request.get(`/ai/feedback/${videoId}`),
   compareVideos: (data) => request.post('/ai/compare', data),
   chatWithAI: (data) => request.post('/ai/chat', data)
 }

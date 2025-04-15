@@ -1,25 +1,23 @@
 <template>
   <div class="login-container">
     <el-card class="login-card">
-      <template #header>
-        <h2 class="login-title">AI舞蹈教练系统管理后台</h2>
-      </template>
+      <h2>管理系统登录</h2>
       <el-form
-        ref="loginForm"
-        :model="loginForm"
-        :rules="loginRules"
+        ref="formRef"
+        :model="form"
+        :rules="rules"
         label-width="0"
       >
         <el-form-item prop="username">
           <el-input
-            v-model="loginForm.username"
+            v-model="form.username"
             placeholder="用户名"
             prefix-icon="User"
           />
         </el-form-item>
         <el-form-item prop="password">
           <el-input
-            v-model="loginForm.password"
+            v-model="form.password"
             type="password"
             placeholder="密码"
             prefix-icon="Lock"
@@ -27,7 +25,12 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="login-button" @click="handleLogin">
+          <el-button
+            type="primary"
+            :loading="loading"
+            class="login-button"
+            @click="handleLogin(formRef)"
+          >
             登录
           </el-button>
         </el-form-item>
@@ -37,31 +40,47 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const loginForm = reactive({
+const userStore = useUserStore()
+const formRef = ref(null)
+const loading = ref(false)
+
+const form = ref({
   username: '',
   password: ''
 })
 
-const loginRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ]
 }
 
-const handleLogin = async () => {
-  try {
-    // TODO: 调用登录API
-    localStorage.setItem('token', 'dummy-token')
-    router.push('/')
-    ElMessage.success('登录成功')
-  } catch (error) {
-    ElMessage.error('登录失败')
-  }
+const handleLogin = async (formEl) => {
+  if (!formEl) return
+  await formEl.validate(async (valid) => {
+    if (valid) {
+      loading.value = true
+      try {
+        const success = await userStore.login(form.value)
+        if (success) {
+          ElMessage.success('登录成功')
+          router.push('/')
+        }
+      } finally {
+        loading.value = false
+      }
+    }
+  })
 }
 </script>
 
@@ -76,11 +95,12 @@ const handleLogin = async () => {
 
 .login-card {
   width: 400px;
+  padding: 20px;
 }
 
-.login-title {
+.login-card h2 {
   text-align: center;
-  margin: 0;
+  margin-bottom: 30px;
   color: #303133;
 }
 
