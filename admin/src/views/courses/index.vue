@@ -8,10 +8,10 @@
     <el-table v-loading="loading" :data="courses" border style="width: 100%">
       <el-table-column prop="title" label="课程名称" />
       <el-table-column prop="description" label="课程描述" show-overflow-tooltip />
-      <el-table-column prop="level" label="难度等级">
+      <el-table-column prop="difficulty" label="难度等级">
         <template #default="{ row }">
-          <el-tag :type="row.level === 'beginner' ? 'success' : row.level === 'intermediate' ? 'warning' : 'danger'">
-            {{ row.level === 'beginner' ? '初级' : row.level === 'intermediate' ? '中级' : '高级' }}
+          <el-tag :type="row.difficulty === 'beginner' ? 'success' : row.difficulty === 'intermediate' ? 'warning' : 'danger'">
+            {{ row.difficulty === 'beginner' ? '初级' : row.difficulty === 'intermediate' ? '中级' : '高级' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -20,15 +20,27 @@
           {{ row.duration }}分钟
         </template>
       </el-table-column>
-      <el-table-column prop="instructor" label="教练" />
+      <el-table-column label="封面图片" width="120">
+        <template #default="{ row }">
+          <el-image
+            v-if="row.cover_url"
+            :src="row.cover_url"
+            :preview-src-list="[row.cover_url]"
+            fit="cover"
+            style="width: 50px; height: 50px"
+          />
+          <span v-else>暂无封面</span>
+        </template>
+      </el-table-column>
       <el-table-column label="课程视频" width="120">
         <template #default="{ row }">
-          <el-button v-if="row.videoUrl" type="primary" link @click="handlePreviewVideo(row)">
+          <el-button v-if="row.video_url" type="primary" link @click="handlePreviewVideo(row)">
             预览视频
           </el-button>
           <span v-else>暂无视频</span>
         </template>
       </el-table-column>
+      <el-table-column prop="instructor" label="教练" />
       <el-table-column label="操作" width="160" fixed="right">
         <template #default="{ row }">
           <el-button-group>
@@ -68,8 +80,8 @@
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" />
         </el-form-item>
-        <el-form-item label="难度等级" prop="level">
-          <el-select v-model="form.level" style="width: 100%">
+        <el-form-item label="难度等级" prop="difficulty">
+          <el-select v-model="form.difficulty" style="width: 100%">
             <el-option label="初级" value="beginner" />
             <el-option label="中级" value="intermediate" />
             <el-option label="高级" value="advanced" />
@@ -79,21 +91,38 @@
           <el-input-number v-model="form.duration" :min="1" :max="360" />
           <span class="unit">分钟</span>
         </el-form-item>
-        <el-form-item label="教练" prop="instructor">
-          <el-input v-model="form.instructor" />
+        <el-form-item label="封面图片" prop="cover_url">
+          <el-upload
+            class="cover-uploader"
+            action="/api/upload/image"
+            :headers="uploadHeaders"
+            :show-file-list="false"
+            :on-success="handleCoverSuccess"
+            :on-error="handleUploadError"
+            accept="image/*"
+          >
+            <el-image
+              v-if="form.cover_url"
+              :src="form.cover_url"
+              fit="cover"
+              class="cover-preview"
+            />
+            <el-icon v-else class="cover-uploader-icon"><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
-        <el-form-item label="课程视频" prop="videoUrl">
+        <el-form-item label="课程视频" prop="video_url">
           <el-upload
             class="video-uploader"
             action="/api/upload/video"
-            :headers="{ Authorization: userStore.token }"
+            :headers="uploadHeaders"
             :show-file-list="false"
             :on-success="handleVideoSuccess"
-            :on-error="handleVideoError"
+            :on-error="handleUploadError"
+            :before-upload="beforeVideoUpload"
             accept="video/*"
           >
-            <div v-if="form.videoUrl" class="video-preview">
-              <video :src="form.videoUrl" controls width="200"></video>
+            <div v-if="form.video_url" class="video-preview">
+              <video :src="form.video_url" controls width="200"></video>
             </div>
             <el-icon v-else class="video-uploader-icon"><Plus /></el-icon>
           </el-upload>
@@ -142,18 +171,17 @@ const form = ref({
   id: '',
   title: '',
   description: '',
-  level: 'beginner',
+  difficulty: 'beginner',
   duration: 60,
-  instructor: '',
-  videoUrl: ''
+  cover_url: '',
+  video_url: ''
 })
 
 const rules = {
   title: [{ required: true, message: '请输入课程名称', trigger: 'blur' }],
   description: [{ required: true, message: '请输入课程描述', trigger: 'blur' }],
-  level: [{ required: true, message: '请选择难度等级', trigger: 'change' }],
-  duration: [{ required: true, message: '请输入课程时长', trigger: 'blur' }],
-  instructor: [{ required: true, message: '请输入教练姓名', trigger: 'blur' }]
+  difficulty: [{ required: true, message: '请选择难度等级', trigger: 'change' }],
+  duration: [{ required: true, message: '请输入课程时长', trigger: 'blur' }]
 }
 
 const fetchCourses = async () => {
@@ -179,10 +207,10 @@ const handleAdd = () => {
     id: '',
     title: '',
     description: '',
-    level: 'beginner',
+    difficulty: 'beginner',
     duration: 60,
-    instructor: '',
-    videoUrl: ''
+    cover_url: '',
+    video_url: ''
   }
   dialogVisible.value = true
 }
@@ -246,17 +274,22 @@ const beforeVideoUpload = (file) => {
   return true
 }
 
+const handleCoverSuccess = (response) => {
+  form.value.cover_url = response.url
+  ElMessage.success('封面上传成功')
+}
+
 const handleVideoSuccess = (response) => {
-  form.value.videoUrl = response.url
+  form.value.video_url = response.url
   ElMessage.success('视频上传成功')
 }
 
-const handleVideoError = () => {
-  ElMessage.error('视频上传失败')
+const handleUploadError = () => {
+  ElMessage.error('上传失败')
 }
 
 const handlePreviewVideo = (row) => {
-  previewVideoUrl.value = row.videoUrl
+  previewVideoUrl.value = row.video_url
   previewVisible.value = true
 }
 
@@ -293,40 +326,43 @@ onMounted(() => {
   justify-content: flex-end;
 }
 
+.cover-uploader,
 .video-uploader {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  width: 200px;
-  height: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  transition: border-color 0.3s;
 }
 
+.cover-uploader:hover,
 .video-uploader:hover {
   border-color: #409EFF;
 }
 
+.cover-uploader-icon,
 .video-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 30px;
-  height: 30px;
-}
-
-.video-preview {
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.cover-preview {
+  width: 100px;
+  height: 100px;
+  display: block;
+}
+
+.video-preview {
+  width: 200px;
+}
+
 .unit {
   margin-left: 10px;
-  color: #606266;
 }
 </style> 
