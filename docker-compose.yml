@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:15
+    restart: always
+    environment:
+      MYSQL_DATABASE: dance_coach
+      MYSQL_USER: dance_admin
+      MYSQL_PASSWORD: dance123456
+      MYSQL_ROOT_PASSWORD: dance123456
+    volumes:
+      - ./backend/dance_coach_backup.sql:/docker-entrypoint-initdb.d/dance_coach_backup.sql
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dance_admin", "-pdance123456"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "80:80"
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=mysql://dance_admin:dance123456@db:3306/dance_coach
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  db_data:
+
+networks:
+  default:
+    driver: bridge 
