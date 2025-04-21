@@ -1,58 +1,55 @@
 # AI舞蹈教练系统后端
 
-## 项目说明
-这是AI舞蹈教练系统的后端服务，使用FastAPI框架开发。
+## 项目介绍
+AI舞蹈教练系统后端服务，提供API接口支持用户管理、舞蹈课程、健康管理、社交平台等功能。
 
 ## 环境要求
 - Python 3.8+
 - MySQL 8.0+
+- Redis (可选，用于缓存)
 
-## 安装步骤
-
-1. 创建虚拟环境（推荐）
-```bash
-conda create -n dance python=3.9
+## 项目结构
+```
+backend/
+├── alembic/            # 数据库迁移相关
+├── app/                # 应用主目录
+│   ├── api/           # API路由
+│   ├── core/          # 核心配置
+│   ├── models/        # 数据模型
+│   └── schemas/       # 数据验证
+├── uploads/           # 文件上传目录
+├── .env               # 环境变量
+├── .env.example       # 环境变量示例
+├── main.py            # 应用入口
+└── requirements.txt   # 依赖包
 ```
 
-2. 安装依赖
+## 快速开始
+
+1. 安装依赖：
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 配置环境变量
-复制`.env.example`文件为`.env`，并修改相应的配置：
+2. 配置环境变量：
+- 复制 `.env.example` 为 `.env`
+- 修改数据库连接等配置
+
+3. 初始化数据库：
 ```bash
-cp .env.example .env
+python reset_db.py      # 重置数据库
+alembic upgrade head    # 应用迁移
 ```
 
-4. 初始化数据库
-```bash
-# 创建数据库
-mysql -u root -p
-CREATE DATABASE dance_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# 运行数据库迁移
-alembic upgrade head
-```
-
-5. 启动服务
+4. 启动服务：
 ```bash
 uvicorn main:app --reload
 ```
 
 ## API文档
-启动服务后，访问以下地址查看API文档：
+启动服务后访问：
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
-
-## 主要功能
-- 用户认证（登录/注册）
-- 用户管理
-- 舞蹈课程管理
-- 健康数据记录
-- 运动处方管理
-- 社交功能
-- 实时聊天
 
 ## 开发指南
 1. 添加新的数据模型：
@@ -66,4 +63,12 @@ uvicorn main:app --reload
 
 3. 添加新的依赖：
    - 安装新的包：`pip install package_name`
-   - 更新 requirements.txt：`pip freeze > requirements.txt` 
+   - 更新 requirements.txt：`pip freeze > requirements.txt`
+
+## 环境变量说明
+```env
+DATABASE_URL=mysql+pymysql://user:password@localhost/dbname
+SECRET_KEY=your-secret-key
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+```

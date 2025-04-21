@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-card class="login-card">
-      <h2>管理系统登录</h2>
+      <h2>登陆到舞动银龄</h2>
       <el-form
         ref="formRef"
         :model="form"

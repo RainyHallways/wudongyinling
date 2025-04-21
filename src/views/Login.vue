@@ -38,8 +38,8 @@
         </el-form-item>
         
         <div class="login-tips">
-          <p>演示账号: demo</p>
-          <p>演示密码: demo123</p>
+          <p>演示账号: admin</p>
+          <p>演示密码: admin</p>
         </div>
         
         <div class="demo-login">
@@ -56,6 +56,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 const router = useRouter()
 const route = useRoute()
@@ -77,34 +78,47 @@ const rules = {
   ]
 }
 
-const handleLogin = () => {
+const handleLogin = async () => {
   loading.value = true
-  
-  // 这里只是简单演示，实际项目中应该调用API进行验证
-  setTimeout(() => {
-    if (loginForm.username === 'demo' && loginForm.password === 'demo123') {
+  try {
+    const response = await request.post('/api/v1/auth/login', {
+      username: loginForm.username,
+      password: loginForm.password
+    });
+
+    if (response && response.access_token) {
       // 登录成功逻辑
-      localStorage.setItem('user-token', 'demo-token')
-      localStorage.setItem('user-info', JSON.stringify({
-        username: loginForm.username,
-        role: 'user'
-      }))
+      localStorage.setItem('user-token', response.access_token)
+      // 假设后端返回了 user 信息，并存储
+      if (response.user) {
+        localStorage.setItem('user-info', JSON.stringify(response.user))
+      }
       
       ElMessage.success('登录成功')
       
-      // 如果有重定向参数，跳转到对应页面，否则跳转到首页
+      // 触发 App.vue 更新状态 (通过导航到目标页)
       const redirectPath = route.query.redirect || '/'
-      router.push(redirectPath)
+      // 使用 replace 防止用户回退到登录页
+      await router.replace(redirectPath) 
+      // 手动调用 App.vue 的检查状态方法，确保导航栏立即更新
+      // 注意：这需要 App.vue 暴露该方法，或者使用状态管理库
+      // 简单起见，先依赖页面跳转触发 App.vue 的 onMounted
+
     } else {
-      ElMessage.error('用户名或密码错误')
+      // 如果后端没有按预期返回 token
+      ElMessage.error('登录失败，请稍后重试')
     }
+  } catch (error) {
+    // request 拦截器已经处理了 ElMessage 提示
+    console.error('Login failed:', error)
+  } finally {
     loading.value = false
-  }, 1000)
+  }
 }
 
 const demoLogin = () => {
-  loginForm.username = 'demo'
-  loginForm.password = 'demo123'
+  loginForm.username = 'admin'
+  loginForm.password = 'admin'
   handleLogin()
 }
 </script>

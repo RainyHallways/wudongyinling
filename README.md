@@ -1,7 +1,7 @@
 # 舞动银龄 - 老年人舞蹈教学平台
 
 <p align="center">
-  <img src="public/images/logo.png" alt="舞动银龄" width="200">
+  <img src="public/fonticon.png" alt="舞动银龄" width="200">
 </p>
 
 <p align="center">
@@ -33,6 +33,7 @@
 
 ## 技术栈
 
+### 前端
 - **前端框架**: Vue 3 (Composition API)
 - **构建工具**: Vite
 - **UI组件库**: Element Plus
@@ -42,38 +43,73 @@
 - **HTTP请求**: Axios
 - **样式处理**: SCSS
 
+### 后端
+- **开发语言**: Python 3.8+
+- **Web框架**: FastAPI
+- **数据库**: MySQL 8.0+
+- **ORM**: SQLAlchemy
+- **数据迁移**: Alembic
+- **缓存**: Redis
+- **API文档**: Swagger/ReDoc
+
+### 后台管理系统
+- **框架**: Vue 3
+- **构建工具**: Vite
+- **UI组件库**: Element Plus
+- **状态管理**: Pinia
+- **HTTP客户端**: Axios
+
 ## 项目结构
 
 ```
-├── public/                 # 静态资源
-│   └── images/             # 图片资源
-├── src/
-│   ├── components/         # 通用组件
-│   │   ├── AppFooter.vue   # 页脚组件
-│   │   ├── MainNav.vue     # 主导航
-│   │   └── PageHeader.vue  # 页头组件
-│   ├── router/             # 路由配置
-│   ├── stores/             # Pinia状态管理
-│   ├── styles/             # 样式文件
-│   │   └── main.css        # 主样式表
-│   ├── utils/              # 工具函数
-│   ├── views/              # 页面组件
-│   │   ├── AICoach.vue     # AI教练页面
-│   │   ├── About.vue       # 关于我们
+├── admin/                  # 后台管理系统
+│   ├── src/               # 源代码目录
+│   │   ├── api/          # API请求
+│   │   ├── components/   # 公共组件
+│   │   ├── layouts/      # 布局组件
+│   │   ├── router/       # 路由配置
+│   │   ├── stores/       # 状态管理
+│   │   ├── styles/       # 样式文件
+│   │   └── views/        # 页面组件
+│   └── vite.config.js     # Vite配置
+├── backend/               # 后端服务
+│   ├── app/              # 应用主目录
+│   │   ├── api/         # API路由
+│   │   ├── core/        # 核心配置
+│   │   ├── models/      # 数据模型
+│   │   └── schemas/     # 数据验证
+│   ├── alembic/          # 数据库迁移
+│   └── main.py           # 应用入口
+├── public/                # 静态资源
+│   └── images/           # 图片资源
+├── src/                   # 前端源代码
+│   ├── components/       # 通用组件
+│   │   ├── AppFooter.vue # 页脚组件
+│   │   ├── MainNav.vue   # 主导航
+│   │   └── PageHeader.vue # 页头组件
+│   ├── router/           # 路由配置
+│   ├── stores/           # Pinia状态管理
+│   ├── styles/           # 样式文件
+│   │   └── main.css      # 主样式表
+│   ├── utils/            # 工具函数
+│   ├── views/            # 页面组件
+│   │   ├── AICoach.vue   # AI教练页面
+│   │   ├── About.vue     # 关于我们
 │   │   ├── DanceCourses.vue # 舞蹈课程
 │   │   ├── HealthManagement.vue # 健康管理
-│   │   ├── Home.vue        # 首页
-│   │   ├── Login.vue       # 登录页
-│   │   ├── NotFound.vue    # 404页面
+│   │   ├── Home.vue      # 首页
+│   │   ├── Login.vue     # 登录页
+│   │   ├── NotFound.vue  # 404页面
 │   │   └── SocialPlatform.vue # 社交平台
-│   ├── App.vue             # 根组件
-│   ├── main.js             # 入口文件
-│   └── style.css           # 全局样式
-└── package.json            # 项目配置
+│   ├── App.vue           # 根组件
+│   ├── main.js           # 入口文件
+│   └── style.css         # 全局样式
+└── package.json          # 项目配置
 ```
 
 ## 开发环境设置
 
+### 前端
 ```bash
 # 安装依赖
 npm install
@@ -83,9 +119,36 @@ npm run dev
 
 # 构建生产版本
 npm run build
+```
 
-# 预览生产构建
-npm run preview
+### 后端
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 配置环境变量
+cp .env.example .env
+
+# 初始化数据库
+python reset_db.py
+alembic upgrade head
+
+# 启动服务
+uvicorn main:app --reload
+```
+
+### 后台管理系统
+```bash
+cd admin
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
 ```
 
 ## 浏览器兼容性
@@ -103,12 +166,3 @@ npm run preview
 3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开一个 Pull Request
-
-## 联系我们
-
-如有任何问题或建议，请通过以下方式联系我们：
-- 邮箱: contact@wudongying.com
-
-## 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详细信息
