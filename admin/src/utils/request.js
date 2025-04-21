@@ -11,7 +11,7 @@ const request = axios.create({
 request.interceptors.request.use(
   (config) => {
     // 从 localStorage 获取 token
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('user-token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -37,7 +37,7 @@ request.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // 未授权，清除 token 并跳转到登录页
-          localStorage.removeItem('token')
+          localStorage.removeItem('user-token')
           window.location.href = '/login'
           break
         case 403:

@@ -27,8 +27,18 @@
           
           <div class="auth-buttons">
             <template v-if="isLoggedIn">
-              <span class="welcome-text">欢迎，{{ username }}</span>
-              <el-button link @click="logout">退出登录</el-button>
+              <el-dropdown @command="handleCommand">
+                <span class="el-dropdown-link" style="cursor: pointer; display: flex; align-items: center; background-color: #e0e0e0; padding: 5px 15px; border-radius: 15px;">
+                  {{ username }}
+                  <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="admin">个人中心</el-dropdown-item>
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
             <template v-else>
               <router-link to="/login" class="login-btn">登录/注册</router-link>
@@ -101,8 +111,8 @@
 <script setup>
 import { RouterView, useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Menu } from '@element-plus/icons-vue'
+import { ElMessage, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
+import { Menu, ArrowDown } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -141,6 +151,16 @@ const checkLoginStatus = () => {
     }
   } else {
     userInfo.value = null
+  }
+}
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    logout()
+  } else if (command === 'admin') {
+    // 跳转到 Admin 项目的地址 (注意修改端口号)
+    window.location.href = 'http://localhost:5174/'
   }
 }
 
