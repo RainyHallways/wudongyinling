@@ -594,4 +594,41 @@ const sendMessage = () => {
     min-width: 100px;
   }
 }
+
+/* 调整聊天列表项的内边距和垂直对齐 */
+.el-menu-item {
+  padding-top: 0 !important; /* 移除内边距，让 flex 对齐控制 */
+  padding-bottom: 0 !important;
+  display: flex !important; /* 确保 el-menu-item 是 flex 容器 */
+  align-items: center !important; /* 垂直居中其直接子元素 (.d-flex) */
+  /* min-height: 48px; */ /* 可以设置最小高度以防内容过少 */
+}
+
+/* 确保内部的 d-flex 容器也垂直居中 */
+.el-menu-item .d-flex {
+  width: 100%; /* 确保占据可用宽度 */
+  align-items: center !important; /* 垂直居中头像和文本块 */
+}
+
+/* 移除包裹 h6 和 small 的 div 的额外间距 */
+.el-menu-item .d-flex > div:last-child {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 移除聊天列表 h6 的所有间距和减小行高 */
+.el-menu-item .d-flex > div:last-child h6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2; /* 减小行高 */
+  display: block;
+}
+
+/* 移除聊天列表 small 的所有间距和减小行高 */
+.el-menu-item .d-flex > div:last-child small {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2; /* 减小行高 */
+  display: block;
+}
 </style> 
