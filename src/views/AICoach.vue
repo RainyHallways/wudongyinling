@@ -1,14 +1,461 @@
-MIT License
-Copyright (c) [2025] [黄琛]
+<template>
+  <div class="ai-coach">
+    <h1 class="page-title">AI 智能教练</h1>
+    <p class="section-subtitle">实时分析您的舞蹈动作，提供专业指导</p>
 
-中文版授权条款
-特此免费授予任何获得本软件及相关文档（以下简称“软件”）副本的人不受限制地处理本软件的权限，包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售本软件副本的权利，并允许接受本软件的人员在满足以下条件的情况下进行上述操作：
-1.本软件的所有副本或实质性部分必须包含上述版权声明和本许可声明。
-2.不得使用版权所有者的名称、商标、服务标志或产品名称进行宣传推广，除非获得书面授权。
-本软件按“现状”提供，不作任何明示或暗示的保证，包括但不限于对适销性、特定用途适用性和非侵权性的保证。在任何情况下，作者或版权所有者均不对任何索赔、损害或其他责任负责，无论是在合同、侵权或其他诉讼中因使用本软件或与本软件的其他交易产生或与之相关。
+    <!-- 视频区域 -->
+    <el-row :gutter="20" class="mt-4">
+      <el-col :xs="24" :sm="24" :md="24" :lg="16">
+        <el-card class="video-section">
+          <div class="video-container">
+            <div v-if="!isCameraActive" class="video-placeholder">
+              <el-icon :size="50"><VideoCameraFilled /></el-icon>
+              <h3>准备开始练习</h3>
+              <p>请启动摄像头，选择一种舞蹈开始练习</p>
+            </div>
+            <video v-else ref="videoElementRef" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+          </div>
+          <div class="video-controls">
+            <el-button :type="isCameraActive ? 'danger' : 'primary'" size="large" @click="toggleCamera">
+              <el-icon><VideoCamera /></el-icon>
+              {{ isCameraActive ? '停止录制' : '启动摄像头' }}
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
 
-English Version
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-1.The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-2.The name of the copyright holder shall not be used to endorse or promote products derived from this software without specific prior written permission.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      <el-col :xs="24" :sm="24" :md="24" :lg="8">
+        <el-card class="score-section">
+          <template #header>
+            <div class="card-header">
+              <span>实时得分</span>
+            </div>
+          </template>
+          <el-row :gutter="20">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="totalScore" :width="100" status="success">
+                <template #default>
+                  <div class="percentage">{{ totalScore }}<span>分</span></div>
+                  <div class="progress-label">总体评分</div>
+                </template>
+              </el-progress>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="coordinationScore" :width="100" color="#409eff">
+                <template #default>
+                  <div class="percentage">{{ coordinationScore }}<span>分</span></div>
+                  <div class="progress-label">动作协调</div>
+                </template>
+              </el-progress>
+            </el-col>
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" class="score-item">
+              <el-progress type="dashboard" :percentage="rhythmScore" :width="100" color="#e6a23c">
+                <template #default>
+                  <div class="percentage">{{ rhythmScore }}<span>分</span></div>
+                  <div class="progress-label">节奏感</div>
+                </template>
+              </el-progress>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 动作指导与建议 -->
+    <el-row :gutter="20" class="mt-4">
+      <el-col :xs="24" :sm="24" :md="12">
+        <el-card class="guidance-section">
+          <template #header>
+            <div class="card-header">
+              <span>动作要点</span>
+            </div>
+          </template>
+          <div class="feedback-container">
+            <div 
+              v-for="point in keyPoints" 
+              :key="point.id" 
+              class="feedback-item"
+              :style="{ backgroundColor: `${point.color}10`, color: point.color }"
+            >
+              <el-icon><Check /></el-icon>
+              {{ point.content }}
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      
+      <el-col :xs="24" :sm="24" :md="12">
+        <el-card class="suggestions-section">
+          <template #header>
+            <div class="card-header">
+              <span>练习建议</span>
+            </div>
+          </template>
+          <el-collapse v-model="activeCollapse">
+            <el-collapse-item 
+              v-for="suggestion in suggestions" 
+              :key="suggestion.id" 
+              :title="suggestion.title" 
+              :name="suggestion.id"
+            >
+              {{ suggestion.content }}
+            </el-collapse-item>
+          </el-collapse>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 练习历史 -->
+    <el-row class="mt-4">
+      <el-col :span="24">
+        <el-card class="history-section">
+          <template #header>
+            <div class="card-header">
+              <span>练习历史</span>
+            </div>
+          </template>
+          <el-table :data="practiceHistory" stripe style="width: 100%">
+            <el-table-column prop="date" label="日期时间" />
+            <el-table-column prop="duration" label="时长" />
+            <el-table-column prop="dance" label="舞蹈类型" />
+            <el-table-column prop="score" label="得分" />
+            <el-table-column prop="improvement" label="改进建议" />
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
+<script setup>
+import { ref, onUnmounted, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import { VideoCameraFilled, VideoCamera, Check } from '@element-plus/icons-vue'
+
+// 状态管理
+const isCameraActive = ref(false)
+const videoStream = ref(null)
+const videoElementRef = ref(null)
+const totalScore = ref(0)
+const coordinationScore = ref(0)
+const rhythmScore = ref(0)
+let scoreUpdateInterval = null
+
+// 动作要点
+const keyPoints = ref([
+  {
+    id: 1,
+    content: '双脚与肩同宽，保持重心稳定',
+    type: 'primary',
+    color: '#409eff'
+  },
+  {
+    id: 2,
+    content: '手臂自然弯曲，保持在胸前位置',
+    type: 'success',
+    color: '#67c23a'
+  },
+  {
+    id: 3,
+    content: '跟随音乐节奏，保持呼吸均匀',
+    type: 'warning',
+    color: '#e6a23c'
+  },
+  {
+    id: 4,
+    content: '注意保护膝关节，避免过度弯曲',
+    type: 'danger',
+    color: '#f56c6c'
+  }
+])
+
+// 练习建议
+const activeCollapse = ref(['1'])
+const suggestions = ref([
+  {
+    id: '1',
+    title: '动作改进建议',
+    content: '建议加强手臂的协调性训练，可以通过慢动作练习来提高准确度。'
+  },
+  {
+    id: '2',
+    title: '节奏训练建议',
+    content: '可以先不跟音乐，单独练习基本步伐，熟练后再配合音乐。'
+  },
+  {
+    id: '3',
+    title: '体能建议',
+    content: '目前运动强度适中，建议每次练习时间控制在45分钟以内。'
+  }
+])
+
+// 练习历史
+const practiceHistory = ref([
+  {
+    date: '2025-03-28 15:30',
+    duration: '30分钟',
+    dance: '广场舞基础步伐',
+    score: 85,
+    improvement: '手臂动作需要更加协调'
+  },
+  {
+    date: '2025-03-27 16:00',
+    duration: '45分钟',
+    dance: '民族舞基础',
+    score: 92,
+    improvement: '节奏把握得很好，继续保持'
+  },
+  {
+    date: '2025-03-26 14:30',
+    duration: '20分钟',
+    dance: '健身舞基础',
+    score: 78,
+    improvement: '需要加强重心的稳定性'
+  }
+])
+
+// 生成80到98之间的随机整数
+const getRandomScore = () => {
+  return Math.floor(Math.random() * (98 - 80 + 1)) + 80
+}
+
+// 更新分数
+const updateScores = () => {
+  let score1 = getRandomScore()
+  let score2 = getRandomScore()
+  let score3 = getRandomScore()
+
+  // 确保三个分数不相同
+  while (score2 === score1) {
+    score2 = getRandomScore()
+  }
+  while (score3 === score1 || score3 === score2) {
+    score3 = getRandomScore()
+  }
+
+  totalScore.value = score1
+  coordinationScore.value = score2
+  rhythmScore.value = score3
+}
+
+// 启动分数更新定时器
+const startScoreUpdates = () => {
+  stopScoreUpdates() // 先清除可能存在的旧定时器
+  updateScores() // 立即更新一次分数
+  scoreUpdateInterval = setInterval(updateScores, 2000)
+}
+
+// 停止分数更新定时器
+const stopScoreUpdates = () => {
+  if (scoreUpdateInterval) {
+    clearInterval(scoreUpdateInterval)
+    scoreUpdateInterval = null
+  }
+}
+
+// 启动摄像头和录制
+const startRecording = async () => {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    ElMessage.error('您的浏览器不支持访问摄像头。')
+    return
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    videoStream.value = stream
+    isCameraActive.value = true
+    // 使用 nextTick 确保 video 元素已渲染
+    await nextTick()
+    if (videoElementRef.value) {
+      videoElementRef.value.srcObject = stream
+    }
+    startScoreUpdates() // 开始更新分数
+    ElMessage.success('摄像头已启动')
+  } catch (err) {
+    console.error('无法访问摄像头:', err)
+    let message = '无法访问摄像头，请检查权限或设备连接。'
+    if (err.name === 'NotAllowedError') {
+      message = '您拒绝了摄像头访问权限。'
+    } else if (err.name === 'NotFoundError') {
+      message = '未检测到摄像头设备。'
+    }
+    ElMessage.error(message)
+    isCameraActive.value = false // 确保状态回滚
+  }
+}
+
+// 停止摄像头和录制
+const stopRecording = () => {
+  stopScoreUpdates() // 停止更新分数，数值固定
+  if (videoStream.value) {
+    videoStream.value.getTracks().forEach(track => track.stop())
+    videoStream.value = null
+  }
+  if (videoElementRef.value) {
+    videoElementRef.value.srcObject = null
+  }
+  isCameraActive.value = false
+  ElMessage.info('录制已停止')
+}
+
+// 切换摄像头状态
+const toggleCamera = () => {
+  if (isCameraActive.value) {
+    stopRecording()
+  } else {
+    startRecording()
+  }
+}
+
+// 组件卸载时清理资源
+onUnmounted(() => {
+  stopRecording() // 确保摄像头和定时器被停止
+})
+
+// 初始化分数
+updateScores()
+</script>
+
+<style scoped>
+.ai-coach {
+  padding: 20px;
+  padding-bottom: 40px;
+  margin-bottom: 60px;
+}
+
+.page-title {
+  font-size: 32px;
+  text-align: center;
+  margin: 40px 0;
+  color: var(--primary-color);
+}
+
+.section-subtitle {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.video-container {
+  height: 400px;
+  background-color: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-placeholder {
+  text-align: center;
+  color: #909399;
+}
+
+.video-placeholder .el-icon {
+  margin-bottom: 20px;
+}
+
+.video-controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.score-section {
+  height: 100%;
+}
+
+.score-item {
+  text-align: center;
+}
+
+.progress-label {
+  font-size: 18px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.percentage {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.guidance-section, .suggestions-section {
+  height: 100%;
+  margin-bottom: 20px;
+}
+
+.feedback-container {
+  margin-bottom: 15px;
+}
+
+.feedback-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.feedback-item .el-icon {
+  margin-right: 8px;
+}
+
+.feedback-item.success {
+  background-color: #f0f9eb;
+  color: var(--success-color);
+}
+
+.feedback-item.warning {
+  background-color: #fdf6ec;
+  color: var(--warning-color);
+}
+
+.feedback-item.info {
+  background-color: #f4f4f5;
+  color: var(--info-color);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 自定义工具类 */
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mt-5 { margin-top: 3rem !important; }
+
+.history-section {
+  margin-bottom: 80px;
+}
+
+@media (max-width: 992px) {
+  .video-container {
+    height: 300px;
+  }
+  
+  .ai-coach {
+    margin-bottom: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 26px;
+  }
+  
+  .video-container {
+    height: 250px;
+  }
+  
+  .score-item {
+    margin-bottom: 20px;
+  }
+}
+
+.video-container video {
+  display: block; /* 防止video底部出现小间隙 */
+}
+</style> 
