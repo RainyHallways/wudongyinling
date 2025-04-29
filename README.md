@@ -189,6 +189,18 @@ docker load -i wdyl_app.tar
 ```
 导入成功后，你可以通过 `docker images | grep wdyl_app` 来查看已导入的镜像。
 
+### 运行容器
+
+使用以下命令以后台模式运行名为 `wdyl_website` 的容器，并将宿主机的 5173 端口映射到容器的 80 端口：
+
+```bash
+docker run -d --name wdyl_website -p 5173:80 wdyl_app:latest
+```
+
+运行成功后，你可以通过访问 `http://localhost:5173` 来访问前端应用，API 则通过 `http://localhost:5173/api` 访问。
+
+**(注意)** 如果你使用 `docker-compose up -d` 来启动服务，它会根据 `docker-compose.yml` 中的配置来运行容器（包括端口映射），而不是使用上面的 `docker run` 命令。
+
 ## 浏览器兼容性
 
 - Chrome (最新版本)
