@@ -151,6 +151,44 @@ npm run dev
 npm run build
 ```
 
+## Docker 镜像管理
+
+### 构建镜像 (wdyl_app)
+
+确保你的 Docker 环境已启动。在项目根目录下（包含 `Dockerfile` 的目录），运行以下命令来构建名为 `wdyl_app` 的 Docker 镜像：
+
+```bash
+docker build -t wdyl_app .
+```
+这个命令会根据 `Dockerfile` 的指令构建镜像，并将其标记为 `wdyl_app:latest`。
+
+**(可选) 使用 Docker Compose 构建:**
+
+你也可以使用 `docker-compose` 来构建镜像。默认情况下，这会构建 `app` 服务的镜像，但名称可能不是 `wdyl_app` (例如，可能是 `websites_app`，取决于你的项目目录名)。
+
+```bash
+docker-compose build app
+```
+若想让 `docker-compose build` 也生成名为 `wdyl_app` 的镜像，你需要在 `docker-compose.yml` 文件中为 `app` 服务添加 `image: wdyl_app` 指令。
+
+### 导出镜像
+
+将已构建的 `wdyl_app` 镜像导出为 tar 文件：
+
+```bash
+docker save -o wdyl_app.tar wdyl_app:latest
+```
+这将创建一个名为 `wdyl_app.tar` 的文件，其中包含你的 Docker 镜像。
+
+### 导入镜像
+
+在另一台机器或环境中，你可以使用以下命令从 tar 文件加载镜像：
+
+```bash
+docker load -i wdyl_app.tar
+```
+导入成功后，你可以通过 `docker images | grep wdyl_app` 来查看已导入的镜像。
+
 ## 浏览器兼容性
 
 - Chrome (最新版本)
