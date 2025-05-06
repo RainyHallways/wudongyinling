@@ -55,6 +55,7 @@ COPY --from=admin-build /app/admin/dist /app/admin
 # 复制后端
 COPY --from=backend-build /app /app/backend
 COPY --from=backend-build /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=backend-build /usr/local/bin /usr/local/bin
 
 # 配置Nginx
 RUN echo 'server { \
