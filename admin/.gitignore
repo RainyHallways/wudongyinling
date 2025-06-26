@@ -9,7 +9,7 @@ lerna-debug.log*
 
 # Dependencies
 node_modules/
-package-lock.json
+**/package-lock.json
 
 # Build
 dist
@@ -22,9 +22,8 @@ coverage
 /cypress/screenshots/
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+**/.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj

@@ -9,12 +9,32 @@ lerna-debug.log*
 
 # Dependencies
 node_modules/
-package-lock.json
+**/package-lock.json
 
 # Python
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
 # Build
 dist
@@ -27,9 +47,8 @@ coverage
 /cypress/screenshots/
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea/*
+**/.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
