@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :md="8" :lg="8">
           <h5 class="footer-title">舞动银龄</h5>
-          <p class="footer-desc">专为老年人设计的舞蹈教学与健康管理平台，让银龄生活更精彩。</p>
+          <p class="footer-desc">基于多模态AI的舞蹈教学与反馈系统，专为老年人设计的智能舞蹈学习平台。</p>
         </el-col>
         
         <el-col :xs="12" :sm="8" :md="4" :lg="4">
