@@ -1,37 +1,56 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Table, Boolean
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from datetime import datetime
+from typing import List, Optional
+
+from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean, Table, Column, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from .base import Base
 
 # 用户-挑战关联表
 challenge_participants = Table(
     'challenge_participants',
     Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('challenge_id', Integer, ForeignKey('challenges.id')),
-    Column('joined_at', DateTime(timezone=True), server_default=func.now())
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('challenge_id', Integer, ForeignKey('challenges.id'), primary_key=True),
+    Column('joined_at', DateTime(timezone=True), nullable=False)
 )
 
 class Challenge(Base):
+    """挑战活动模型"""
     __tablename__ = "challenges"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(100), index=True)
-    description = Column(Text)
-    start_date = Column(DateTime(timezone=True))
-    end_date = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    title: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    image_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    creator_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    reward_points: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     
-    participants = relationship("app.models.user.User", secondary=challenge_participants, backref="challenges")
+    # 关系定义
+    participants: Mapped[List["User"]] = relationship(
+        "User", 
+        secondary=challenge_participants, 
+        back_populates="challenges"
+    )
+    creator: Mapped["User"] = relationship("User", foreign_keys=[creator_id])
+    records: Mapped[List["ChallengeRecord"]] = relationship("ChallengeRecord", back_populates="challenge")
 
 class ChallengeRecord(Base):
+    """挑战记录模型，记录用户参与挑战的情况"""
     __tablename__ = "challenge_records"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    challenge_id = Column(Integer, ForeignKey("challenges.id"))
-    check_in_date = Column(DateTime(timezone=True), server_default=func.now())
-    completed = Column(Boolean, default=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    challenge_id: Mapped[int] = mapped_column(ForeignKey("challenges.id"), nullable=False)
+    check_in_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    points_earned: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    duration: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # 活动时长(分钟)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    evidence_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # 完成证明(图片/视频)
     
-    user = relationship("app.models.user.User", backref="challenge_records")
-    challenge = relationship("Challenge", backref="records") 
+    # 关系定义
+    user: Mapped["User"] = relationship("User", back_populates="challenge_records")
+    challenge: Mapped["Challenge"] = relationship("Challenge", back_populates="records") 

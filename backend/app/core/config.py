@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 import os
 from dotenv import load_dotenv
 
@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     
     # 数据库配置
     DATABASE_URL: str = os.getenv("DATABASE_URL", "mysql+pymysql://dance_admin:dance123456@localhost/dance_coach")
+    ASYNC_DATABASE_URL: Optional[str] = os.getenv("ASYNC_DATABASE_URL")
+    SQL_ECHO: bool = os.getenv("SQL_ECHO", "false").lower() == "true"
     
     # JWT配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-here")

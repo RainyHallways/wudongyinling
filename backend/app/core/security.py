@@ -1,10 +1,11 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
-from typing import Optional
-from ..core.database import get_db
+from typing import Optional, Union, Dict, Any
+
+from ..core.database import get_async_db
 from ..models.user import User
 from .config import settings
 from passlib.context import CryptContext
@@ -29,9 +30,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def get_current_user(
+async def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_async_db)
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -40,35 +41,38 @@ def get_current_user(
     )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: int = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
+        token_data = {"sub": user_id}
     except JWTError:
         raise credentials_exception
     
-    user = db.query(User).filter(User.email == email).first()
+    from ..services import user_service  # 避免循环导入
+    
+    user = await user_service.get(db, user_id)
     if user is None:
         raise credentials_exception
     return user
 
-def get_current_active_user(
+async def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="用户已被禁用")
     return current_user
 
-def get_current_admin_user(
+async def get_current_admin_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
-    if current_user.role != "admin":
+    if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="权限不足"
         )
     return current_user
 
-def get_current_teacher_user(
+async def get_current_teacher_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
     if current_user.role not in ["admin", "teacher"]:
