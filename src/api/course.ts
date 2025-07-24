@@ -1,107 +1,161 @@
-import request from '@/utils/request'
+import { request } from '../utils/request'
 
+// 课程数据接口
 export interface Course {
-  id: string
+  id: number
   title: string
   description: string
-  coverImage: string
-  category: string
-  difficulty: string
+  cover_image: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
   duration: number
-  instructor: string
-  videoUrl: string
-  isFavorite?: boolean
-}
-
-export interface CourseCategory {
-  value: string
-  label: string
-}
-
-export interface CourseDifficulty {
-  value: string
-  label: string
-}
-
-export interface CourseDuration {
-  value: string
-  label: string
-  min?: number
-  max?: number
-}
-
-export interface CourseParams {
-  page?: number
-  limit?: number
-  keyword?: string
+  instructor_id: number
+  instructor_name?: string
   category?: string
+  tags?: string[]
+  video_url?: string
+  enrolled_count?: number
+  rating?: number
+  created_at?: string
+  updated_at?: string
+  [key: string]: any
+}
+
+// 课程列表查询参数
+export interface CourseParams {
+  skip?: number
+  limit?: number
   difficulty?: string
-  duration?: string
-  featured?: boolean
+  keyword?: string
+  instructor_id?: number
+  min_duration?: number
+  max_duration?: number
 }
 
-// 获取课程列表
-export function getCourses(params: CourseParams) {
-  return request({
-    url: '/api/courses',
-    method: 'get',
-    params
-  })
+// 课程评论接口
+export interface CourseComment {
+  id: number
+  course_id: number
+  user_id: number
+  user_name: string
+  user_avatar?: string
+  content: string
+  rating?: number
+  created_at: string
 }
 
-// 获取课程详情
-export function getCourseById(id: string) {
-  return request({
-    url: `/api/courses/${id}`,
-    method: 'get'
-  })
+// 课程评论提交参数
+export interface CourseCommentParams {
+  content: string
+  rating?: number
 }
 
-// 收藏课程
-export function favoriteCourse(id: string) {
-  return request({
-    url: `/api/courses/${id}/favorite`,
-    method: 'post'
-  })
+// 课程报名参数
+export interface CourseEnrollParams {
+  course_id: number
+  user_id?: number
 }
 
-// 取消收藏课程
-export function unfavoriteCourse(id: string) {
-  return request({
-    url: `/api/courses/${id}/favorite`,
-    method: 'delete'
-  })
-}
+/**
+ * 课程相关API
+ */
+export const courseApi = {
+  /**
+   * 获取课程列表
+   * @param params 查询参数
+   */
+  getCourses(params?: CourseParams) {
+    return request.get<{items: Course[], total: number}>('/courses', params)
+  },
 
-// 更新学习进度
-export function updateProgress(id: string, progress: number) {
-  return request({
-    url: `/api/courses/${id}/progress`,
-    method: 'post',
-    data: { progress }
-  })
-}
+  /**
+   * 获取课程详情
+   * @param id 课程ID
+   */
+  getCourseById(id: number) {
+    return request.get<Course>(`/courses/${id}`)
+  },
 
-// 获取课程分类
-export function getCourseCategories() {
-  return request({
-    url: '/api/courses/categories',
-    method: 'get'
-  })
-}
+  /**
+   * 创建课程
+   * @param data 课程数据
+   */
+  createCourse(data: Partial<Course>) {
+    return request.post<Course>('/courses', data)
+  },
 
-// 获取难度级别
-export function getCourseDifficulties() {
-  return request({
-    url: '/api/courses/difficulties',
-    method: 'get'
-  })
-}
+  /**
+   * 更新课程
+   * @param id 课程ID
+   * @param data 课程数据
+   */
+  updateCourse(id: number, data: Partial<Course>) {
+    return request.put<Course>(`/courses/${id}`, data)
+  },
 
-// 获取课程时长选项
-export function getCourseDurations() {
-  return request({
-    url: '/api/courses/durations',
-    method: 'get'
-  })
+  /**
+   * 删除课程
+   * @param id 课程ID
+   */
+  deleteCourse(id: number) {
+    return request.delete(`/courses/${id}`)
+  },
+
+  /**
+   * 获取课程评论
+   * @param courseId 课程ID
+   */
+  getCourseComments(courseId: number) {
+    return request.get<CourseComment[]>(`/courses/${courseId}/comments`)
+  },
+
+  /**
+   * 提交课程评论
+   * @param courseId 课程ID
+   * @param data 评论数据
+   */
+  submitCourseComment(courseId: number, data: CourseCommentParams) {
+    return request.post<CourseComment>(`/courses/${courseId}/comments`, data)
+  },
+
+  /**
+   * 报名课程
+   * @param data 报名数据
+   */
+  enrollCourse(data: CourseEnrollParams) {
+    return request.post<{success: boolean}>(`/courses/${data.course_id}/enroll`, data)
+  },
+
+  /**
+   * 获取用户已报名的课程
+   * @param userId 用户ID，不传则获取当前登录用户
+   */
+  getUserCourses(userId?: number) {
+    const url = userId ? `/courses/user/${userId}` : '/courses/user/me'
+    return request.get<Course[]>(url)
+  },
+
+  /**
+   * 获取课程推荐
+   * @param limit 限制数量
+   */
+  getRecommendedCourses(limit: number = 5) {
+    return request.get<Course[]>('/courses/recommended', { limit })
+  },
+
+  /**
+   * 获取热门课程
+   * @param limit 限制数量
+   */
+  getPopularCourses(limit: number = 5) {
+    return request.get<Course[]>('/courses/popular', { limit })
+  },
+
+  /**
+   * 更新课程封面
+   * @param id 课程ID
+   * @param formData 包含图片的FormData
+   */
+  updateCourseCover(id: number, formData: FormData) {
+    return request.post<{cover_url: string}>(`/courses/${id}/cover`, formData)
+  }
 } 

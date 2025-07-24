@@ -2,29 +2,29 @@ import { request } from '../utils/request'
 
 // 仪表盘统计数据接口
 export interface DashboardStats {
-  totalCourses: number
   totalUsers: number
-  totalChallenges?: number
-  activeUsers?: number
-  completedCourses?: number
-  [key: string]: any
+  totalCourses: number
+  totalChallenges: number
+  totalHealthRecords: number
+  activeUsers: number
+  coursesByDifficulty: {
+    [key: string]: number
+  }
 }
 
 // 用户统计数据接口
 export interface UserStats {
-  registrations: {
+  total: number
+  active: number
+  byRole: {
+    admin: number
+    teacher: number
+    user: number
+  }
+  registrationTrend: {
     date: string
     count: number
   }[]
-  roles: {
-    role: string
-    count: number
-  }[]
-  activity: {
-    date: string
-    activeUsers: number
-  }[]
-  [key: string]: any
 }
 
 // 课程统计数据接口
@@ -42,19 +42,42 @@ export interface CourseStats {
     date: string
     count: number
   }[]
-  [key: string]: any
 }
 
 // 挑战统计数据接口
 export interface ChallengeStats {
   active: number
   completed: number
-  participants: {
-    challengeId: number
-    challengeName: string
+  participation: {
+    date: string
     count: number
   }[]
-  [key: string]: any
+  popular: {
+    id: number
+    title: string
+    participants: number
+  }[]
+}
+
+// 健康数据统计接口
+export interface HealthStats {
+  averageHeartRate: number
+  averageBloodPressure: {
+    systolic: number
+    diastolic: number
+  }
+  averageWeight: number
+  exerciseDuration: number
+  trend: {
+    date: string
+    heartRate?: number
+    bloodPressure?: {
+      systolic: number
+      diastolic: number
+    }
+    weight?: number
+    exerciseDuration?: number
+  }[]
 }
 
 /**
@@ -87,5 +110,22 @@ export const statsApi = {
    */
   getChallengeStats() {
     return request.get<ChallengeStats>('/stats/challenges')
+  },
+  
+  /**
+   * 获取指定用户的健康统计数据
+   * @param userId 用户ID
+   * @param days 统计天数
+   */
+  getUserHealthStats(userId: number, days: number = 30) {
+    return request.get<HealthStats>(`/stats/user/${userId}`, { days })
+  },
+  
+  /**
+   * 获取指定用户的活动统计数据
+   * @param userId 用户ID
+   */
+  getUserActivityStats(userId: number) {
+    return request.get<any>(`/stats/user/${userId}/activity`)
   }
 } 
