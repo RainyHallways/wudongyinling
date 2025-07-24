@@ -107,7 +107,7 @@ const publicRoutes: RouteRecordRaw[] = [
             name: 'OriginalLicenseAgreement',
             component: () => import('../views/public/policy/OriginalLicenseAgreement.vue'),
             meta: {
-              title: '原创许可协议'
+              title: '原创作品授权协议'
             }
           },
           {
@@ -115,7 +115,7 @@ const publicRoutes: RouteRecordRaw[] = [
             name: 'UserAgreement',
             component: () => import('../views/public/policy/UserAgreement.vue'),
             meta: {
-              title: '用户协议'
+              title: '网站协议'
             }
           },
           {
@@ -123,7 +123,7 @@ const publicRoutes: RouteRecordRaw[] = [
             name: 'UserOriginalityGuarantee',
             component: () => import('../views/public/policy/UserOriginalityGuarantee.vue'),
             meta: {
-              title: '用户原创保证'
+              title: '原创性保证书'
             }
           },
           {
@@ -131,7 +131,7 @@ const publicRoutes: RouteRecordRaw[] = [
             name: 'PrivacyPolicy',
             component: () => import('../views/public/policy/PrivacyPolicy.vue'),
             meta: {
-              title: '隐私政策'
+              title: '隐私保护协议'
             }
           }
         ]
