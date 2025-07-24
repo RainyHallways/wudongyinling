@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
@@ -10,6 +10,17 @@ const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+
+// 同意协议复选框
+const agreements = reactive({
+  userAgreement: false,
+  privacyPolicy: false,
+  originalLicenseAgreement: false,
+  userOriginalityGuarantee: false
+})
+
+// 全选复选框
+const allAgreed = ref(false)
 
 interface LoginForm {
   username: string
@@ -30,8 +41,28 @@ const rules = ref<FormRules>({
   ]
 })
 
+// 处理全选复选框变化
+const handleAllAgreementsChange = (val: boolean) => {
+  agreements.userAgreement = val
+  agreements.privacyPolicy = val
+  agreements.originalLicenseAgreement = val
+  agreements.userOriginalityGuarantee = val
+}
+
+// 监听单个协议复选框变化更新全选状态
+const updateAllAgreed = () => {
+  allAgreed.value = Object.values(agreements).every(val => val === true)
+}
+
 const handleLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
+  
+  // 检查是否同意所有协议
+  if (!Object.values(agreements).every(val => val === true)) {
+    ElMessage.warning('请阅读并同意所有用户协议')
+    return
+  }
+  
   await formEl.validate(async (valid) => {
     if (valid) {
       loading.value = true
@@ -78,6 +109,33 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
             show-password
           />
         </ElFormItem>
+        
+        <ElDivider>用户协议</ElDivider>
+        
+        <div class="agreements-section">
+          <ElCheckbox v-model="allAgreed" @change="handleAllAgreementsChange">
+            全选
+          </ElCheckbox>
+          
+          <div class="agreements-list">
+            <ElCheckbox v-model="agreements.userAgreement" @change="updateAllAgreed">
+              同意 <ElLink type="primary" @click.stop href="/policy/user-agreement" target="_blank">《网站协议》</ElLink>
+            </ElCheckbox>
+            
+            <ElCheckbox v-model="agreements.privacyPolicy" @change="updateAllAgreed">
+              同意 <ElLink type="primary" @click.stop href="/policy/privacy-policy" target="_blank">《隐私保护协议》</ElLink>
+            </ElCheckbox>
+            
+            <ElCheckbox v-model="agreements.originalLicenseAgreement" @change="updateAllAgreed">
+              同意 <ElLink type="primary" @click.stop href="/policy/original-license-agreement" target="_blank">《原创作品授权协议》</ElLink>
+            </ElCheckbox>
+            
+            <ElCheckbox v-model="agreements.userOriginalityGuarantee" @change="updateAllAgreed">
+              同意 <ElLink type="primary" @click.stop href="/policy/user-originality-guarantee" target="_blank">《原创性保证书》</ElLink>
+            </ElCheckbox>
+          </div>
+        </div>
+        
         <ElFormItem>
           <ElButton
             type="primary"
@@ -115,5 +173,16 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 
 .login-button {
   width: 100%;
+}
+
+.agreements-section {
+  margin-bottom: 20px;
+}
+
+.agreements-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style> 

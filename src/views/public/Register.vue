@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import request from '@/utils/request'
-import { useUserStore } from '@/stores/user'
+import { userApi } from '@/api/user'
 
 const router = useRouter()
-const route = useRoute()
-const userStore = useUserStore()
-
 const loading = ref(false)
-const loginFormRef = ref<FormInstance>()
+const registerFormRef = ref<FormInstance>()
 
 // 同意协议复选框
 const agreements = reactive({
@@ -24,25 +20,46 @@ const agreements = reactive({
 // 全选复选框
 const allAgreed = ref(false)
 
-interface LoginForm {
+interface RegisterForm {
   username: string
+  email: string
   password: string
-  remember: boolean
+  confirmPassword: string
 }
 
-const loginForm = reactive<LoginForm>({
+const registerForm = reactive<RegisterForm>({
   username: '',
+  email: '',
   password: '',
-  remember: false
+  confirmPassword: ''
 })
 
+// 表单验证规则
 const rules = reactive<FormRules>({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度应为3-20个字符', trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码至少为6个字符', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (value !== registerForm.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
   ]
 })
 
@@ -59,83 +76,81 @@ const updateAllAgreed = () => {
   allAgreed.value = Object.values(agreements).every(val => val === true)
 }
 
-const handleLogin = async () => {
-  if (!loginFormRef.value) return
-
+// 处理注册
+const handleRegister = async () => {
+  if (!registerFormRef.value) return
+  
   // 检查是否同意所有协议
   if (!Object.values(agreements).every(val => val === true)) {
     ElMessage.warning('请阅读并同意所有用户协议')
     return
   }
   
-  await loginFormRef.value.validate(async (valid) => {
+  await registerFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       try {
-        const result = await userStore.login({
-          username: loginForm.username,
-          password: loginForm.password
+        await userApi.register({
+          username: registerForm.username,
+          email: registerForm.email,
+          password: registerForm.password,
+          role: 'user',
+          is_active: true
         })
         
-        if (result) {
-          ElMessage.success('登录成功')
-          
-          // 重定向到之前的页面或首页
-          const redirectPath = route.query.redirect as string || '/'
-          await router.replace(redirectPath)
-        }
-      } catch (error) {
-        console.error('Login failed:', error)
+        ElMessage.success('注册成功，请登录')
+        router.push('/login')
+      } catch (error: any) {
+        console.error('Registration failed:', error)
+        ElMessage.error(error.message || '注册失败')
       } finally {
         loading.value = false
       }
     }
   })
 }
-
-const demoLogin = () => {
-  loginForm.username = 'admin'
-  loginForm.password = 'admin'
-  
-  // 自动同意所有协议
-  allAgreed.value = true
-  handleAllAgreementsChange(true)
-  
-  handleLogin()
-}
 </script>
 
 <template>
-  <div class="login-container">
-    <ElCard class="login-card">
+  <div class="register-container">
+    <ElCard class="register-card">
       <template #header>
         <div class="card-header">
-          <h2>舞动银龄 - 用户登录</h2>
+          <h2>舞动银龄 - 用户注册</h2>
         </div>
       </template>
       
       <ElForm
-        ref="loginFormRef"
-        :model="loginForm"
+        ref="registerFormRef"
+        :model="registerForm"
         :rules="rules"
         label-position="top"
-        @submit.prevent="handleLogin"
+        @submit.prevent="handleRegister"
       >
         <ElFormItem label="用户名" prop="username">
-          <ElInput v-model="loginForm.username" placeholder="请输入用户名"></ElInput>
+          <ElInput v-model="registerForm.username" placeholder="请输入用户名"></ElInput>
+        </ElFormItem>
+        
+        <ElFormItem label="邮箱" prop="email">
+          <ElInput v-model="registerForm.email" placeholder="请输入邮箱"></ElInput>
         </ElFormItem>
         
         <ElFormItem label="密码" prop="password">
           <ElInput
-            v-model="loginForm.password"
+            v-model="registerForm.password"
             placeholder="请输入密码"
             type="password"
             show-password
           ></ElInput>
         </ElFormItem>
         
-        <ElFormItem>
-          <ElCheckbox v-model="loginForm.remember">记住我</ElCheckbox>
+        <ElFormItem label="确认密码" prop="confirmPassword">
+          <ElInput
+            v-model="registerForm.confirmPassword"
+            placeholder="请确认密码"
+            type="password"
+            show-password
+          ></ElInput>
         </ElFormItem>
         
         <ElDivider>用户协议</ElDivider>
@@ -165,24 +180,13 @@ const demoLogin = () => {
         </div>
         
         <ElFormItem>
-          <ElButton type="primary" native-type="submit" :loading="loading" class="login-button">
-            登录
+          <ElButton type="primary" native-type="submit" :loading="loading" class="register-button">
+            注册
           </ElButton>
         </ElFormItem>
         
-        <div class="login-tips">
-          <p>演示账号: admin</p>
-          <p>演示密码: admin</p>
-        </div>
-        
-        <div class="demo-login">
-          <ElButton type="success" @click="demoLogin" :loading="loading">
-            使用演示账号登录
-          </ElButton>
-        </div>
-        
-        <div class="register-link">
-          没有账号？<ElLink type="primary" href="/register">立即注册</ElLink>
+        <div class="login-link">
+          已有账号？<ElLink type="primary" href="/login">立即登录</ElLink>
         </div>
       </ElForm>
     </ElCard>
@@ -190,16 +194,17 @@ const demoLogin = () => {
 </template>
 
 <style scoped>
-.login-container {
-  height: 100vh;
+.register-container {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 40px 0;
   background-color: var(--el-fill-color-light);
 }
 
-.login-card {
-  width: 400px;
+.register-card {
+  width: 450px;
   max-width: 90%;
 }
 
@@ -213,10 +218,6 @@ const demoLogin = () => {
   color: var(--el-color-primary);
 }
 
-.login-button {
-  width: 100%;
-}
-
 .agreements-section {
   margin-bottom: 20px;
 }
@@ -228,31 +229,17 @@ const demoLogin = () => {
   gap: 10px;
 }
 
-.login-tips {
-  margin-top: 20px;
-  background-color: var(--el-fill-color);
-  padding: 10px;
-  border-radius: 4px;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
+.register-button {
+  width: 100%;
 }
 
-.login-tips p {
-  margin: 5px 0;
-}
-
-.demo-login {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.register-link {
+.login-link {
   margin-top: 15px;
   text-align: center;
 }
 
 @media (max-width: 480px) {
-  .login-card {
+  .register-card {
     width: 320px;
   }
 }
