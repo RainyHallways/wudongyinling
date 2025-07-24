@@ -1,0 +1,108 @@
+:root {
+  --primary-color: #409EFF;
+  --success-color: #67C23A;
+  --warning-color: #E6A23C;
+  --danger-color: #F56C6C;
+  --info-color: #909399;
+  --shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  --min-font-size: 18px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  background-color: #f5f7fa;
+  font-size: 18px;
+}
+
+/* 适老化字体样式 */
+p, span, div, li, a, button, input, textarea, label, .el-button, .el-input, .el-select, .el-checkbox, .el-radio {
+  font-size: var(--min-font-size);
+  min-font-size: var(--min-font-size);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+/* Element Plus 组件适老化 */
+.el-menu-item, .el-submenu__title {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-form-item__label, .el-form-item__content {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-table th, .el-table td {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-pagination, .el-pagination button, .el-pagination span {
+  font-size: var(--min-font-size) !important;
+}
+
+/* 添加更多Element Plus组件的适老化样式 */
+.el-dropdown-menu__item {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-dialog__title, .el-dialog__body, .el-dialog__footer {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-message-box__message p {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-tabs__item {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-select-dropdown__item {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-tooltip__popper, .el-popover, .el-popconfirm {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-card__header {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-date-picker, .el-date-table, .el-time-panel {
+  font-size: var(--min-font-size) !important;
+}
+
+.el-tag {
+  font-size: var(--min-font-size) !important;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+} 
