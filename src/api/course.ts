@@ -20,6 +20,31 @@ export interface Course {
   [key: string]: any
 }
 
+// 课程分类接口
+export interface CourseCategory {
+  id: number
+  name: string
+  code: string
+  description?: string
+  count?: number
+}
+
+// 课程难度接口
+export interface CourseDifficulty {
+  id: number
+  name: string
+  code: string
+  description?: string
+}
+
+// 课程时长接口
+export interface CourseDuration {
+  id: number
+  name: string
+  min_minutes: number
+  max_minutes: number
+}
+
 // 课程列表查询参数
 export interface CourseParams {
   skip?: number
@@ -157,5 +182,26 @@ export const courseApi = {
    */
   updateCourseCover(id: number, formData: FormData) {
     return request.post<{cover_url: string}>(`/courses/${id}/cover`, formData)
+  },
+
+  /**
+   * 获取课程分类列表
+   */
+  getCourseCategories() {
+    return request.get<CourseCategory[]>('/courses/categories')
+  },
+
+  /**
+   * 获取课程难度列表
+   */
+  getCourseDifficulties() {
+    return request.get<CourseDifficulty[]>('/courses/difficulties')
+  },
+
+  /**
+   * 获取课程时长范围列表
+   */
+  getCourseDurations() {
+    return request.get<CourseDuration[]>('/courses/durations')
   }
 } 

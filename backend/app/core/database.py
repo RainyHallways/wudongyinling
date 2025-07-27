@@ -16,9 +16,20 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# 处理数据库URL转换为异步版本
+def get_async_database_url(url: str) -> str:
+    """将同步数据库URL转换为对应的异步版本"""
+    if settings.ASYNC_DATABASE_URL:
+        return settings.ASYNC_DATABASE_URL
+    elif url.startswith("mysql+pymysql://"):
+        return url.replace("mysql+pymysql://", "mysql+aiomysql://")
+    elif url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://")
+    return url  # 如果不是已知类型，返回原始URL
+
 # 异步引擎和会话
 async_engine = create_async_engine(
-    settings.ASYNC_DATABASE_URL or settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+    get_async_database_url(settings.DATABASE_URL),
     echo=settings.SQL_ECHO,
     pool_pre_ping=True
 )

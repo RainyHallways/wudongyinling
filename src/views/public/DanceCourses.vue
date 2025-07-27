@@ -1,8 +1,26 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search, Star, Share, Back, Microphone } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getCourseCategories, getCourseDifficulties, getCourseDurations, type CourseCategory, type CourseDifficulty, type CourseDuration } from '@/api/course'
+import { courseApi } from '@/api/course'
+
+// 类型定义
+interface CourseCategory {
+  value: string;
+  label: string;
+}
+
+interface CourseDifficulty {
+  value: string;
+  label: string;
+}
+
+interface CourseDuration {
+  value: string;
+  label: string;
+  min?: number;
+  max?: number;
+}
 
 // 搜索和分类状态
 const searchQuery = ref('')
@@ -104,6 +122,23 @@ const categories = [
   { value: 'fitness', label: '健身操' }
 ]
 
+// 难度数据
+const difficulties: CourseDifficulty[] = [
+  { value: 'all', label: '全部难度' },
+  { value: '初级', label: '初级' },
+  { value: '中级', label: '中级' },
+  { value: '高级', label: '高级' }
+]
+
+// 时长数据
+const durations: CourseDuration[] = [
+  { value: 'all', label: '全部时长' },
+  { value: '5分钟', label: '5分钟' },
+  { value: '10分钟', label: '10分钟' },
+  { value: '15分钟', label: '15分钟' },
+  { value: '20分钟', label: '20分钟' }
+]
+
 // 根据搜索和分类过滤课程
 const filteredCourses = computed(() => {
   let result = courses.value
@@ -176,7 +211,7 @@ const sendChatMessage = () => {
 const fetchCategories = async () => {
   loading.value.categories = true
   try {
-    const { data } = await getCourseCategories()
+    const { data } = await courseApi.getCourseCategories()
     // 如果需要，可以在这里更新categories
     console.log("API 分类数据:", data)
   } catch (error) {
@@ -185,6 +220,38 @@ const fetchCategories = async () => {
     loading.value.categories = false
   }
 }
+
+// 获取课程难度
+const getCourseDifficulties = async () => {
+  loading.value.difficulties = true;
+  try {
+    const { data } = await courseApi.getCourseDifficulties();
+    console.log("API 难度数据:", data);
+  } catch (error) {
+    console.error('获取课程难度失败:', error);
+  } finally {
+    loading.value.difficulties = false;
+  }
+};
+
+// 获取课程时长
+const getCourseDurations = async () => {
+  loading.value.durations = true;
+  try {
+    const { data } = await courseApi.getCourseDurations();
+    console.log("API 时长数据:", data);
+  } catch (error) {
+    console.error('获取课程时长失败:', error);
+  } finally {
+    loading.value.durations = false;
+  }
+};
+
+onMounted(() => {
+  fetchCategories();
+  getCourseDifficulties();
+  getCourseDurations();
+});
 </script>
 
 <template>
