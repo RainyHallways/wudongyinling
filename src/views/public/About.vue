@@ -3,7 +3,8 @@ import { ref, onMounted } from 'vue'
 import { ElTimeline, ElTimelineItem, ElCard, ElRow, ElCol, ElDivider, ElSkeleton } from 'element-plus'
 import { Location, Phone, Message, Clock } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
-import { getTeamMembers, getMilestones, getPartners, type TeamMember, type Milestone, type Partner } from '@/api/about'
+// 修改导入方式
+import { aboutApi, type TeamMember, type Milestone, type Partner } from '@/api/about'
 
 // 加载状态
 const loading = ref({
@@ -85,7 +86,7 @@ const contactInfo = ref([
 const fetchTeamMembers = async () => {
   loading.value.team = true
   try {
-    const { data } = await getTeamMembers()
+    const { data } = await aboutApi.getTeamMembers()
     if (data && data.length) {
       teamMembers.value = data
     } else {
@@ -103,7 +104,7 @@ const fetchTeamMembers = async () => {
 const fetchPartners = async () => {
   loading.value.partners = true
   try {
-    const { data } = await getPartners()
+    const { data } = await aboutApi.getPartners()
     if (data && data.length) {
       partners.value = data
     } else {

@@ -5,8 +5,8 @@ import { Plus } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
-// API 导入
-import { getCourses, createCourse, updateCourse, deleteCourse } from '@/api/course'
+// 修改导入方式
+import { courseApi } from '@/api/course'
 
 const userStore = useUserStore()
 const loading = ref(false)
@@ -56,7 +56,7 @@ const rules = reactive<FormRules>({
 const fetchCourses = async () => {
   loading.value = true
   try {
-    const res = await getCourses({
+    const res = await courseApi.getCourses({
       page: currentPage.value,
       limit: pageSize.value
     })
@@ -97,7 +97,7 @@ const handleDelete = (id: string | number) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteCourse(id)
+      await courseApi.deleteCourse(id)
       ElMessage.success('删除成功')
       fetchCourses()
     } catch (error) {
@@ -112,10 +112,10 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     if (valid) {
       try {
         if (formMode.value === 'add') {
-          await createCourse(form.value)
+          await courseApi.createCourse(form.value)
           ElMessage.success('添加成功')
         } else {
-          await updateCourse(form.value.id!, form.value)
+          await courseApi.updateCourse(form.value.id!, form.value)
           ElMessage.success('更新成功')
         }
         dialogVisible.value = false
