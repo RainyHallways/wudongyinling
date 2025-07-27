@@ -78,50 +78,168 @@ backend/
 └── requirements.txt        # 依赖包
 ```
 
-## 快速开始
+## 完整部署指南
 
-### 1. 安装依赖
+### 1. 准备MySQL数据库
+
+首先需要创建MySQL用户和数据库：
 
 ```bash
-# 创建并激活虚拟环境
+# 登录MySQL（如果没有安装MySQL，需要先安装）
+mysql -u root -p
+
+# 在MySQL命令行中执行以下命令
+CREATE DATABASE dance_coach;
+CREATE USER 'dance_admin'@'localhost' IDENTIFIED BY 'dance123456';
+GRANT ALL PRIVILEGES ON dance_coach.* TO 'dance_admin'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### 2. 创建Python虚拟环境
+
+选择以下任一方法创建虚拟环境：
+
+```bash
+# 方法1：使用conda
+conda create -n dance python=3.9
+conda activate dance
+
+# 方法2：使用venv
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-# 或
-venv\Scripts\activate  # Windows
+venv\Scripts\activate     # Windows
+```
 
-# 安装依赖包
+### 3. 安装后端依赖
+
+```bash
+cd websites/backend  # 如果在项目根目录，需要进入backend目录
 pip install -r requirements.txt
 ```
 
-### 2. 配置环境变量
+如果安装过程中遇到问题：
+
+```bash
+# 如果mysqlclient安装失败，需安装系统依赖(Ubuntu/Debian)
+sudo apt-get install python3-dev default-libmysqlclient-dev build-essential pkg-config
+
+# 安装异步MySQL驱动(可能需要单独安装)
+pip install aiomysql==0.2.0
+```
+
+### 4. 配置环境变量
 
 ```bash
 # 复制环境变量示例文件
 cp .env.example .env
 
 # 编辑.env文件，设置数据库连接等配置
-# DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
 ```
 
-### 3. 初始化数据库
+环境变量示例：
+
+```env
+# 数据库连接
+DATABASE_URL=mysql+pymysql://dance_admin:dance123456@localhost/dance_coach
+ASYNC_DATABASE_URL=mysql+aiomysql://dance_admin:dance123456@localhost/dance_coach
+SQL_ECHO=false  # 是否打印SQL语句，开发环境设为true
+
+# 安全配置
+SECRET_KEY=your-secret-key-here
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# CORS配置
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# 上传文件配置
+UPLOAD_DIR=./uploads
+MAX_UPLOAD_SIZE=5242880  # 5MB
+```
+
+### 5. 初始化数据库
+
+有两种方式初始化数据库：
 
 ```bash
-# 应用数据库迁移
+# 方式1：使用初始化脚本(推荐)
+python init.py  # 会创建表结构并添加管理员账号
+
+# 方式2：使用Alembic迁移
 alembic upgrade head
 
-# 如需重置数据库（开发环境）
+# 重置数据库(仅开发环境使用)
 python reset_db.py
 ```
 
-### 4. 启动服务
+### 6. 启动后端服务
 
 ```bash
 # 开发模式启动
-uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # 生产模式启动
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+### 7. 前端部署
+
+```bash
+cd ../  # 返回到websites目录
+npm install
+npm run dev  # 开发模式启动前端
+```
+
+生产环境构建：
+
+```bash
+npm run build
+```
+
+### 8. 常见问题解决
+
+#### MySQL连接错误
+
+如果出现 `Access denied for user 'dance_admin'@'localhost'` 错误：
+
+1. 确认用户名和密码是否正确
+2. 确认用户是否有正确的权限
+3. 尝试使用root账户登录MySQL并重新创建用户：
+   ```sql
+   DROP USER 'dance_admin'@'localhost';
+   CREATE USER 'dance_admin'@'localhost' IDENTIFIED BY 'dance123456';
+   GRANT ALL PRIVILEGES ON dance_coach.* TO 'dance_admin'@'localhost';
+   FLUSH PRIVILEGES;
+   ```
+
+#### 依赖安装问题
+
+对于Windows WSL用户，如果安装mysqlclient遇到问题：
+```bash
+sudo apt-get update
+sudo apt-get install gcc python3-dev default-libmysqlclient-dev build-essential pkg-config
+pip install mysqlclient
+```
+
+如果仍然失败，可以继续使用pymysql，它是纯Python实现无需编译。
+
+#### aiomysql安装问题
+
+如果安装aiomysql失败，可尝试：
+```bash
+pip install --upgrade pip
+pip install aiomysql==0.2.0 --no-cache-dir
+```
+
+### 9. Docker部署（可选）
+
+项目提供了docker-compose.yml，可以一键启动整个系统：
+
+```bash
+docker-compose up -d
+```
+
+这将启动前端、后端和MySQL数据库服务，无需手动安装各种依赖。
 
 ## API文档
 
@@ -168,23 +286,3 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 - 所有数据库操作都应该是异步的，使用 `async/await` 语法
 - Repository层方法应接收 `AsyncSession` 参数
 - API路由函数应使用 `async def` 定义
-
-## 环境变量说明
-
-```env
-# 数据库连接
-DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
-ASYNC_DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
-SQL_ECHO=True  # 是否打印SQL语句，开发环境设为True
-
-# 安全配置
-SECRET_KEY=your-secret-key
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# CORS配置
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# 上传文件配置
-UPLOAD_DIR=./uploads
-MAX_UPLOAD_SIZE=5242880  # 5MB
-```
