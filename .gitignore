@@ -31,3 +31,4 @@ coverage
 !.env.example 
 
 package-lock.json
+*/_pycache_/*
