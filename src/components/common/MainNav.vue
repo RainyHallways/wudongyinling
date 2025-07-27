@@ -32,7 +32,7 @@
             </el-menu-item>
             
             <el-menu-item index="/health-management">
-              <el-icon><FirstAid /></el-icon>
+              <el-icon><FirstAidKit /></el-icon>
               <span>健康管理</span>
             </el-menu-item>
             
@@ -73,7 +73,7 @@
                     <el-icon><Cpu /></el-icon>我的课程
                   </el-dropdown-item>
                   <el-dropdown-item @click="router.push('/health-management')">
-                    <el-icon><FirstAid /></el-icon>健康档案
+                    <el-icon><FirstAidKit /></el-icon>健康档案
                   </el-dropdown-item>
                   <el-dropdown-item divided @click="handleLogout">
                     <el-icon><SwitchButton /></el-icon>退出登录
@@ -119,7 +119,7 @@
         </el-menu-item>
         
         <el-menu-item index="/health-management">
-          <el-icon><FirstAid /></el-icon>
+          <el-icon><FirstAidKit /></el-icon>
           <span>健康管理</span>
         </el-menu-item>
         
@@ -153,7 +153,7 @@
               <el-icon><Cpu /></el-icon>我的课程
             </el-menu-item>
             <el-menu-item index="/health-management">
-              <el-icon><FirstAid /></el-icon>健康档案
+              <el-icon><FirstAidKit /></el-icon>健康档案
             </el-menu-item>
           </el-sub-menu>
           
@@ -175,7 +175,7 @@ import {
   HomeFilled, 
   VideoCameraFilled, 
   Cpu, 
-  FirstAid, 
+  FirstAidKit, 
   ChatDotRound, 
   InfoFilled,
   User,
