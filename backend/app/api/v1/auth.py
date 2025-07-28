@@ -12,7 +12,7 @@ from ...services.auth_service import AuthService
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=DataResponse[TokenResponse])
 async def login(
     login_data: UserLogin,
     db: AsyncSession = Depends(get_async_db),
@@ -34,7 +34,11 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    return token_response
+    return DataResponse(
+        code=0,
+        message="登录成功",
+        data=token_response
+    )
 
 @router.post("/register", response_model=DataResponse)
 async def register(
