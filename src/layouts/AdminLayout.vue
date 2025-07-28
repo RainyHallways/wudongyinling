@@ -69,14 +69,12 @@
         <!-- 顶部导航 -->
         <el-header height="60px" class="header">
           <div class="header-left">
-            <el-icon 
+            <el-button 
               class="toggle-btn" 
               @click="toggleSidebar"
-              :class="{ 'is-active': isCollapse }"
-            >
-              <Fold v-if="!isCollapse" />
-              <Expand v-else />
-            </el-icon>
+              :icon="isCollapse ? Expand : Fold"
+              text
+            />
             
             <!-- 面包屑导航 -->
             <el-breadcrumb separator="/">
@@ -283,13 +281,16 @@ const handleLogout = async () => {
 
 .toggle-btn {
   margin-right: 15px;
-  font-size: 20px;
-  cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  background-color: #fff;
   color: #606266;
 }
 
 .toggle-btn:hover {
   color: #409EFF;
+  border-color: #409EFF;
+  background-color: #ecf5ff;
 }
 
 .header-right {
@@ -360,6 +361,7 @@ const handleLogout = async () => {
     bottom: 0;
     background: rgba(0, 0, 0, 0.3);
     z-index: 99;
+    pointer-events: auto;
   }
 }
 
