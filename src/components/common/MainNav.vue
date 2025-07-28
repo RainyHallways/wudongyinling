@@ -1,54 +1,58 @@
 <template>
-  <header class="main-nav">
+  <!-- 桌面端导航栏 -->
+  <header class="main-nav desktop-nav">
     <div class="container">
       <el-row class="nav-container">
-        <el-col :span="6" class="logo-container">
+        <!-- 响应式logo区域 -->
+        <el-col :xs="6" :sm="4" :md="3" :lg="3" :xl="3" class="logo-container">
           <router-link to="/" class="logo">
             <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
-            <span class="logo-text">舞动银龄</span>
           </router-link>
         </el-col>
         
-        <el-col :span="12" class="nav-links-desktop">
+        <!-- 响应式导航菜单 -->
+        <el-col :xs="12" :sm="14" :md="15" :lg="16" :xl="17" class="nav-links-desktop">
           <el-menu 
             mode="horizontal" 
             :router="true"
             :ellipsis="false"
+            :default-active="$route.path"
             class="main-menu"
           >
             <el-menu-item index="/">
               <el-icon><HomeFilled /></el-icon>
-              <span>首页</span>
+              <span class="menu-text">首页</span>
             </el-menu-item>
             
             <el-menu-item index="/dance-courses">
               <el-icon><VideoCameraFilled /></el-icon>
-              <span>舞蹈课程</span>
+              <span class="menu-text">舞蹈课程</span>
             </el-menu-item>
             
             <el-menu-item index="/ai-coach">
               <el-icon><Cpu /></el-icon>
-              <span>AI教练</span>
+              <span class="menu-text">AI教练</span>
             </el-menu-item>
             
             <el-menu-item index="/health-management">
               <el-icon><FirstAidKit /></el-icon>
-              <span>健康管理</span>
+              <span class="menu-text">健康管理</span>
             </el-menu-item>
             
             <el-menu-item index="/social-platform">
               <el-icon><ChatDotRound /></el-icon>
-              <span>社交平台</span>
+              <span class="menu-text">社交平台</span>
             </el-menu-item>
             
             <el-menu-item index="/about">
               <el-icon><InfoFilled /></el-icon>
-              <span>关于我们</span>
+              <span class="menu-text">关于我们</span>
             </el-menu-item>
           </el-menu>
         </el-col>
         
-        <el-col :span="6" class="nav-actions">
+        <!-- 响应式用户操作区域 -->
+        <el-col :xs="6" :sm="6" :md="6" :lg="5" :xl="4" class="nav-actions">
           <div class="action-buttons">
             <el-button v-if="!userStore.isLoggedIn" type="primary" @click="router.push('/login')">
               <el-icon><User /></el-icon>
@@ -69,6 +73,9 @@
                   <el-dropdown-item @click="router.push('/user-profile')">
                     <el-icon><User /></el-icon>个人中心
                   </el-dropdown-item>
+                  <el-dropdown-item @click="router.push('/user-profile?tab=password')">
+                    <el-icon><Lock /></el-icon>修改密码
+                  </el-dropdown-item>
                   <el-dropdown-item @click="router.push('/ai-coach')">
                     <el-icon><Cpu /></el-icon>我的课程
                   </el-dropdown-item>
@@ -82,89 +89,106 @@
               </template>
             </el-dropdown>
           </div>
-          
-          <div class="mobile-menu-toggle">
-            <el-button link @click="drawerVisible = true">
-              <el-icon size="26"><Menu /></el-icon>
-            </el-button>
-          </div>
         </el-col>
       </el-row>
     </div>
+  </header>
     
-    <!-- 移动端导航抽屉 -->
-    <el-drawer
-      v-model="drawerVisible"
-      title="舞动银龄"
-      direction="rtl"
-      size="70%"
-    >
-      <el-menu 
-        :router="true"
-        class="mobile-menu"
+  <!-- 移动端底部导航栏 -->
+  <nav class="mobile-bottom-nav">
+    <div class="mobile-nav-container">
+      <router-link 
+        v-for="item in mobileNavItems" 
+        :key="item.path"
+        :to="item.path"
+        class="nav-item"
+        :class="{ 'active': $route.path === item.path || ($route.path === '/' && item.path === '/dance-courses') }"
       >
-        <el-menu-item index="/">
-          <el-icon><HomeFilled /></el-icon>
-          <span>首页</span>
-        </el-menu-item>
-        
-        <el-menu-item index="/dance-courses">
-          <el-icon><VideoCameraFilled /></el-icon>
-          <span>舞蹈课程</span>
-        </el-menu-item>
-        
-        <el-menu-item index="/ai-coach">
+        <el-icon :size="24" class="nav-icon">
+          <component :is="item.icon" />
+        </el-icon>
+        <span class="nav-label">{{ item.label }}</span>
+      </router-link>
+      
+      <!-- 用户菜单项 -->
+      <div class="nav-item user-menu-item" @click="showUserMenu = !showUserMenu">
+        <el-icon :size="24" class="nav-icon">
+          <User v-if="!userStore.isLoggedIn" />
+          <el-avatar 
+            v-else
+            :size="24" 
+            :src="userStore.userInfo.avatar || defaultAvatar"
+          />
+        </el-icon>
+        <span class="nav-label">{{ userStore.isLoggedIn ? '我的' : '登录' }}</span>
+      </div>
+    </div>
+    
+    <!-- 用户菜单弹出层 -->
+    <el-drawer
+      v-model="showUserMenu"
+      direction="btt"
+      size="auto"
+      class="user-menu-drawer"
+    >
+      <template #header>
+        <div class="drawer-header">
+          <el-avatar 
+            :size="60" 
+            :src="userStore.userInfo.avatar || defaultAvatar"
+          />
+          <div class="user-info-text">
+            <h3 v-if="userStore.isLoggedIn">{{ userStore.nickname }}</h3>
+            <p v-if="userStore.isLoggedIn">{{ userStore.userInfo.email }}</p>
+            <el-button v-else type="primary" @click="router.push('/login')">立即登录</el-button>
+          </div>
+        </div>
+      </template>
+      
+      <div class="menu-content">
+        <template v-if="userStore.isLoggedIn">
+          <el-row :gutter="16" class="menu-grid">
+            <el-col :span="12">
+              <div class="menu-card" @click="router.push('/user-profile')">
+                <el-icon><User /></el-icon>
+                <span>个人中心</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="menu-card" @click="router.push('/user-profile?tab=password')">
+                <el-icon><Lock /></el-icon>
+                <span>修改密码</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="menu-card" @click="router.push('/ai-coach')">
           <el-icon><Cpu /></el-icon>
-          <span>AI教练</span>
-        </el-menu-item>
-        
-        <el-menu-item index="/health-management">
-          <el-icon><FirstAidKit /></el-icon>
-          <span>健康管理</span>
-        </el-menu-item>
-        
-        <el-menu-item index="/social-platform">
-          <el-icon><ChatDotRound /></el-icon>
-          <span>社交平台</span>
-        </el-menu-item>
-        
-        <el-menu-item index="/about">
+                <span>我的课程</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="menu-card" @click="router.push('/health-management')">
+                <el-icon><FirstAidKit /></el-icon>
+                <span>健康档案</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="menu-card" @click="router.push('/about')">
           <el-icon><InfoFilled /></el-icon>
           <span>关于我们</span>
-        </el-menu-item>
-        
-        <el-divider />
-        
-        <el-menu-item v-if="!userStore.isLoggedIn" index="/login">
-          <el-icon><User /></el-icon>
-          <span>登录/注册</span>
-        </el-menu-item>
-        
-        <template v-else>
-          <el-sub-menu index="user">
-            <template #title>
-              <el-icon><User /></el-icon>
-              <span>{{ userStore.nickname }}</span>
-            </template>
-            <el-menu-item index="/user-profile">
-              <el-icon><User /></el-icon>个人中心
-            </el-menu-item>
-            <el-menu-item index="/ai-coach">
-              <el-icon><Cpu /></el-icon>我的课程
-            </el-menu-item>
-            <el-menu-item index="/health-management">
-              <el-icon><FirstAidKit /></el-icon>健康档案
-            </el-menu-item>
-          </el-sub-menu>
-          
-          <el-menu-item index="logout" @click="handleLogout">
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="menu-card logout-btn" @click="handleLogout">
             <el-icon><SwitchButton /></el-icon>
             <span>退出登录</span>
-          </el-menu-item>
+              </div>
+            </el-col>
+          </el-row>
         </template>
-      </el-menu>
+      </div>
     </el-drawer>
-  </header>
+  </nav>
 </template>
 
 <script lang="ts" setup>
@@ -179,21 +203,29 @@ import {
   ChatDotRound, 
   InfoFilled,
   User,
-  Menu,
   ArrowDown,
-  SwitchButton
+  SwitchButton,
+  Lock
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
-const drawerVisible = ref(false)
+const showUserMenu = ref(false)
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+
+// 移动端导航项
+const mobileNavItems = [
+  { path: '/dance-courses', label: '课程', icon: VideoCameraFilled },
+  { path: '/ai-coach', label: 'AI教练', icon: Cpu },
+  { path: '/health-management', label: '健康', icon: FirstAidKit },
+  { path: '/social-platform', label: '社交', icon: ChatDotRound }
+]
 
 // 退出登录
 const handleLogout = async () => {
   try {
     await userStore.logout()
-    drawerVisible.value = false
+    showUserMenu.value = false
   } catch (error) {
     console.error('退出登录失败:', error)
   }
@@ -201,8 +233,23 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
-.main-nav {
-  @apply bg-white shadow-md;
+/* 桌面端导航栏 */
+.desktop-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  display: none;
+}
+
+/* 桌面端显示顶部导航栏 */
+@media (min-width: 640px) {
+  .desktop-nav {
+    display: block;
+  }
 }
 
 .container {
@@ -214,55 +261,308 @@ const handleLogout = async () => {
 }
 
 .logo-container {
-  @apply h-full flex items-center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
 }
 
 .logo {
-  @apply flex items-center no-underline;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .logo-img {
-  @apply h-10 w-auto mr-2;
+  height: 40px;
+  width: auto;
+  flex-shrink: 0;
 }
 
-.logo-text {
-  @apply text-xl font-medium text-gray-800;
+/* 响应式logo */
+@media (max-width: 768px) {
+  .logo-img {
+    height: 32px;
+  }
 }
 
 .nav-links-desktop {
-  @apply hidden md:block;
+  display: block;
+}
+
+/* 小屏幕上的导航菜单样式调整 */
+@media (max-width: 575px) {
+  .nav-links-desktop .main-menu {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .nav-links-desktop .main-menu::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .nav-links-desktop .el-menu-item {
+    padding: 0 8px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
 }
 
 .main-menu {
-  @apply border-0 justify-center;
+  border: none;
+  justify-content: center;
+}
+
+/* 响应式菜单文字 */
+@media (max-width: 1200px) {
+  .menu-text {
+    font-size: 13px;
+  }
+  
+  .main-menu .el-menu-item {
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .menu-text {
+    font-size: 12px;
+  }
+  
+  .main-menu .el-menu-item {
+    padding: 0 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-text {
+    display: none; /* 中等屏幕只显示图标 */
+  }
+  
+  .main-menu .el-menu-item {
+    padding: 0 4px;
+  }
 }
 
 .nav-actions {
-  @apply flex justify-end items-center;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 1001;
+  position: relative;
+}
+
+/* 小屏幕下进一步优化用户信息位置 */
+@media (max-width: 1024px) {
+  .nav-actions {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  
+  .user-info {
+    padding: 6px;
+  }
+  
+  .username {
+    max-width: 80px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-actions {
+    min-width: 40px;
+  }
+  
+  .user-info {
+    padding: 4px;
+  }
 }
 
 .action-buttons {
-  @apply hidden md:flex items-center;
+  display: flex;
+  align-items: center;
 }
 
 .user-info {
-  @apply flex items-center cursor-pointer;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.user-info:hover {
+  background-color: rgba(64, 158, 255, 0.1);
 }
 
 .username {
-  @apply ml-2 mr-1 text-gray-700;
+  margin-left: 8px;
+  margin-right: 4px;
+  color: #303133;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  font-size: 14px;
 }
 
-.mobile-menu-toggle {
-  @apply block md:hidden;
+/* 中等宽度隐藏用户名文字防止堆叠 */
+@media (min-width: 769px) and (max-width: 960px) {
+  .username {
+    display: none;
+  }
 }
 
-.mobile-menu {
-  @apply border-0;
+/* 移动端隐藏用户名文字 */
+@media (max-width: 639px) {
+  .username {
+    display: none;
+  }
 }
 
-.mobile-menu .el-menu-item {
-  @apply text-lg h-14;
+/* 移动端底部导航栏 */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #ebeef5;
+  z-index: 1000;
+  display: block;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 桌面端隐藏移动端导航栏 */
+@media (min-width: 640px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+.mobile-nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #606266;
+  text-decoration: none;
+  transition: all 0.2s;
+  min-width: 0;
+  flex: 1;
+  max-width: 80px;
+}
+
+.nav-item.active {
+  color: #409eff;
+}
+
+.nav-item.active .nav-icon {
+  color: #409eff;
+  transform: scale(1.1);
+}
+
+.nav-icon {
+  margin-bottom: 4px;
+  transition: all 0.2s;
+}
+
+.nav-label {
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.user-menu-item {
+  @apply cursor-pointer;
+}
+
+/* 用户菜单抽屉 */
+.user-menu-drawer {
+  @apply border-radius-t-lg;
+}
+
+.drawer-header {
+  @apply flex items-center p-4 bg-gradient-to-r from-blue-500 to-purple-600;
+  @apply text-white;
+}
+
+.user-info-text {
+  @apply ml-4 flex-1;
+}
+
+.user-info-text h3 {
+  @apply text-lg font-medium mb-1;
+}
+
+.user-info-text p {
+  @apply text-sm opacity-90;
+}
+
+.menu-content {
+  @apply p-4;
+}
+
+.menu-grid {
+  @apply gap-4;
+}
+
+.menu-card {
+  @apply flex flex-col items-center justify-center;
+  @apply p-4 rounded-lg bg-gray-50;
+  @apply cursor-pointer transition-all duration-200;
+  @apply border border-gray-200;
+  min-height: 80px;
+}
+
+.menu-card:hover {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.menu-card:active {
+  @apply transform scale-95;
+}
+
+.menu-card .el-icon {
+  @apply mb-2 text-xl;
+}
+
+.menu-card span {
+  @apply text-sm text-gray-700;
+}
+
+.logout-btn {
+  @apply bg-red-50 border-red-200;
+}
+
+.logout-btn:hover {
+  @apply bg-red-100 border-red-300;
+}
+
+.logout-btn .el-icon,
+.logout-btn span {
+  @apply text-red-600;
 }
 
 /* 自定义 Element Plus 菜单样式 */
@@ -274,7 +574,33 @@ const handleLogout = async () => {
   @apply text-blue-500 border-blue-500;
 }
 
+/* 为页面内容添加上下边距 */
+:global(body) {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 70px; /* 默认移动端底部导航栏高度 */
+}
+
+/* 桌面端：顶部导航栏 */
+@media (min-width: 640px) {
+  :global(body) {
+    padding-top: 64px; /* 桌面端顶部导航栏高度 */
+    padding-bottom: 0; /* 桌面端取消底部边距 */
+  }
+}
+
+/* 安全区域适配 */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* 响应式调整 */
+@media (max-width: 1024px) {
+  .nav-links-desktop {
+    @apply hidden;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-container {
     @apply justify-between;
@@ -282,6 +608,10 @@ const handleLogout = async () => {
   
   .logo-container {
     @apply flex-grow;
+  }
+  
+  .action-buttons {
+    @apply hidden;
   }
 }
 </style> 
