@@ -94,6 +94,17 @@ const adminRoutes: RouteRecordRaw[] = [
           role: 'admin',
           icon: 'el-icon-setting'
         }
+      },
+      {
+        path: 'profile',
+        name: 'AdminProfile',
+        component: () => import('../views/public/UserProfile.vue'),
+        meta: { 
+          title: '个人资料',
+          requiresAuth: true, 
+          role: 'admin',
+          icon: 'el-icon-user'
+        }
       }
     ]
   },
