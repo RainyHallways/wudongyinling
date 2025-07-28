@@ -152,4 +152,42 @@ async def upload_file(
         )
         return DataResponse(data={"url": url}, message="文件上传成功")
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/categories", response_model=DataResponse[List[dict]])
+async def get_course_categories():
+    """
+    获取课程分类列表
+    """
+    categories = [
+        {"value": "square", "label": "广场舞"},
+        {"value": "folk", "label": "民族舞"},
+        {"value": "taichi", "label": "太极拳"},
+        {"value": "social", "label": "交谊舞"},
+        {"value": "fitness", "label": "健身操"}
+    ]
+    return DataResponse(data=categories, message="获取课程分类成功")
+
+@router.get("/difficulties", response_model=DataResponse[List[dict]])
+async def get_course_difficulties():
+    """
+    获取课程难度列表
+    """
+    difficulties = [
+        {"value": "beginner", "label": "初级"},
+        {"value": "intermediate", "label": "中级"},
+        {"value": "advanced", "label": "高级"}
+    ]
+    return DataResponse(data=difficulties, message="获取课程难度成功")
+
+@router.get("/durations", response_model=DataResponse[List[dict]])
+async def get_course_durations():
+    """
+    获取课程时长选项
+    """
+    durations = [
+        {"value": "short", "label": "短时（10分钟内）", "min": 0, "max": 10},
+        {"value": "medium", "label": "中时（10-30分钟）", "min": 10, "max": 30},
+        {"value": "long", "label": "长时（30分钟以上）", "min": 30, "max": 999}
+    ]
+    return DataResponse(data=durations, message="获取课程时长选项成功") 
