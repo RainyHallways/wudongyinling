@@ -446,7 +446,7 @@ const sendMessage = (): void => {
                 <ElMenuItem 
                   v-for="chat in chatList" 
                   :key="chat.id" 
-                  :index="chat.id"
+                  :index="String(chat.id)"
                   @click="selectChat(chat)"
                 >
                   <div class="d-flex align-items-center">
