@@ -27,7 +27,7 @@ def init_db():
             # 创建管理员用户
             admin = User(
                 username="admin",
-                password=get_password_hash("admin"),  # 使用哈希密码
+                hashed_password=get_password_hash("admin"),  # 使用哈希密码
                 email="admin@example.com",
                 is_admin=True
             )

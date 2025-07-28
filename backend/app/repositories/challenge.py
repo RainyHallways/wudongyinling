@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from .base import RepositoryBase
-from ..models.challenge import Challenge, ChallengeParticipant, ChallengeRecord
+from ..models.challenge import Challenge, challenge_participants, ChallengeRecord
 from ..schemas.challenge import (
     ChallengeCreate, ChallengeUpdate, 
     ChallengeParticipantCreate, ChallengeParticipantInDB,
@@ -141,8 +141,8 @@ class ChallengeRepository(RepositoryBase[Challenge, ChallengeCreate, ChallengeUp
         
         count_query = (
             select(func.count())
-            .select_from(ChallengeParticipant)
-            .where(ChallengeParticipant.challenge_id == id)
+            .select_from(challenge_participants)
+            .where(challenge_participants.c.challenge_id == id)
         )
         result = await db.execute(count_query)
         count = result.scalar()
@@ -169,11 +169,11 @@ class ChallengeRepository(RepositoryBase[Challenge, ChallengeCreate, ChallengeUp
         """
         query = (
             select(func.count())
-            .select_from(ChallengeParticipant)
+            .select_from(challenge_participants)
             .where(
                 and_(
-                    ChallengeParticipant.challenge_id == challenge_id,
-                    ChallengeParticipant.user_id == user_id
+                    challenge_participants.c.challenge_id == challenge_id,
+                    challenge_participants.c.user_id == user_id
                 )
             )
         )
@@ -231,13 +231,50 @@ class ChallengeRepository(RepositoryBase[Challenge, ChallengeCreate, ChallengeUp
             
         return challenges
 
-class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, ChallengeParticipantCreate, ChallengeParticipantInDB]):
+class ChallengeParticipantRepository:
     """
     挑战参与者数据访问层
     """
     
-    def __init__(self):
-        super().__init__(ChallengeParticipant)
+    async def create(
+        self, 
+        db: AsyncSession, 
+        *, 
+        obj_in: ChallengeParticipantCreate
+    ):
+        """
+        创建挑战参与记录
+        """
+        now = datetime.now()
+        values = {
+            "user_id": obj_in.user_id, 
+            "challenge_id": obj_in.challenge_id,
+            "joined_at": now
+        }
+        query = challenge_participants.insert().values(**values)
+        await db.execute(query)
+        await db.commit()
+        return values
+    
+    async def remove(
+        self, 
+        db: AsyncSession, 
+        *, 
+        user_id: int,
+        challenge_id: int
+    ):
+        """
+        删除挑战参与记录
+        """
+        query = challenge_participants.delete().where(
+            and_(
+                challenge_participants.c.user_id == user_id,
+                challenge_participants.c.challenge_id == challenge_id
+            )
+        )
+        await db.execute(query)
+        await db.commit()
+        return {"user_id": user_id, "challenge_id": challenge_id}
     
     async def get_by_user_and_challenge(
         self, 
@@ -245,7 +282,7 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
         *, 
         user_id: int, 
         challenge_id: int
-    ) -> Optional[ChallengeParticipant]:
+    ) -> Optional[Dict]:
         """
         获取用户参与的指定挑战
         
@@ -258,16 +295,17 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
             参与记录，如未找到返回None
         """
         query = (
-            select(ChallengeParticipant)
+            select(challenge_participants)
             .where(
                 and_(
-                    ChallengeParticipant.user_id == user_id,
-                    ChallengeParticipant.challenge_id == challenge_id
+                    challenge_participants.c.user_id == user_id,
+                    challenge_participants.c.challenge_id == challenge_id
                 )
             )
         )
         result = await db.execute(query)
-        return result.scalars().first()
+        record = result.first()
+        return record._mapping if record else None
     
     async def get_participants_by_challenge(
         self, 
@@ -276,7 +314,7 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
         challenge_id: int,
         skip: int = 0,
         limit: int = 100
-    ) -> List[ChallengeParticipant]:
+    ) -> List[Dict]:
         """
         获取挑战的参与者
         
@@ -290,14 +328,14 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
             参与者列表
         """
         query = (
-            select(ChallengeParticipant)
-            .where(ChallengeParticipant.challenge_id == challenge_id)
-            .order_by(ChallengeParticipant.joined_at)
+            select(challenge_participants)
+            .where(challenge_participants.c.challenge_id == challenge_id)
+            .order_by(challenge_participants.c.joined_at)
             .offset(skip)
             .limit(limit)
         )
         result = await db.execute(query)
-        return result.scalars().all()
+        return [row._mapping for row in result.all()]
     
     async def get_challenges_by_user(
         self, 
@@ -324,10 +362,10 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
         query = (
             select(Challenge)
             .join(
-                ChallengeParticipant,
-                ChallengeParticipant.challenge_id == Challenge.id
+                challenge_participants,
+                challenge_participants.c.challenge_id == Challenge.id
             )
-            .where(ChallengeParticipant.user_id == user_id)
+            .where(challenge_participants.c.user_id == user_id)
         )
         
         if not include_inactive:
@@ -356,8 +394,8 @@ class ChallengeParticipantRepository(RepositoryBase[ChallengeParticipant, Challe
         """
         query = (
             select(func.count())
-            .select_from(ChallengeParticipant)
-            .where(ChallengeParticipant.challenge_id == challenge_id)
+            .select_from(challenge_participants)
+            .where(challenge_participants.c.challenge_id == challenge_id)
         )
         result = await db.execute(query)
         return result.scalar()

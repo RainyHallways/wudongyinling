@@ -22,7 +22,7 @@ class Prescription(Base):
     
     # 关系定义
     user: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="prescriptions")
-    doctor: Mapped[Optional["User"]] = relationship("User", foreign_keys=[doctor_id])
+    doctor: Mapped[Optional["User"]] = relationship("User", foreign_keys=[doctor_id], back_populates="doctor_prescriptions")
     exercises: Mapped[List["PrescriptionExercise"]] = relationship("PrescriptionExercise", back_populates="prescription")
 
 class PrescriptionExercise(Base):

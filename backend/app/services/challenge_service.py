@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, date, timedelta
 
 from .base_service import BaseService
-from ..models.challenge import Challenge, ChallengeParticipant, ChallengeRecord
+from ..models.challenge import Challenge, challenge_participants, ChallengeRecord
 from ..repositories import (
     challenge_repository, 
     challenge_participant_repository,
@@ -156,7 +156,7 @@ class ChallengeService(BaseService[Challenge, ChallengeCreate, ChallengeUpdate])
         *, 
         challenge_id: int, 
         user_id: int
-    ) -> ChallengeParticipant:
+    ) -> Dict[str, Any]:
         """
         加入挑战
         
@@ -202,15 +202,14 @@ class ChallengeService(BaseService[Challenge, ChallengeCreate, ChallengeUpdate])
                 raise ValueError("挑战已达到最大参与人数")
                 
         # 创建参与记录
-        participant_data = {
-            "user_id": user_id,
-            "challenge_id": challenge_id,
-            "joined_at": datetime.now()
-        }
+        participant_data = ChallengeParticipantCreate(
+            user_id=user_id,
+            challenge_id=challenge_id
+        )
         
         participant = await self.participant_repository.create(
             db, 
-            obj_in=ChallengeParticipantCreate(**participant_data)
+            obj_in=participant_data
         )
         return participant
     
@@ -241,7 +240,11 @@ class ChallengeService(BaseService[Challenge, ChallengeCreate, ChallengeUpdate])
         if not participant:
             return False
             
-        await self.participant_repository.delete(db, id=participant.id)
+        await self.participant_repository.remove(
+            db,
+            user_id=user_id,
+            challenge_id=challenge_id
+        )
         return True
     
     async def get_user_challenges(
@@ -281,7 +284,7 @@ class ChallengeService(BaseService[Challenge, ChallengeCreate, ChallengeUpdate])
         challenge_id: int,
         skip: int = 0,
         limit: int = 100
-    ) -> List[ChallengeParticipant]:
+    ) -> List[Dict[str, Any]]:
         """
         获取挑战的参与者
         

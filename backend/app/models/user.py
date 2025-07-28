@@ -19,7 +19,9 @@ class User(Base):
     
     # 关系定义 - 这些将在其他模型定义后添加
     health_records: Mapped[List["HealthRecord"]] = relationship("HealthRecord", back_populates="user")
-    prescriptions: Mapped[List["Prescription"]] = relationship("Prescription", back_populates="user")
+    prescriptions: Mapped[List["Prescription"]] = relationship("Prescription", foreign_keys="Prescription.user_id", back_populates="user")
+    doctor_prescriptions: Mapped[List["Prescription"]] = relationship("Prescription", foreign_keys="Prescription.doctor_id", back_populates="doctor")
+    enrollments: Mapped[List["CourseEnrollment"]] = relationship("CourseEnrollment", back_populates="user")
     challenge_records: Mapped[List["ChallengeRecord"]] = relationship("ChallengeRecord", back_populates="user")
     sent_messages: Mapped[List["ChatMessage"]] = relationship("ChatMessage", foreign_keys="ChatMessage.sender_id", back_populates="sender")
     received_messages: Mapped[List["ChatMessage"]] = relationship("ChatMessage", foreign_keys="ChatMessage.receiver_id", back_populates="receiver")
