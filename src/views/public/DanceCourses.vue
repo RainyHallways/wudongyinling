@@ -162,7 +162,7 @@ const filteredCourses = computed(() => {
 
 // 获取难度标签的样式类型
 const getDifficultyType = (difficulty) => {
-  if (!difficulty) return ''
+  if (!difficulty) return 'info'
   
   switch (difficulty) {
     case '初级':
