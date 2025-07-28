@@ -167,9 +167,15 @@ const startRecording = async (): Promise<void> => {
     console.error('无法访问摄像头:', err)
     let message = '无法访问摄像头，请检查权限或设备连接。'
     if (err.name === 'NotAllowedError') {
-      message = '您拒绝了摄像头访问权限。'
+      message = '您拒绝了摄像头访问权限。请在浏览器设置中允许摄像头访问。'
     } else if (err.name === 'NotFoundError') {
-      message = '未检测到摄像头设备。'
+      message = '未检测到摄像头设备。请确认设备已正确连接。'
+    } else if (err.name === 'NotReadableError') {
+      message = '摄像头设备被其他应用程序占用。请关闭其他使用摄像头的应用程序，然后重试。'
+    } else if (err.name === 'OverconstrainedError') {
+      message = '摄像头不支持当前配置。'
+    } else if (err.name === 'SecurityError') {
+      message = '由于安全限制无法访问摄像头。请确保在HTTPS环境下使用。'
     }
     ElMessage.error(message)
     isCameraActive.value = false // 确保状态回滚
