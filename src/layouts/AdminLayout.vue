@@ -2,10 +2,15 @@
   <div class="admin-layout">
     <el-container class="layout-container">
       <!-- 侧边导航 -->
-      <el-aside width="240px" class="aside">
+      <el-aside 
+        :width="isCollapse ? '64px' : '240px'" 
+        class="aside"
+        :class="{ 'is-collapse': isCollapse }"
+      >
         <div class="logo">
-          <h1>舞动银龄</h1>
-          <p>管理后台</p>
+          <h1 v-show="!isCollapse">舞动银龄</h1>
+          <h1 v-show="isCollapse" class="logo-mini">舞</h1>
+          <p v-show="!isCollapse">管理后台</p>
         </div>
         
         <el-menu
@@ -133,16 +138,63 @@ const userStore = useUserStore()
 
 // 侧边栏折叠状态
 const isCollapse = ref(false)
+const isMobile = ref(false)
 
 // 计算当前激活的菜单
 const activeMenu = computed(() => {
   return route.path
 })
 
+// 检查是否是移动端
+const checkMobile = () => {
+  const wasMobile = isMobile.value
+  isMobile.value = window.innerWidth <= 768
+  
+  // 只在初次检测或从桌面端切换到移动端时设置默认折叠状态
+  if (isMobile.value && !wasMobile) {
+    isCollapse.value = true // 移动端默认折叠
+  }
+  // 从移动端切换回桌面端时展开侧边栏
+  else if (!isMobile.value && wasMobile) {
+    isCollapse.value = false
+  }
+}
+
 // 切换侧边栏
 const toggleSidebar = () => {
   isCollapse.value = !isCollapse.value
 }
+
+// 监听窗口大小变化
+const handleResize = () => {
+  checkMobile()
+}
+
+// 点击外部区域收回侧边栏
+const handleClickOutside = (event: Event) => {
+  if (isMobile.value && !isCollapse.value) {
+    const aside = document.querySelector('.aside')
+    const target = event.target as Node
+    
+    if (aside && !aside.contains(target)) {
+      isCollapse.value = true
+    }
+  }
+}
+
+// 组件挂载时检查屏幕尺寸
+import { onMounted, onUnmounted } from 'vue'
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', handleResize)
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // 跳转到个人信息页
 const toUserProfile = () => {
@@ -170,6 +222,12 @@ const handleLogout = async () => {
   background-color: #304156;
   transition: width 0.3s;
   overflow-x: hidden;
+  position: relative;
+  z-index: 100;
+}
+
+.aside.is-collapse {
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -180,6 +238,7 @@ const handleLogout = async () => {
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .logo h1 {
@@ -187,12 +246,19 @@ const handleLogout = async () => {
   font-size: 18px;
   margin: 0;
   line-height: 1.2;
+  transition: opacity 0.3s;
+}
+
+.logo-mini {
+  font-size: 24px !important;
+  font-weight: bold;
 }
 
 .logo p {
   color: #bfcbd9;
   font-size: 12px;
   margin: 5px 0 0;
+  transition: opacity 0.3s;
 }
 
 .el-menu-vertical {
@@ -265,10 +331,15 @@ const handleLogout = async () => {
     height: 100%;
     transform: translateX(0);
     transition: transform 0.3s;
+    width: 240px !important; /* 移动端固定宽度 */
   }
   
   .aside.is-collapse {
     transform: translateX(-240px);
+  }
+  
+  .main-container {
+    margin-left: 0;
   }
   
   .header {
@@ -277,6 +348,32 @@ const handleLogout = async () => {
   
   .main {
     padding: 15px;
+  }
+  
+  /* 移动端遮罩 */
+  .aside:not(.is-collapse)::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 99;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .username {
+    display: none; /* 小屏幕隐藏用户名 */
+  }
+  
+  .header {
+    padding: 0 5px;
+  }
+  
+  .main {
+    padding: 10px;
   }
 }
 </style> 
