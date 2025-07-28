@@ -48,14 +48,19 @@
       <!-- 右侧选项卡 -->
       <el-col :xs="24" :md="16">
         <el-card shadow="hover">
-          <el-tabs>
-            <el-tab-pane label="基本信息">
-              <el-form :model="userForm" label-width="100px">
-                <el-form-item label="用户昵称">
+          <el-tabs v-model="activeTab" @tab-change="handleTabChange">
+            <el-tab-pane label="基本信息" name="profile">
+              <el-form 
+                ref="profileFormRef"
+                :model="userForm" 
+                :rules="profileRules"
+                label-width="100px"
+              >
+                <el-form-item label="用户昵称" prop="nickname">
                   <el-input v-model="userForm.nickname" placeholder="请输入昵称"></el-input>
                 </el-form-item>
                 
-                <el-form-item label="性别">
+                <el-form-item label="性别" prop="gender">
                   <el-radio-group v-model="userForm.gender">
                     <el-radio :label="1">男</el-radio>
                     <el-radio :label="2">女</el-radio>
@@ -63,15 +68,15 @@
                   </el-radio-group>
                 </el-form-item>
                 
-                <el-form-item label="年龄">
+                <el-form-item label="年龄" prop="age">
                   <el-input-number v-model="userForm.age" :min="1" :max="120"></el-input-number>
                 </el-form-item>
                 
-                <el-form-item label="手机号码">
+                <el-form-item label="手机号码" prop="phone">
                   <el-input v-model="userForm.phone" placeholder="请输入手机号码"></el-input>
                 </el-form-item>
                 
-                <el-form-item label="个人简介">
+                <el-form-item label="个人简介" prop="bio">
                   <el-input 
                     v-model="userForm.bio" 
                     type="textarea" 
@@ -81,12 +86,18 @@
                 </el-form-item>
                 
                 <el-form-item>
-                  <el-button type="primary" @click="saveUserInfo">保存信息</el-button>
+                  <el-button 
+                    type="primary" 
+                    @click="saveUserInfo"
+                    :loading="saving"
+                  >
+                    保存信息
+                  </el-button>
                 </el-form-item>
               </el-form>
             </el-tab-pane>
             
-            <el-tab-pane label="舞蹈历程">
+            <el-tab-pane label="舞蹈历程" name="history">
               <el-empty v-if="danceHistory.length === 0" description="暂无舞蹈历程记录"></el-empty>
               <el-timeline v-else>
                 <el-timeline-item
@@ -100,7 +111,7 @@
               </el-timeline>
             </el-tab-pane>
             
-            <el-tab-pane label="我的收藏">
+            <el-tab-pane label="我的收藏" name="favorites">
               <el-empty v-if="favoriteCourses.length === 0" description="暂无收藏的课程"></el-empty>
               <div v-else class="course-grid">
                 <el-card 
@@ -125,7 +136,7 @@
               </div>
             </el-tab-pane>
             
-            <el-tab-pane label="账号安全">
+            <el-tab-pane label="账号安全" name="security">
               <el-form label-width="100px">
                 <el-form-item label="修改密码">
                   <el-button type="primary" @click="showChangePasswordDialog">修改密码</el-button>
@@ -152,45 +163,135 @@
                 </el-form-item>
               </el-form>
             </el-tab-pane>
+            
+            <el-tab-pane label="修改密码" name="password">
+              <el-form 
+                ref="passwordFormRef"
+                :model="passwordForm" 
+                :rules="passwordRules"
+                label-width="120px"
+                style="max-width: 400px"
+              >
+                <el-form-item label="当前密码" prop="currentPassword">
+                  <el-input 
+                    v-model="passwordForm.currentPassword" 
+                    type="password" 
+                    placeholder="请输入当前密码"
+                    show-password
+                  />
+                </el-form-item>
+                
+                <el-form-item label="新密码" prop="newPassword">
+                  <el-input 
+                    v-model="passwordForm.newPassword" 
+                    type="password" 
+                    placeholder="请输入新密码（至少6位）"
+                    show-password
+                  />
+                </el-form-item>
+                
+                <el-form-item label="确认新密码" prop="confirmPassword">
+                  <el-input 
+                    v-model="passwordForm.confirmPassword" 
+                    type="password" 
+                    placeholder="请再次输入新密码"
+                    show-password
+                  />
+                </el-form-item>
+                
+                <el-form-item>
+                  <el-button 
+                    type="primary" 
+                    @click="changePassword"
+                    :loading="passwordChanging"
+                  >
+                    修改密码
+                  </el-button>
+                  <el-button @click="resetPasswordForm">重置</el-button>
+                </el-form-item>
+              </el-form>
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
     </el-row>
     
-    <!-- 修改密码对话框 -->
+    <!-- 修改密码对话框（保留作为备用） -->
     <el-dialog
       v-model="changePasswordDialog"
       title="修改密码"
       width="500px"
     >
-      <el-form :model="passwordForm" label-width="100px">
-        <el-form-item label="当前密码">
-          <el-input v-model="passwordForm.currentPassword" type="password"></el-input>
+      <el-form 
+        ref="dialogPasswordFormRef"
+        :model="dialogPasswordForm" 
+        :rules="passwordRules"
+        label-width="120px"
+      >
+        <el-form-item label="当前密码" prop="currentPassword">
+          <el-input 
+            v-model="dialogPasswordForm.currentPassword" 
+            type="password"
+            show-password
+          />
         </el-form-item>
-        <el-form-item label="新密码">
-          <el-input v-model="passwordForm.newPassword" type="password"></el-input>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input 
+            v-model="dialogPasswordForm.newPassword" 
+            type="password"
+            show-password
+          />
         </el-form-item>
-        <el-form-item label="确认新密码">
-          <el-input v-model="passwordForm.confirmPassword" type="password"></el-input>
+        <el-form-item label="确认新密码" prop="confirmPassword">
+          <el-input 
+            v-model="dialogPasswordForm.confirmPassword" 
+            type="password"
+            show-password
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="changePasswordDialog = false">取消</el-button>
-          <el-button type="primary" @click="changePassword">确认</el-button>
+          <el-button 
+            type="primary" 
+            @click="changePasswordFromDialog"
+            :loading="passwordChanging"
+          >
+            确认
+          </el-button>
         </span>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, reactive } from 'vue';
-import { ElMessage } from 'element-plus';
-import PageHeader from '../../components/common/PageHeader.vue';
-import { Edit, View, Star } from '@element-plus/icons-vue';
+<script setup lang="ts">
+import { ref, onMounted, reactive, nextTick, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
+import { useUserStore } from '@/stores/user'
+import { request } from '@/utils/request'
+import PageHeader from '@/components/common/PageHeader.vue'
+import { Edit, View, Star } from '@element-plus/icons-vue'
 
-const defaultAvatar = '/public/images/default-avatar.png'; // 默认头像路径
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+
+const defaultAvatar = '/images/default-avatar.png'
+
+// 当前激活的标签页
+const activeTab = ref('profile')
+
+// 表单引用
+const profileFormRef = ref<FormInstance>()
+const passwordFormRef = ref<FormInstance>()
+const dialogPasswordFormRef = ref<FormInstance>()
+
+// 加载状态
+const saving = ref(false)
+const passwordChanging = ref(false)
 
 // 用户信息
 const userInfo = ref({
@@ -203,7 +304,7 @@ const userInfo = ref({
   gender: 1,
   age: 65,
   bio: '退休后爱上了舞蹈，希望通过舞蹈保持健康活力！'
-});
+})
 
 // 用户表单数据
 const userForm = reactive({
@@ -212,14 +313,29 @@ const userForm = reactive({
   age: userInfo.value.age,
   phone: userInfo.value.phone,
   bio: userInfo.value.bio
-});
+})
+
+// 表单验证规则
+const profileRules: FormRules = {
+  nickname: [
+    { required: true, message: '请输入昵称', trigger: 'blur' },
+    { min: 2, max: 20, message: '昵称长度应为2-20个字符', trigger: 'blur' }
+  ],
+  phone: [
+    { 
+      pattern: /^1[3-9]\d{9}$/, 
+      message: '请输入正确的手机号码', 
+      trigger: 'blur' 
+    }
+  ]
+}
 
 // 用户统计数据
 const userStats = ref({
   danceHours: 32,
   completedCourses: 8,
   achievements: 5
-});
+})
 
 // 用户等级信息
 const userLevel = ref({
@@ -227,7 +343,7 @@ const userLevel = ref({
   currentExp: 75,
   nextLevelExp: 100,
   progress: 75
-});
+})
 
 // 舞蹈历程
 const danceHistory = ref([
@@ -246,14 +362,14 @@ const danceHistory = ref([
     type: 'success',
     content: '完成了《中国古典舞基础》课程，达到初级水平'
   }
-]);
+])
 
 // 收藏的课程
 const favoriteCourses = ref([
   {
     id: 1,
     title: '太极舞基础入门',
-    coverImg: '/public/images/dance1.jpg',
+    coverImg: '/images/dance1.jpg',
     category: '太极舞',
     viewCount: 1253,
     favoriteCount: 328
@@ -261,7 +377,7 @@ const favoriteCourses = ref([
   {
     id: 2,
     title: '广场舞健身课程',
-    coverImg: '/public/images/dance2.jpg',
+    coverImg: '/images/dance2.jpg',
     category: '广场舞',
     viewCount: 2156,
     favoriteCount: 512
@@ -269,122 +385,274 @@ const favoriteCourses = ref([
   {
     id: 3,
     title: '民族舞蹈欣赏',
-    coverImg: '/public/images/dance3.jpg',
+    coverImg: '/images/dance3.jpg',
     category: '民族舞',
     viewCount: 1855,
     favoriteCount: 423
   }
-]);
+])
 
 // 修改密码相关
-const changePasswordDialog = ref(false);
+const changePasswordDialog = ref(false)
 const passwordForm = reactive({
   currentPassword: '',
   newPassword: '',
   confirmPassword: ''
-});
+})
+
+const dialogPasswordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+// 密码验证规则
+const passwordRules: FormRules = {
+  currentPassword: [
+    { required: true, message: '请输入当前密码', trigger: 'blur' }
+  ],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码长度至少为6位', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== passwordForm.newPassword && value !== dialogPasswordForm.newPassword) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
+// 监听路由参数变化
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string') {
+    activeTab.value = newTab
+  }
+}, { immediate: true })
 
 // 页面加载时获取用户数据
 onMounted(() => {
-  fetchUserData();
-});
+  fetchUserData()
+  
+  // 检查路由参数中的tab
+  if (route.query.tab) {
+    activeTab.value = route.query.tab as string
+  }
+})
+
+// 标签页切换处理
+const handleTabChange = (tabName: string) => {
+  // 更新路由参数，但不刷新页面
+  router.replace({ 
+    path: route.path, 
+    query: { ...route.query, tab: tabName }
+  })
+}
 
 // 获取用户数据
-const fetchUserData = () => {
-  // 模拟API调用
-  console.log('获取用户数据...');
-  // 实际项目中应该调用API获取数据
-  // userApi.getUserProfile().then(response => { ... })
-};
+const fetchUserData = async () => {
+  try {
+    // 从用户store获取当前用户信息
+    if (userStore.userInfo && userStore.userInfo.id) {
+      userInfo.value = { ...userInfo.value, ...userStore.userInfo }
+      
+      // 更新表单数据
+      Object.assign(userForm, {
+        nickname: userInfo.value.nickname,
+        gender: userInfo.value.gender,
+        age: userInfo.value.age,
+        phone: userInfo.value.phone,
+        bio: userInfo.value.bio
+      })
+    }
+    
+    // 获取用户详细信息的API调用可以在这里添加
+    // const response = await request.get(`/users/${userStore.userInfo.id}`)
+    // userInfo.value = response
+  } catch (error) {
+    console.error('获取用户数据失败:', error)
+  }
+}
 
 // 保存用户信息
-const saveUserInfo = () => {
-  // 模拟API调用
-  console.log('保存用户信息:', userForm);
+const saveUserInfo = async () => {
+  if (!profileFormRef.value) return
   
-  // 更新本地userInfo数据
-  userInfo.value = {
-    ...userInfo.value,
-    ...userForm
-  };
+  try {
+    const valid = await profileFormRef.value.validate()
+    if (!valid) return
+    
+    saving.value = true
+    
+    // API调用保存用户信息
+    // await request.put(`/users/${userInfo.value.id}`, userForm)
+    
+    // 模拟API调用
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // 更新本地userInfo数据
+    Object.assign(userInfo.value, userForm)
+    
+    // 更新用户store中的信息
+    userStore.setUserInfo({ ...userStore.userInfo, ...userForm })
+    
+    ElMessage.success('个人信息保存成功')
+  } catch (error) {
+    console.error('保存用户信息失败:', error)
+    ElMessage.error('保存失败，请稍后重试')
+  } finally {
+    saving.value = false
+  }
+}
+
+// 修改密码
+const changePassword = async () => {
+  if (!passwordFormRef.value) return
   
-  ElMessage({
-    type: 'success',
-    message: '个人信息保存成功'
-  });
+  try {
+    const valid = await passwordFormRef.value.validate()
+    if (!valid) return
+    
+    passwordChanging.value = true
+    
+    // 调用后端API修改密码
+    await request.patch(`/users/${userInfo.value.id}/change-password`, {
+      current_password: passwordForm.currentPassword,
+      new_password: passwordForm.newPassword,
+      confirm_password: passwordForm.confirmPassword
+    })
+    
+    ElMessage.success('密码修改成功')
+    resetPasswordForm()
+    
+    // 提示用户重新登录
+    ElMessageBox.confirm(
+      '密码修改成功，为了安全起见，请重新登录',
+      '提示',
+      {
+        confirmButtonText: '重新登录',
+        cancelButtonText: '稍后登录',
+        type: 'success'
+      }
+    ).then(() => {
+      userStore.logout()
+    }).catch(() => {
+      // 用户选择稍后登录
+    })
+    
+  } catch (error: any) {
+    console.error('修改密码失败:', error)
+    const message = error.response?.data?.detail || '修改密码失败，请稍后重试'
+    ElMessage.error(message)
+  } finally {
+    passwordChanging.value = false
+  }
+}
+
+// 从对话框修改密码
+const changePasswordFromDialog = async () => {
+  if (!dialogPasswordFormRef.value) return
   
-  // 实际项目中应该调用API保存数据
-  // userApi.updateUserProfile(userForm).then(response => { ... })
-};
+  try {
+    const valid = await dialogPasswordFormRef.value.validate()
+    if (!valid) return
+    
+    passwordChanging.value = true
+    
+    // 调用后端API修改密码
+    await request.patch(`/users/${userInfo.value.id}/change-password`, {
+      current_password: dialogPasswordForm.currentPassword,
+      new_password: dialogPasswordForm.newPassword,
+      confirm_password: dialogPasswordForm.confirmPassword
+    })
+    
+    ElMessage.success('密码修改成功')
+    changePasswordDialog.value = false
+    resetDialogPasswordForm()
+    
+    // 提示用户重新登录
+    ElMessageBox.confirm(
+      '密码修改成功，为了安全起见，请重新登录',
+      '提示',
+      {
+        confirmButtonText: '重新登录',
+        cancelButtonText: '稍后登录',
+        type: 'success'
+      }
+    ).then(() => {
+      userStore.logout()
+    }).catch(() => {
+      // 用户选择稍后登录
+    })
+    
+  } catch (error: any) {
+    console.error('修改密码失败:', error)
+    const message = error.response?.data?.detail || '修改密码失败，请稍后重试'
+    ElMessage.error(message)
+  } finally {
+    passwordChanging.value = false
+  }
+}
+
+// 重置密码表单
+const resetPasswordForm = () => {
+  Object.assign(passwordForm, {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  passwordFormRef.value?.clearValidate()
+}
+
+const resetDialogPasswordForm = () => {
+  Object.assign(dialogPasswordForm, {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  dialogPasswordFormRef.value?.clearValidate()
+}
 
 // 查看课程详情
-const viewCourse = (courseId) => {
-  console.log('查看课程详情:', courseId);
-  // 实际项目中应该跳转到课程详情页
-  // router.push(`/course/${courseId}`);
-};
+const viewCourse = (courseId: number) => {
+  router.push(`/dance-courses/${courseId}`)
+}
 
 // 显示修改密码对话框
 const showChangePasswordDialog = () => {
-  changePasswordDialog.value = true;
-  // 重置表单
-  passwordForm.currentPassword = '';
-  passwordForm.newPassword = '';
-  passwordForm.confirmPassword = '';
-};
-
-// 修改密码
-const changePassword = () => {
-  // 表单验证
-  if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-    ElMessage.error('请填写完整密码信息');
-    return;
-  }
-  
-  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    ElMessage.error('两次输入的新密码不一致');
-    return;
-  }
-  
-  // 模拟API调用
-  console.log('修改密码:', passwordForm);
-  
-  // 关闭对话框
-  changePasswordDialog.value = false;
-  
-  ElMessage({
-    type: 'success',
-    message: '密码修改成功'
-  });
-  
-  // 实际项目中应该调用API修改密码
-  // userApi.changePassword(passwordForm).then(response => { ... })
-};
+  changePasswordDialog.value = true
+  resetDialogPasswordForm()
+}
 
 // 显示绑定手机对话框
 const showBindPhoneDialog = () => {
-  console.log('显示绑定手机对话框');
-  // 实现绑定手机逻辑
-};
+  ElMessage.info('绑定手机功能开发中...')
+}
 
 // 显示绑定邮箱对话框
 const showBindEmailDialog = () => {
-  console.log('显示绑定邮箱对话框');
-  // 实现绑定邮箱逻辑
-};
+  ElMessage.info('绑定邮箱功能开发中...')
+}
 
 // 手机号脱敏
-const maskPhone = (phone) => {
-  if (!phone) return '';
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
-};
+const maskPhone = (phone: string) => {
+  if (!phone) return ''
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+}
 
 // 邮箱脱敏
-const maskEmail = (email) => {
-  if (!email) return '';
-  const [username, domain] = email.split('@');
-  return `${username.charAt(0)}***@${domain}`;
-};
+const maskEmail = (email: string) => {
+  if (!email) return ''
+  const [username, domain] = email.split('@')
+  return `${username.charAt(0)}***@${domain}`
+}
 </script>
 
 <style scoped>
@@ -515,5 +783,17 @@ const maskEmail = (email) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .user-profile-container {
+    padding: 10px;
+  }
+  
+  .course-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
 }
 </style> 
