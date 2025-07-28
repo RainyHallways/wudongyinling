@@ -7,7 +7,7 @@ def init_db(db: Session) -> None:
     if not user:
         user = User(
             username="admin",
-            hashed_password=get_password_hash("admin"),
+            hashed_password=get_password_hash("123456"),
             is_superuser=True
         )
         db.add(user)
