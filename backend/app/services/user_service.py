@@ -1,10 +1,11 @@
 from typing import List, Optional, Dict, Any, Union
 from sqlalchemy.ext.asyncio import AsyncSession
+from passlib.context import CryptContext
 
 from .base_service import BaseService
 from ..models.user import User
 from ..repositories import user_repository
-from ..schemas.user import UserCreate, UserUpdate
+from ..schemas.user import UserCreate, UserUpdate, PasswordChange
 
 class UserService(BaseService[User, UserCreate, UserUpdate]):
     """
@@ -218,4 +219,46 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         Returns:
             用户是否是管理员
         """
-        return await self.repository.is_admin(user) 
+        return await self.repository.is_admin(user)
+    
+    async def change_password(
+        self,
+        db: AsyncSession,
+        *,
+        user_id: int,
+        password_data: PasswordChange
+    ) -> bool:
+        """
+        修改用户密码
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            password_data: 密码修改数据
+            
+        Returns:
+            修改是否成功
+            
+        Raises:
+            ValueError: 当前密码错误或其他验证失败
+        """
+        # 获取用户
+        user = await self.repository.get(db, user_id)
+        if not user:
+            raise ValueError("用户不存在")
+        
+        # 初始化密码上下文
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
+        # 验证当前密码
+        if not pwd_context.verify(password_data.current_password, user.hashed_password):
+            raise ValueError("当前密码错误")
+        
+        # 生成新密码哈希
+        new_hashed_password = pwd_context.hash(password_data.new_password)
+        
+        # 更新密码
+        user_update = UserUpdate(hashed_password=new_hashed_password)
+        await self.repository.update(db, db_obj=user, obj_in=user_update)
+        
+        return True 

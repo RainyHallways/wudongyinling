@@ -53,6 +53,19 @@ class UserLogin(BaseSchema):
     username: str = Field(..., description="用户名")
     password: str = Field(..., description="密码")
 
+class PasswordChange(BaseSchema):
+    """修改密码请求模型"""
+    current_password: str = Field(..., description="当前密码")
+    new_password: str = Field(..., min_length=6, description="新密码")
+    confirm_password: str = Field(..., description="确认新密码")
+    
+    @validator('confirm_password')
+    def passwords_match(cls, v, values):
+        """验证两次输入的密码是否一致"""
+        if 'new_password' in values and v != values['new_password']:
+            raise ValueError('两次输入的密码不一致')
+        return v
+
 class TokenResponse(BaseSchema):
     """登录响应模型"""
     access_token: str = Field(..., description="访问令牌")

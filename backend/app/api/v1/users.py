@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
 from ...core.database import get_async_db
-from ...schemas.user import UserCreate, UserUpdate, UserPublic
+from ...schemas.user import UserCreate, UserUpdate, UserPublic, PasswordChange
 from ...schemas.base import DataResponse, ListResponse
 from ...services.user_service import UserService
 
@@ -109,4 +109,27 @@ async def deactivate_user(
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
     
-    return DataResponse(data=user, message="用户已停用") 
+    return DataResponse(data=user, message="用户已停用")
+
+@router.patch("/{user_id}/change-password", response_model=DataResponse)
+async def change_user_password(
+    user_id: int,
+    password_data: PasswordChange,
+    db: AsyncSession = Depends(get_async_db),
+    user_service: UserService = Depends()
+):
+    """
+    修改用户密码
+    """
+    try:
+        success = await user_service.change_password(
+            db, 
+            user_id=user_id, 
+            password_data=password_data
+        )
+        if success:
+            return DataResponse(message="密码修改成功")
+        else:
+            raise HTTPException(status_code=400, detail="密码修改失败")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) 
