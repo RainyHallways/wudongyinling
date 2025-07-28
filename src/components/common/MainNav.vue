@@ -84,7 +84,7 @@
           </div>
           
           <div class="mobile-menu-toggle">
-            <el-button type="text" @click="drawerVisible = true">
+            <el-button link @click="drawerVisible = true">
               <el-icon size="26"><Menu /></el-icon>
             </el-button>
           </div>

@@ -54,20 +54,29 @@ export const useUserStore = defineStore('user', {
         this.loading = true
         this.error = null
         
-        // 根据是否是管理员调用不同的登录接口
-        const endpoint = credentials.isAdmin ? '/auth/admin/login' : '/auth/login'
-        const data = await request.post(endpoint, credentials)
+        // 统一使用一个登录接口
+        const data = await request.post('/auth/login', {
+          username: credentials.username,
+          password: credentials.password
+        })
         
         // 保存登录信息
-        this.setToken(data.token)
+        this.setToken(data.access_token)
         this.setUserInfo(data.user)
-        this.setRoles(data.roles || [])
+        
+        // 根据用户的is_admin属性设置角色
+        const roles = data.user.is_admin ? ['admin'] : ['user']
+        this.setRoles(roles)
         
         ElMessage.success('登录成功')
         
-        // 登录成功后跳转
-        if (credentials.isAdmin) {
+        // 根据用户类型和登录意图进行跳转
+        if (credentials.isAdmin && data.user.is_admin) {
           router.push('/admin')
+        } else if (credentials.isAdmin && !data.user.is_admin) {
+          ElMessage.error('您没有管理员权限')
+          this.resetState()
+          return
         } else {
           router.push('/')
         }
@@ -75,7 +84,7 @@ export const useUserStore = defineStore('user', {
         return data
       } catch (error: any) {
         this.error = error.message || '登录失败'
-        ElMessage.error(this.error)
+        ElMessage.error(this.error || '登录失败')
         throw error
       } finally {
         this.loading = false
@@ -105,7 +114,7 @@ export const useUserStore = defineStore('user', {
         return data
       } catch (error: any) {
         this.error = error.message || '获取用户信息失败'
-        ElMessage.error(this.error)
+        ElMessage.error(this.error || '获取用户信息失败')
         throw error
       } finally {
         this.loading = false
@@ -200,7 +209,7 @@ export const useUserStore = defineStore('user', {
         return data
       } catch (error: any) {
         this.error = error.message || '更新用户信息失败'
-        ElMessage.error(this.error)
+        ElMessage.error(this.error || '更新用户信息失败')
         throw error
       } finally {
         this.loading = false
