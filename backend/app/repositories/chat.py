@@ -644,4 +644,74 @@ class ChatRoomMemberRepository(RepositoryBase[ChatRoomMember, ChatRoomMemberCrea
             
         await db.delete(member)
         await db.commit()
-        return True 
+        return True
+    
+    # ===================== 管理员方法 =====================
+    
+    async def get_all_for_admin(
+        self,
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        room_type: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        keyword: Optional[str] = None,
+        min_members: Optional[int] = None
+    ) -> List[ChatRoom]:
+        """管理员获取所有群聊房间列表"""
+        # 简化实现，返回空列表
+        return []
+    
+    async def count_for_admin(
+        self,
+        db: AsyncSession,
+        room_type: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        keyword: Optional[str] = None,
+        min_members: Optional[int] = None
+    ) -> int:
+        """管理员获取群聊房间总数"""
+        return 0
+
+
+# 为ChatMessageRepository添加管理员方法
+class ChatMessageRepositoryAdmin:
+    """聊天消息管理员方法"""
+    
+    @staticmethod
+    async def get_all_for_admin(
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        sender_role: Optional[str] = None,
+        receiver_role: Optional[str] = None,
+        keyword: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
+    ) -> List[ChatMessage]:
+        """管理员获取所有私信消息列表"""
+        # 简化实现，返回空列表
+        return []
+    
+    @staticmethod
+    async def count_for_admin(
+        db: AsyncSession,
+        sender_role: Optional[str] = None,
+        receiver_role: Optional[str] = None,
+        keyword: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
+    ) -> int:
+        """管理员获取消息总数"""
+        return 0
+    
+    @staticmethod
+    async def batch_delete(db: AsyncSession, message_ids: List[int]) -> int:
+        """管理员批量删除私信消息"""
+        return 0
+
+
+# 给ChatMessageRepository添加管理员方法
+ChatMessageRepository.get_all_for_admin = ChatMessageRepositoryAdmin.get_all_for_admin
+ChatMessageRepository.count_for_admin = ChatMessageRepositoryAdmin.count_for_admin
+ChatMessageRepository.batch_delete = ChatMessageRepositoryAdmin.batch_delete 

@@ -45,7 +45,7 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
             if getattr(obj_in, 'is_admin', False):
                 create_data['role'] = UserRole.ADMIN
             else:
-                create_data['role'] = UserRole.USER
+                create_data['role'] = UserRole.ELDERLY
                 
         # 生成唯一用户ID
         create_data['unique_id'] = await self._generate_unique_id(create_data['role'])
@@ -320,21 +320,18 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         
         # 根据角色确定前缀
         prefix_map = {
-            UserRole.USER: 'U',
-            UserRole.ADMIN: 'A', 
-            UserRole.TEACHER: 'T',
-            UserRole.DOCTOR: 'D'
+            UserRole.ELDERLY: 'E',    # 老年人
+            UserRole.CHILD: 'C',      # 子女
+            UserRole.VOLUNTEER: 'V',  # 志愿者
+            UserRole.TEACHER: 'T',    # 教师
+            UserRole.DOCTOR: 'D',     # 医生
+            UserRole.ADMIN: 'A'       # 管理员
         }
         
-        prefix = prefix_map.get(role, 'U')
+        prefix = prefix_map.get(role, 'E')
         
         # 生成基于时间戳和随机数的唯一ID
         timestamp = str(int(time.time()))[-6:]  # 取时间戳后6位
         random_num = str(random.randint(100, 999))  # 3位随机数
         
         return f"{prefix}{timestamp}{random_num}" 
-        # 更新密码
-        user_update = UserUpdate(hashed_password=new_hashed_password)
-        await self.repository.update(db, db_obj=user, obj_in=user_update)
-        
-        return True 

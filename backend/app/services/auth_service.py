@@ -123,7 +123,7 @@ class AuthService:
         
         # 确保role和unique_id有值
         from ..models.user import UserRole
-        user_role = user.role if hasattr(user, 'role') and user.role else (UserRole.ADMIN if user.is_admin else UserRole.USER)
+        user_role = user.role if hasattr(user, 'role') and user.role else (UserRole.ADMIN if user.is_admin else UserRole.ELDERLY)
         user_unique_id = user.unique_id if hasattr(user, 'unique_id') and user.unique_id else f"{'A' if user.is_admin else 'U'}{user.id:06d}"
         
         # 构建UserPublic对象

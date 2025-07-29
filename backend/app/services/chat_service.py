@@ -555,4 +555,192 @@ class ChatService(BaseService):
         Returns:
             删除的聊天室，如未找到返回None
         """
-        return await self.room_repository.delete(db, id=room_id) 
+        return await self.room_repository.delete(db, id=room_id)
+    
+    # ===================== 管理员功能 =====================
+    
+    async def get_all_messages_for_admin(
+        self,
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        sender_role: Optional[str] = None,
+        receiver_role: Optional[str] = None,
+        keyword: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
+    ) -> List[ChatMessage]:
+        """
+        管理员获取所有私信消息列表
+        """
+        return await self.message_repository.get_all_for_admin(
+            db, skip, limit, sender_role, receiver_role, keyword, start_date, end_date
+        )
+    
+    async def get_messages_count_for_admin(
+        self,
+        db: AsyncSession,
+        sender_role: Optional[str] = None,
+        receiver_role: Optional[str] = None,
+        keyword: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
+    ) -> int:
+        """
+        管理员获取消息总数
+        """
+        return await self.message_repository.count_for_admin(
+            db, sender_role, receiver_role, keyword, start_date, end_date
+        )
+    
+    async def delete_message_admin(self, db: AsyncSession, message_id: int) -> bool:
+        """
+        管理员删除私信消息
+        """
+        message = await self.message_repository.get(db, message_id)
+        if message:
+            await self.message_repository.delete(db, id=message_id)
+            return True
+        return False
+    
+    async def batch_delete_messages_admin(self, db: AsyncSession, message_ids: List[int]) -> int:
+        """
+        管理员批量删除私信消息
+        """
+        return await self.message_repository.batch_delete(db, message_ids)
+    
+    async def get_all_rooms_for_admin(
+        self,
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        room_type: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        keyword: Optional[str] = None,
+        min_members: Optional[int] = None
+    ) -> List[ChatRoom]:
+        """
+        管理员获取所有群聊房间列表
+        """
+        return await self.room_repository.get_all_for_admin(
+            db, skip, limit, room_type, is_active, keyword, min_members
+        )
+    
+    async def get_rooms_count_for_admin(
+        self,
+        db: AsyncSession,
+        room_type: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        keyword: Optional[str] = None,
+        min_members: Optional[int] = None
+    ) -> int:
+        """
+        管理员获取群聊房间总数
+        """
+        return await self.room_repository.count_for_admin(
+            db, room_type, is_active, keyword, min_members
+        )
+    
+    async def create_room_admin(
+        self, 
+        db: AsyncSession, 
+        *, 
+        obj_in: ChatRoomCreate, 
+        creator_id: int
+    ) -> ChatRoom:
+        """
+        管理员创建群聊房间
+        """
+        room_data = obj_in.model_dump()
+        room_data['creator_id'] = creator_id
+        room = await self.room_repository.create(db, obj_in=room_data)
+        
+        # 将创建者加入群聊
+        member_data = {
+            'room_id': room.id,
+            'user_id': creator_id,
+            'role': 'admin'
+        }
+        await self.member_repository.create(db, obj_in=member_data)
+        
+        return room
+    
+    async def toggle_room_status_admin(self, db: AsyncSession, room_id: int) -> Optional[ChatRoom]:
+        """
+        管理员切换群聊房间状态
+        """
+        room = await self.room_repository.get(db, room_id)
+        if room:
+            room.is_active = not room.is_active
+            await db.commit()
+            await db.refresh(room)
+        return room
+    
+    async def delete_room_admin(self, db: AsyncSession, room_id: int) -> bool:
+        """
+        管理员删除群聊房间
+        """
+        room = await self.room_repository.get(db, room_id)
+        if room:
+            await self.room_repository.delete(db, id=room_id)
+            return True
+        return False
+    
+    async def get_room_members_admin(self, db: AsyncSession, room_id: int) -> List[ChatRoomMember]:
+        """
+        管理员获取群聊成员列表
+        """
+        return await self.member_repository.get_room_members(db, room_id)
+    
+    async def add_room_member_admin(
+        self, 
+        db: AsyncSession, 
+        room_id: int, 
+        user_id: int, 
+        role: str = "member"
+    ) -> bool:
+        """
+        管理员添加群聊成员
+        """
+        try:
+            member_data = {
+                'room_id': room_id,
+                'user_id': user_id,
+                'role': role
+            }
+            await self.member_repository.create(db, obj_in=member_data)
+            return True
+        except:
+            return False
+    
+    async def update_member_role_admin(
+        self, 
+        db: AsyncSession, 
+        room_id: int, 
+        user_id: int, 
+        role: str
+    ) -> bool:
+        """
+        管理员更新群聊成员角色
+        """
+        member = await self.member_repository.get_room_member(db, room_id, user_id)
+        if member:
+            member.role = role
+            await db.commit()
+            return True
+        return False
+    
+    async def remove_room_member_admin(
+        self, 
+        db: AsyncSession, 
+        room_id: int, 
+        user_id: int
+    ) -> bool:
+        """
+        管理员移除群聊成员
+        """
+        member = await self.member_repository.get_room_member(db, room_id, user_id)
+        if member:
+            await self.member_repository.delete(db, id=member.id)
+            return True
+        return False 

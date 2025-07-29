@@ -16,6 +16,13 @@ from .chat import (
     ChatRoomRepository, 
     ChatRoomMemberRepository
 )
+from .social import (
+    PostRepository,
+    PostCommentRepository,
+    PostLikeRepository,
+    HeritageProjectRepository,
+    HeritageInheritorRepository
+)
 
 # 创建单例实例
 user_repository = UserRepository()
@@ -28,4 +35,9 @@ challenge_participant_repository = ChallengeParticipantRepository()
 challenge_record_repository = ChallengeRecordRepository()
 chat_message_repository = ChatMessageRepository()
 chat_room_repository = ChatRoomRepository()
-chat_room_member_repository = ChatRoomMemberRepository() 
+chat_room_member_repository = ChatRoomMemberRepository()
+post_repository = PostRepository()
+post_comment_repository = PostCommentRepository()
+post_like_repository = PostLikeRepository()
+heritage_project_repository = HeritageProjectRepository()
+heritage_inheritor_repository = HeritageInheritorRepository() 
