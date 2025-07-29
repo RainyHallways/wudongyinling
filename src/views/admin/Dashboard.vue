@@ -137,8 +137,9 @@ const stats = ref<DashboardStats>({
   totalCourses: 0,
   totalUsers: 0,
   totalChallenges: 0,
+  totalHealthRecords: 0,
   activeUsers: 0,
-  completedCourses: 0
+  coursesByDifficulty: {}
 })
 
 const loading = ref(false)
