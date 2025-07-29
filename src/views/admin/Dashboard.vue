@@ -192,11 +192,23 @@ onMounted(() => {
 .stat-card {
   height: 100%;
   transition: all 0.3s;
+  border: 1px solid #e6f4ff;
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.15);
+  border-color: #91d5ff;
+}
+
+.stat-card .el-card__header {
+  background: linear-gradient(135deg, #e6f4ff 0%, #bae7ff 100%);
+  border-bottom: 1px solid #91d5ff;
+}
+
+.header-card {
+  border: 1px solid #e6f4ff;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
 }
 
 .card-content {
@@ -208,7 +220,8 @@ onMounted(() => {
   margin: 0;
   font-size: 28px;
   font-weight: 600;
-  color: #409EFF;
+  color: #1890ff;
+  text-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
 }
 
 .quick-actions-content {
@@ -224,6 +237,14 @@ onMounted(() => {
   width: 110px;
   justify-content: center;
   padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.quick-actions-content .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.2);
 }
 
 .quick-actions-content .el-button .el-icon {
