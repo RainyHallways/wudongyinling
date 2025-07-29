@@ -11,13 +11,21 @@ import {
   Trophy, 
   Clock,
   Plus,
-  Like,
   MessageBox,
-  Loading
+  Loading,
+  Filter,
+  Search,
+  InfoFilled,
+  Calendar,
+  User,
+  Picture,
+  Camera,
+  View,
+  Minus
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
-import { postApi, heritageProjectApi, heritageInheritorApi, type Post, type HeritageProject, type HeritageInheritor } from '@/api/social'
+import { postApi, type Post, type HeritageProject, type HeritageInheritor } from '@/api/social'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -114,8 +122,8 @@ onMounted(() => {
 
 // 加载动态数据
 const loadFeedData = async () => {
+  postsLoading.value = true
   try {
-    postsLoading.value = true
     const response = await postApi.getPosts({
       page: postsPagination.value.page,
       page_size: postsPagination.value.page_size,
@@ -128,7 +136,52 @@ const loadFeedData = async () => {
     }
   } catch (error) {
     console.error('Failed to load posts:', error)
-    ElMessage.error('加载动态失败')
+    ElMessage.error('加载动态失败，使用模拟数据')
+    
+    // 使用模拟数据
+    posts.value = [
+      {
+        id: 1,
+        user_id: 1,
+        user: {
+          id: 1,
+          username: 'dancer_01',
+          nickname: '舞蹈爱好者小李',
+          avatar: '/images/default-avatar.png'
+        },
+        post_type: 'dance',
+        content: '今天学习了傣族孔雀舞的基本动作，感觉非常优美！',
+        media_url: '/images/傣族孔雀舞图片.png',
+        likes_count: 25,
+        comments_count: 8,
+        shares_count: 3,
+        is_public: true,
+        is_featured: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 2,
+        user_id: 2,
+        user: {
+          id: 2,
+          username: 'elderly_teacher',
+          nickname: '张老师',
+          avatar: '/images/default-avatar.png'
+        },
+        post_type: 'heritage',
+        content: '分享一段安代舞的历史背景，希望大家能了解这项美丽的非遗文化。',
+        media_url: '/images/安代舞图片.png',
+        likes_count: 42,
+        comments_count: 15,
+        shares_count: 7,
+        is_public: true,
+        is_featured: true,
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+        updated_at: new Date(Date.now() - 3600000).toISOString()
+      }
+    ]
+    postsPagination.value.total = 2
   } finally {
     postsLoading.value = false
   }
@@ -136,24 +189,124 @@ const loadFeedData = async () => {
 
 // 加载非遗数据
 const loadHeritageData = async () => {
+  heritageLoading.value = true
   try {
-    heritageLoading.value = true
-    
-    const [projectsResponse, inheritorsResponse] = await Promise.all([
-      heritageProjectApi.getProjects({ page: 1, page_size: 6 }),
-      heritageInheritorApi.getInheritors({ page: 1, page_size: 6 })
+    const [projectsRes, inheritorsRes] = await Promise.all([
+      postApi.getProjects({ page: 1, page_size: 6 }),
+      postApi.getInheritors({ page: 1, page_size: 6 })
     ])
     
-    if (projectsResponse.code === 200) {
-      heritageProjects.value = projectsResponse.data.items || []
-    }
-    
-    if (inheritorsResponse.code === 200) {
-      heritageInheritors.value = inheritorsResponse.data.items || []
-    }
+    heritageProjects.value = projectsRes.data || []
+    heritageInheritors.value = inheritorsRes.data || []
   } catch (error) {
     console.error('Failed to load heritage data:', error)
-    ElMessage.error('加载非遗数据失败')
+    ElMessage.error('加载非遗数据失败，使用模拟数据')
+    
+    // 使用模拟数据
+    heritageProjects.value = [
+      {
+        id: 1,
+        name: '傣族孔雀舞',
+        description: '傣族孔雀舞是傣族民间舞蹈的精华，是我国珍贵的民族艺术遗产之一。',
+        origin_location: '云南西双版纳',
+        category: 'dance',
+        level: 'national',
+        cover_image: '/images/傣族孔雀舞图片.png',
+        video_url: '',
+        history: '孔雀舞已有一千多年的历史，最初是模仿孔雀的各种优美姿态...',
+        characteristics: '舞蹈动作轻盈、优美，手臂和手腕的变化丰富...',
+        inheritor_id: 1,
+        inheritor: {
+          id: 1,
+          name: '杨丽萍',
+          gender: 'female',
+          birth_year: 1958,
+          hometown: '云南大理',
+          specialty: '孔雀舞',
+          is_active: true,
+          created_at: '2024-01-01 00:00:00'
+        },
+        is_active: true,
+        created_at: '2024-01-01 09:00:00'
+      },
+      {
+        id: 2,
+        name: '安代舞',
+        description: '安代舞是蒙古族民间集体舞蹈，流传在内蒙古科尔沁草原等地区。',
+        origin_location: '内蒙古通辽',
+        category: 'dance',
+        level: 'national',
+        cover_image: '/images/安代舞图片.png',
+        video_url: '',
+        history: '安代舞起源于明末清初，最初是一种治病的萨满教舞蹈...',
+        characteristics: '舞蹈节奏明快，动作简单易学，具有浓厚的生活气息...',
+        inheritor_id: 2,
+        inheritor: {
+          id: 2,
+          name: '包布和',
+          gender: 'male',
+          birth_year: 1960,
+          hometown: '内蒙古通辽',
+          specialty: '安代舞',
+          is_active: true,
+          created_at: '2024-01-01 00:00:00'
+        },
+        is_active: true,
+        created_at: '2024-01-01 09:00:00'
+      },
+      {
+        id: 3,
+        name: '藏族锅庄舞',
+        description: '锅庄舞是藏族的民间舞蹈，在节庆活动中表演，是藏族文化的重要组成部分。',
+        origin_location: '西藏拉萨',
+        category: 'dance',
+        level: 'national',
+        cover_image: '/images/藏族锅庄舞图片.png',
+        video_url: '',
+        history: '锅庄舞历史悠久，起源于古代藏族祭祀活动...',
+        characteristics: '舞蹈队形变化丰富，男女分组对舞，动作优美大方...',
+        inheritor_id: 3,
+        inheritor: {
+          id: 3,
+          name: '次旺多吉',
+          gender: 'male',
+          birth_year: 1955,
+          hometown: '西藏拉萨',
+          specialty: '藏族锅庄舞',
+          is_active: true,
+          created_at: '2024-01-01 00:00:00'
+        },
+        is_active: true,
+        created_at: '2024-01-01 09:00:00'
+      }
+    ]
+    
+    heritageInheritors.value = [
+      {
+        id: 1,
+        name: '杨丽萍',
+        gender: 'female',
+        birth_year: 1958,
+        hometown: '云南大理',
+        specialty: '孔雀舞',
+        avatar: '/images/非遗传承人1.png',
+        bio: '著名舞蹈家，被誉为"孔雀公主"...',
+        is_active: true,
+        created_at: '2024-01-01 00:00:00'
+      },
+      {
+        id: 2,
+        name: '包布和',
+        gender: 'male',
+        birth_year: 1960,
+        hometown: '内蒙古通辽',
+        specialty: '安代舞',
+        avatar: '/images/非遗传承人2.png',
+        bio: '蒙古族安代舞传承人，从事安代舞教学30余年...',
+        is_active: true,
+        created_at: '2024-01-01 00:00:00'
+      }
+    ]
   } finally {
     heritageLoading.value = false
   }
@@ -318,12 +471,114 @@ const formatTime = (timestamp: string) => {
   return date.toLocaleDateString()
 }
 
+// 获取动态类型文本
+const getPostTypeText = (type: string) => {
+  switch (type) {
+    case 'text':
+      return '文字'
+    case 'image':
+      return '图片'
+    case 'video':
+      return '视频'
+    case 'dance':
+      return '舞蹈'
+    case 'heritage':
+      return '非遗'
+    default:
+      return '未知'
+  }
+}
+
+// 获取动态类型颜色
+const getPostTypeColor = (type: string) => {
+  switch (type) {
+    case 'text':
+      return 'info'
+    case 'image':
+      return 'success'
+    case 'video':
+      return 'warning'
+    case 'dance':
+      return 'primary'
+    case 'heritage':
+      return 'danger'
+    default:
+      return 'info'
+  }
+}
+
 // 默认头像
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+
+// 加入非遗计划
+const joinHeritageProject = async (project: HeritageProject) => {
+  if (!userStore.user?.id) {
+    ElMessage.warning('请先登录')
+    return
+  }
+
+  try {
+    await postApi.joinHeritageProject(project.id, userStore.user.id)
+    ElMessage.success(`已加入${project.name}传承计划！群聊也已自动加入，快去和其他传承者交流吧！`)
+    
+    // 更新项目状态
+    project.isJoined = true
+    
+    // 可以选择跳转到聊天室
+    ElMessageBox.confirm('是否立即前往群聊与其他传承者交流？', '提示', {
+      confirmButtonText: '前往群聊',
+      cancelButtonText: '稍后再说',
+      type: 'info'
+    }).then(() => {
+      // 跳转到聊天室
+      router.push('/chat-room')
+    }).catch(() => {
+      // 用户选择稍后再说
+    })
+    
+  } catch (error) {
+    console.error('Failed to join heritage project:', error)
+    ElMessage.error('加入计划失败，请稍后重试')
+  }
+}
+
+// 退出非遗计划
+const leaveHeritageProject = async (project: HeritageProject) => {
+  if (!userStore.user?.id) {
+    ElMessage.warning('请先登录')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(`确定要退出${project.name}传承计划吗？退出后将无法访问相关群聊。`, '确认退出', {
+      confirmButtonText: '确定退出',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+
+    await postApi.leaveHeritageProject(project.id, userStore.user.id)
+    ElMessage.success('已退出传承计划')
+    
+    // 更新项目状态
+    project.isJoined = false
+    
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Failed to leave heritage project:', error)
+      ElMessage.error('退出计划失败，请稍后重试')
+    }
+  }
+}
+
+// 查看项目详情
+const viewProjectDetail = (project: HeritageProject) => {
+  ElMessage.info('项目详情页面开发中...')
+  // TODO: 跳转到项目详情页
+}
 </script>
 
 <template>
-  <div class="social-platform">
+  <div class="social-platform page-with-nav">
     <PageHeader title="社交激励" subtitle="与舞友互动交流，共同进步" />
     
     <!-- 标签页 - 改用自定义样式取代el-tabs -->
@@ -339,49 +594,112 @@ const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726
         </button>
       </div>
       
-      <!-- 动态广场内容 -->
+      <!-- 动态广场筛选和操作栏 -->
       <div v-show="activeTab === 'feed'" class="tab-content">
-        <div class="social-cards">
-          <ElCard v-for="post in posts" :key="post.id" class="social-card">
-            <div class="d-flex">
-              <ElAvatar :src="post.avatar || defaultAvatar" :size="50" class="me-3" />
-              <div>
-                <h5 class="mb-0">{{ post.username }}</h5>
-                <p class="text-muted mb-0">{{ formatTime(post.created_at) }} · {{ post.location }}</p>
-              </div>
-            </div>
-            <div class="post-content">
-              <p>{{ post.content }}</p>
-              <ElImage v-if="post.media_url" :src="post.media_url" class="post-image" fit="cover" />
-            </div>
-            <div class="post-actions">
-              <ElButton text @click="likePost(post)">
-                <el-icon><Like /></el-icon>
-                点赞 ({{ post.likes_count }})
-              </ElButton>
-              <ElButton text @click="commentPost(post)">
-                <el-icon><ChatDotRound /></el-icon>
-                评论 ({{ post.comments_count }})
-              </ElButton>
-              <ElButton text @click="sharePost(post)">
-                <el-icon><Share /></el-icon>
-                分享
-              </ElButton>
-            </div>
-          </ElCard>
-          <div class="text-center mt-4">
-            <ElButton type="primary" plain @click="showCreatePost = true">发布动态</ElButton>
+        <div class="feed-toolbar gradient-warm shadow-warm">
+          <div class="toolbar-left">
+            <el-button type="primary" @click="showCreatePost = true" class="create-btn glow-effect">
+              <el-icon><Plus /></el-icon>
+              发布动态
+            </el-button>
+            <el-button @click="showFilters = true" class="filter-btn">
+              <el-icon><Filter /></el-icon>
+              筛选
+            </el-button>
+          </div>
+          <div class="toolbar-right">
+            <el-tag v-if="filteredPosts.length > 0" type="info" class="count-tag">
+              共 {{ postsPagination.total }} 条动态
+            </el-tag>
           </div>
         </div>
-        <ElPagination
-          v-if="posts.length > 0"
-          v-model:current-page="postsPagination.page"
-          v-model:page-size="postsPagination.page_size"
-          :total="postsPagination.total"
-          @current-change="loadFeedData"
-          @size-change="loadFeedData"
-          class="mt-4"
-        />
+
+        <!-- 动态列表 -->
+        <div class="posts-container">
+          <div v-if="postsLoading" class="loading-container">
+            <el-icon class="loading-icon" size="32">
+              <Loading />
+            </el-icon>
+            <p>加载动态中...</p>
+          </div>
+          
+          <div v-else-if="filteredPosts.length === 0" class="empty-container">
+            <el-icon size="64" color="var(--primary-light)"><InfoFilled /></el-icon>
+            <h3>暂无动态</h3>
+            <p>成为第一个分享的人吧！</p>
+            <el-button type="primary" @click="showCreatePost = true" class="glow-effect">
+              发布第一条动态
+            </el-button>
+          </div>
+          
+          <div v-else class="posts-list">
+            <div v-for="post in filteredPosts" :key="post.id" class="post-card fade-in">
+              <div class="post-header">
+                <el-avatar 
+                  :src="(post.user?.avatar) || defaultAvatar" 
+                  :size="48" 
+                  class="user-avatar"
+                />
+                <div class="user-info">
+                  <h4 class="username warm-gradient-text">
+                    {{ post.user?.nickname || post.user?.username || '匿名用户' }}
+                  </h4>
+                  <div class="post-meta">
+                    <span class="post-time">{{ formatTime(post.created_at) }}</span>
+                    <el-tag :type="getPostTypeColor(post.post_type)" size="small" class="post-type-tag">
+                      {{ getPostTypeText(post.post_type) }}
+                    </el-tag>
+                    <el-tag v-if="post.is_featured" type="warning" size="small">
+                      <el-icon><Star /></el-icon>
+                      精选
+                    </el-tag>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="post-content">
+                <p class="post-text">{{ post.content }}</p>
+                <div v-if="post.media_url" class="post-media">
+                  <el-image 
+                    :src="post.media_url" 
+                    fit="cover" 
+                    class="media-image shadow-warm"
+                    :preview-src-list="[post.media_url]"
+                  />
+                </div>
+              </div>
+              
+              <div class="post-actions">
+                                  <el-button text @click="likePost(post)" class="action-btn like-btn">
+                    <el-icon><StarFilled /></el-icon>
+                    <span>{{ post.likes_count || 0 }}</span>
+                  </el-button>
+                <el-button text @click="commentPost(post)" class="action-btn comment-btn">
+                  <el-icon><ChatDotRound /></el-icon>
+                  <span>{{ post.comments_count || 0 }}</span>
+                </el-button>
+                <el-button text @click="sharePost(post)" class="action-btn share-btn">
+                  <el-icon><Share /></el-icon>
+                  <span>{{ post.shares_count || 0 }}</span>
+                </el-button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 分页 -->
+          <div v-if="filteredPosts.length > 0" class="pagination-container">
+            <el-pagination
+              v-model:current-page="postsPagination.page"
+              v-model:page-size="postsPagination.page_size"
+              :total="postsPagination.total"
+              :page-sizes="[10, 20, 50]"
+              layout="total, sizes, prev, pager, next, jumper"
+              @current-change="loadFeedData"
+              @size-change="loadFeedData"
+              class="custom-pagination"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- 打卡挑战内容 -->
@@ -419,6 +737,30 @@ const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726
               <div class="heritage-overlay">
                 <h4>{{ project.title }}</h4>
                 <p>{{ project.description }}</p>
+              </div>
+              <div class="project-actions">
+                <el-button type="primary" size="small" @click="viewProjectDetail(project)">
+                  <el-icon><View /></el-icon>
+                  查看详情
+                </el-button>
+                <el-button 
+                  v-if="!project.isJoined" 
+                  type="success" 
+                  size="small" 
+                  @click="joinHeritageProject(project)"
+                >
+                  <el-icon><Plus /></el-icon>
+                  加入计划
+                </el-button>
+                <el-button 
+                  v-else 
+                  type="warning" 
+                  size="small" 
+                  @click="leaveHeritageProject(project)"
+                >
+                  <el-icon><Minus /></el-icon>
+                  退出计划
+                </el-button>
               </div>
             </div>
           </ElCol>
@@ -672,6 +1014,14 @@ const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726
   color: white;
 }
 
+.project-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
 .message-list {
   max-height: 500px;
   overflow-y: auto;
@@ -808,5 +1158,231 @@ const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726
   padding: 0 !important;
   line-height: 1.2; /* 减小行高 */
   display: block;
+}
+
+/* 新增样式 */
+.gradient-warm {
+  background: linear-gradient(to right, #ffd700, #ffa500);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(255, 135, 0, 0.3);
+}
+
+.shadow-warm {
+  box-shadow: 0 4px 10px rgba(255, 135, 0, 0.3);
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 10px;
+}
+
+.create-btn {
+  background-color: #fff;
+  color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary);
+  border-radius: 25px;
+  padding: 8px 15px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.create-btn:hover {
+  background-color: var(--el-color-primary);
+  color: #fff;
+  border-color: var(--el-color-primary);
+}
+
+.filter-btn {
+  background-color: #fff;
+  color: var(--el-text-color-primary);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 25px;
+  padding: 8px 15px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn:hover {
+  background-color: var(--el-color-primary);
+  color: #fff;
+  border-color: var(--el-color-primary);
+}
+
+.count-tag {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.posts-container {
+  position: relative;
+}
+
+.loading-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--el-text-color-primary);
+}
+
+.loading-container p {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.empty-container {
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--el-text-color-secondary);
+}
+
+.empty-container h3 {
+  margin-top: 20px;
+  color: var(--el-text-color-primary);
+}
+
+.empty-container p {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.user-avatar {
+  margin-right: 15px;
+  border: 2px solid var(--el-color-primary);
+}
+
+.user-info {
+  flex-grow: 1;
+}
+
+.username {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.warm-gradient-text {
+  background: linear-gradient(to right, #ffd700, #ffa500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+}
+
+.post-type-tag {
+  border-radius: 10px;
+  padding: 3px 8px;
+  font-weight: bold;
+}
+
+.post-text {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  color: var(--el-text-color-regular);
+}
+
+.post-media {
+  margin-top: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-top: 15px;
+  border-top: 1px solid var(--el-border-color-lighter);
+  padding-top: 15px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.action-btn:hover {
+  color: var(--el-color-primary);
+}
+
+.like-btn:hover {
+  color: var(--el-color-danger);
+}
+
+.comment-btn:hover {
+  color: var(--el-color-info);
+}
+
+.share-btn:hover {
+  color: var(--el-color-warning);
+}
+
+.custom-pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 </style>

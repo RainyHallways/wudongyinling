@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-container">
+  <div class="chat-container page-with-nav">
     <!-- 聊天头部 -->
     <div class="chat-header">
       <div class="header-info">
@@ -7,8 +7,8 @@
         <div class="chat-info">
           <h3>{{ currentChat?.name || '选择聊天对象' }}</h3>
           <p class="status" v-if="currentChat">
-            <el-icon v-if="isOnline(currentChat.id)" class="online"><CircleFilled /></el-icon>
-            <el-icon v-else class="offline"><CircleFilled /></el-icon>
+            <el-icon v-if="isOnline(currentChat.id)" class="online"><Circle /></el-icon>
+            <el-icon v-else class="offline"><Circle /></el-icon>
             {{ isOnline(currentChat.id) ? '在线' : '离线' }}
           </p>
         </div>
@@ -155,7 +155,7 @@
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
-  CircleFilled, 
+  Circle, 
   User, 
   Close, 
   ChatDotRound, 
@@ -423,7 +423,7 @@ watch(currentChat, () => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
 }
 
 .chat-header {
@@ -431,9 +431,20 @@ watch(currentChat, () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: white;
-  border-bottom: 1px solid #e4e7ed;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  background: var(--gradient-sunset);
+  color: white;
+  box-shadow: var(--shadow-gold);
+  position: relative;
+}
+
+.chat-header::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-gold);
 }
 
 .header-info {
@@ -444,9 +455,10 @@ watch(currentChat, () => {
 
 .chat-info h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .status {
@@ -455,15 +467,16 @@ watch(currentChat, () => {
   gap: 4px;
   margin: 4px 0 0;
   font-size: 12px;
-  color: #909399;
+  color: rgba(255,255,255,0.9);
 }
 
 .online {
-  color: #67c23a;
+  color: #90EE90;
+  text-shadow: 0 0 5px #90EE90;
 }
 
 .offline {
-  color: #f56c6c;
+  color: #FFB6C1;
 }
 
 .chat-body {
@@ -475,10 +488,11 @@ watch(currentChat, () => {
 .sidebar {
   width: 280px;
   background: white;
-  border-right: 1px solid #e4e7ed;
+  border-right: 2px solid var(--border-color);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
+  box-shadow: var(--shadow-warm);
 }
 
 @media (max-width: 768px) {
@@ -489,6 +503,7 @@ watch(currentChat, () => {
     height: 100%;
     z-index: 1000;
     transform: translateX(-100%);
+    border-radius: 0 15px 15px 0;
   }
   
   .sidebar.show {
@@ -501,14 +516,16 @@ watch(currentChat, () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--gradient-warm);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .sidebar-header h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .user-list {
@@ -520,18 +537,36 @@ watch(currentChat, () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
+  padding: 15px 20px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   position: relative;
+  border-bottom: 1px solid var(--bg-accent);
+}
+
+.user-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--gradient-sunset);
+  transition: width 0.3s ease;
 }
 
 .user-item:hover {
-  background: #f5f7fa;
+  background: var(--bg-accent);
+  transform: translateX(5px);
+}
+
+.user-item:hover::before {
+  width: 4px;
 }
 
 .user-item.active {
-  background: #ecf5ff;
+  background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-secondary) 100%);
+  border-left: 4px solid var(--primary-color);
 }
 
 .user-info {
@@ -541,24 +576,26 @@ watch(currentChat, () => {
 
 .username {
   font-size: 14px;
-  font-weight: 500;
-  color: #303133;
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .last-seen {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-light);
 }
 
 .unread-badge {
-  background: #f56c6c;
+  background: var(--gradient-sunset);
   color: white;
   font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 16px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 20px;
   text-align: center;
+  box-shadow: var(--shadow-warm);
 }
 
 .message-area {
@@ -566,12 +603,14 @@ watch(currentChat, () => {
   display: flex;
   flex-direction: column;
   background: white;
+  border-radius: 0 0 15px 15px;
 }
 
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
+  padding: 20px;
+  background: linear-gradient(to bottom, var(--bg-primary), white);
 }
 
 .no-chat, .no-messages {
@@ -579,19 +618,20 @@ watch(currentChat, () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  color: #909399;
+  height: 300px;
+  color: var(--text-light);
 }
 
 .no-chat p, .no-messages p {
   margin: 16px 0 0;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .message-item {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .message-item.own {
@@ -599,8 +639,16 @@ watch(currentChat, () => {
 }
 
 .message-item.own .message-content {
-  background: #409eff;
+  background: var(--gradient-sunset);
   color: white;
+  border-radius: 18px 18px 6px 18px;
+}
+
+.message-item:not(.own) .message-content {
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 6px 18px 18px 18px;
 }
 
 .message-item.own .message-header {
@@ -608,57 +656,67 @@ watch(currentChat, () => {
 }
 
 .message-content {
-  max-width: 60%;
+  max-width: 70%;
   padding: 12px 16px;
-  background: #f0f2f5;
-  border-radius: 12px;
   position: relative;
+  box-shadow: var(--shadow-warm);
+  transition: all 0.3s ease;
+}
+
+.message-content:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
 }
 
 .message-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .sender-name {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .message-time {
   margin-left: 8px;
+  font-style: italic;
 }
 
 .text-message {
   word-wrap: break-word;
   white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 .image-message {
-  max-width: 200px;
+  max-width: 250px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .typing-indicator {
   display: flex;
   gap: 8px;
   align-items: center;
-  padding: 8px 0;
-  color: #909399;
+  padding: 12px 0;
+  color: var(--text-light);
   font-size: 12px;
+  font-style: italic;
 }
 
 .typing-dots {
   display: flex;
-  gap: 2px;
+  gap: 3px;
 }
 
 .typing-dots span {
-  width: 4px;
-  height: 4px;
-  background: #909399;
+  width: 6px;
+  height: 6px;
+  background: var(--primary-color);
   border-radius: 50%;
   animation: typing 1.4s infinite;
 }
@@ -677,21 +735,50 @@ watch(currentChat, () => {
     opacity: 0.5;
   }
   30% {
-    transform: scale(1.2);
+    transform: scale(1.4);
     opacity: 1;
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .input-area {
-  border-top: 1px solid #e4e7ed;
+  border-top: 2px solid var(--border-color);
   padding: 16px 20px;
-  background: white;
+  background: var(--bg-secondary);
+  border-radius: 0 0 15px 15px;
 }
 
 .input-toolbar {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.input-toolbar .el-button {
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid var(--border-color);
+  background: white;
+  color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.input-toolbar .el-button:hover {
+  background: var(--gradient-warm);
+  color: white;
+  transform: scale(1.1);
 }
 
 .input-box {
@@ -704,8 +791,43 @@ watch(currentChat, () => {
   flex: 1;
 }
 
+.input-box :deep(.el-textarea__inner) {
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+  resize: none;
+}
+
+.input-box :deep(.el-textarea__inner):focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2);
+}
+
 .send-button {
-  height: 32px;
+  height: 40px;
+  border-radius: 20px;
+  padding: 0 20px;
+  background: var(--gradient-sunset);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-warm);
+}
+
+.send-button:hover {
+  background: var(--gradient-gold);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+
+.send-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* 响应式设计 */
@@ -723,7 +845,11 @@ watch(currentChat, () => {
   }
   
   .message-content {
-    max-width: 80%;
+    max-width: 85%;
+  }
+  
+  .chat-info h3 {
+    font-size: 16px;
   }
 }
 </style> 

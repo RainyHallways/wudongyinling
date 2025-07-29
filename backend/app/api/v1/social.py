@@ -288,7 +288,42 @@ async def create_heritage_project(
     """
     创建非遗项目
     """
+    # 创建非遗项目
     project = await project_service.create(db, obj_in=project_data)
+    
+    # 自动创建对应的群聊
+    try:
+        from ...services.chat_service import ChatService
+        from ...schemas.chat import ChatRoomCreate
+        
+        chat_service = ChatService()
+        
+        # 创建群聊数据
+        room_data = ChatRoomCreate(
+            name=f"{project.name} - 传承群",
+            description=f"欢迎加入{project.name}非遗传承交流群，一起学习和传承这项珍贵的文化遗产！",
+            room_type="heritage",
+            is_public=True,
+            max_members=200,
+            creator_id=1,  # 系统创建者
+            member_ids=[1],  # 系统用户
+            heritage_project_id=project.id  # 关联非遗项目
+        )
+        
+        # 创建群聊
+        room = await chat_service.create_room(db, room_in=room_data)
+        
+        # 更新项目关联群聊ID
+        await project_service.update(
+            db, 
+            db_obj=project, 
+            obj_in={"chat_room_id": room.id}
+        )
+        
+    except Exception as e:
+        # 群聊创建失败不影响项目创建
+        print(f"Failed to create chat room for heritage project {project.id}: {e}")
+    
     return DataResponse(data=project, message="非遗项目创建成功")
 
 
@@ -454,3 +489,83 @@ async def delete_heritage_inheritor(
         raise HTTPException(status_code=404, detail="非遗传承人不存在")
     
     return DataResponse(message="非遗传承人删除成功") 
+
+
+@router.post("/heritage/projects/{project_id}/join", response_model=DataResponse)
+async def join_heritage_project(
+    project_id: int,
+    user_id: int = Query(..., description="用户ID"),  # 临时用query参数
+    db: AsyncSession = Depends(get_async_db),
+    project_service: HeritageProjectService = Depends(get_heritage_project_service)
+):
+    """
+    加入非遗计划
+    """
+    # 检查项目是否存在
+    project = await project_service.get(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="非遗项目不存在")
+    
+    # 自动加入对应群聊
+    try:
+        from ...services.chat_service import ChatService
+        from ...schemas.chat import ChatRoomMemberCreate
+        
+        chat_service = ChatService()
+        
+        # 查找项目对应的群聊
+        if hasattr(project, 'chat_room_id') and project.chat_room_id:
+            # 检查用户是否已经在群聊中
+            is_member = await chat_service.is_room_member(db, project.chat_room_id, user_id)
+            
+            if not is_member:
+                # 加入群聊
+                member_data = ChatRoomMemberCreate(
+                    room_id=project.chat_room_id,
+                    user_id=user_id,
+                    role="member"
+                )
+                await chat_service.add_room_member(db, member_data)
+                
+    except Exception as e:
+        # 群聊加入失败不影响计划加入
+        print(f"Failed to join chat room for heritage project {project_id}: {e}")
+    
+    return DataResponse(message=f"成功加入{project.name}非遗传承计划！")
+
+
+@router.post("/heritage/projects/{project_id}/leave", response_model=DataResponse)
+async def leave_heritage_project(
+    project_id: int,
+    user_id: int = Query(..., description="用户ID"),  # 临时用query参数
+    db: AsyncSession = Depends(get_async_db),
+    project_service: HeritageProjectService = Depends(get_heritage_project_service)
+):
+    """
+    退出非遗计划
+    """
+    # 检查项目是否存在
+    project = await project_service.get(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="非遗项目不存在")
+    
+    # 自动退出对应群聊
+    try:
+        from ...services.chat_service import ChatService
+        
+        chat_service = ChatService()
+        
+        # 查找项目对应的群聊
+        if hasattr(project, 'chat_room_id') and project.chat_room_id:
+            # 检查用户是否在群聊中
+            is_member = await chat_service.is_room_member(db, project.chat_room_id, user_id)
+            
+            if is_member:
+                # 退出群聊
+                await chat_service.remove_room_member(db, project.chat_room_id, user_id)
+                
+    except Exception as e:
+        # 群聊退出失败不影响计划退出
+        print(f"Failed to leave chat room for heritage project {project_id}: {e}")
+    
+    return DataResponse(message=f"已退出{project.name}非遗传承计划") 
