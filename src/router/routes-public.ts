@@ -58,6 +58,24 @@ const publicRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'chat',
+        name: 'ChatRoom',
+        component: () => import('../views/public/ChatRoom.vue'),
+        meta: {
+          title: '聊天室',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'challenge/:id',
+        name: 'ChallengeDetail',
+        component: () => import('../views/public/ChallengeDetail.vue'),
+        meta: {
+          title: '挑战详情',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'ai-coach',
         name: 'AICoach',
         component: () => import('../views/public/AICoach.vue'),
