@@ -2,27 +2,33 @@ version: '3.8'
 
 services:
   db:
-    image: mariadb:15
+    image: mariadb:10.11
     restart: always
     environment:
       MYSQL_DATABASE: dance_coach
       MYSQL_USER: dance_admin
       MYSQL_PASSWORD: dance123456
       MYSQL_ROOT_PASSWORD: dance123456
+      TZ: Asia/Shanghai
     volumes:
-      - ./backend/dance_coach_backup.sql:/docker-entrypoint-initdb.d/dance_coach_backup.sql
       - db_data:/var/lib/mysql
+      - ./backend/alembic/versions:/docker-entrypoint-initdb.d/migrations
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dance_admin", "-pdance123456"]
-      interval: 5s
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    networks:
+      - dance_network
 
   app:
-    build: .
-    image: wdyl_app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: dance-platform:latest
     restart: always
     ports:
       - "80:80"
@@ -31,18 +37,47 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DATABASE_URL=mysql://dance_admin:dance123456@db:3306/dance_coach
+      # 数据库配置
+      - DATABASE_URL=mysql+aiomysql://dance_admin:dance123456@db:3306/dance_coach
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=dance_admin
+      - DB_PASSWORD=dance123456
+      - DB_NAME=dance_coach
+      
+      # API配置
+      - API_V1_STR=/api/v1
+      - PROJECT_NAME=舞动银龄 AI舞蹈教练系统
+      - SECRET_KEY=your-secret-key-here-change-in-production
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      
+      # CORS配置
+      - CORS_ORIGINS=http://localhost,http://localhost:3000,http://localhost:5173
+      
+      # 文件上传配置
+      - UPLOAD_DIR=/app/backend/uploads
+      - MAX_FILE_SIZE=50
+      
+      # 时区设置
+      - TZ=Asia/Shanghai
     volumes:
       - ./logs:/app/logs
+      - uploads_data:/app/backend/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/v1/health/"]
+      interval: 30s
+      timeout: 10s
       retries: 3
+      start_period: 60s
+    networks:
+      - dance_network
 
 volumes:
   db_data:
+    driver: local
+  uploads_data:
+    driver: local
 
 networks:
-  default:
+  dance_network:
     driver: bridge 
