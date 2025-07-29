@@ -7,6 +7,7 @@ import os
 
 from app.core.config import settings
 from app.core.database import initialize_db, close_db_connection
+from app.core.exceptions import register_exception_handlers
 from app.api.v1 import (
     courses, auth, stats, users, 
     health, prescriptions, challenges, 
@@ -46,6 +47,9 @@ async def lifespan(app: FastAPI):
     # 初始化WebSocket连接管理器
     from app.core.chat import chat_manager
     app.state.chat_manager = chat_manager
+    
+    # 注册异常处理器
+    register_exception_handlers(app)
     
     # 提供应用实例
     yield

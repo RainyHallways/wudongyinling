@@ -7,6 +7,8 @@ from ...services.social_service import (
     PostService, PostCommentService, 
     HeritageProjectService, HeritageInheritorService
 )
+from ...core.response import DataResponse, PaginatedResponse, success_response, error_response, paginated_response
+from ...core.exceptions import NotFoundException, BusinessException
 
 # 创建服务实例
 def get_post_service() -> PostService:
@@ -311,19 +313,18 @@ async def update_heritage_project(
 @router.patch("/heritage/projects/{project_id}/status", response_model=DataResponse[HeritageProjectPublic])
 async def toggle_heritage_project_status(
     project_id: int,
-    db: AsyncSession = Depends(get_async_db),
     project_service: HeritageProjectService = Depends(get_heritage_project_service)
 ):
     """
     切换非遗项目启用状态
     """
-    project = await project_service.toggle_active_status(db, project_id)
+    project = await project_service.toggle_status(project_id)
     if not project:
         raise HTTPException(status_code=404, detail="非遗项目不存在")
     
     return DataResponse(
         data=project,
-        message=f"项目已{'启用' if project.is_active else '停用'}"
+        message=f"项目已{'启用' if project.status == 'active' else '停用'}"
     )
 
 
@@ -424,19 +425,18 @@ async def update_heritage_inheritor(
 @router.patch("/heritage/inheritors/{inheritor_id}/status", response_model=DataResponse[HeritageInheritorPublic])
 async def toggle_heritage_inheritor_status(
     inheritor_id: int,
-    db: AsyncSession = Depends(get_async_db),
     inheritor_service: HeritageInheritorService = Depends(get_heritage_inheritor_service)
 ):
     """
     切换非遗传承人启用状态
     """
-    inheritor = await inheritor_service.toggle_active_status(db, inheritor_id)
+    inheritor = await inheritor_service.toggle_status(inheritor_id)
     if not inheritor:
         raise HTTPException(status_code=404, detail="非遗传承人不存在")
     
     return DataResponse(
         data=inheritor,
-        message=f"传承人已{'启用' if inheritor.is_active else '停用'}"
+        message=f"传承人已{'启用' if inheritor.status == 'active' else '停用'}"
     )
 
 
