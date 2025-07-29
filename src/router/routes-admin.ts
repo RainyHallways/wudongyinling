@@ -74,6 +74,39 @@ const adminRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'posts',
+        name: 'PostManagement',
+        component: () => import('../views/admin/PostManagement.vue'),
+        meta: { 
+          title: '动态管理',
+          requiresAuth: true, 
+          role: 'admin',
+          icon: 'el-icon-chat-dot-square'
+        }
+      },
+      {
+        path: 'heritage',
+        name: 'HeritageManagement',
+        component: () => import('../views/admin/HeritageManagement.vue'),
+        meta: { 
+          title: '非遗传承',
+          requiresAuth: true, 
+          role: 'admin',
+          icon: 'el-icon-trophy'
+        }
+      },
+      {
+        path: 'chat',
+        name: 'ChatManagement',
+        component: () => import('../views/admin/ChatManagement.vue'),
+        meta: { 
+          title: '聊天管理',
+          requiresAuth: true, 
+          role: 'admin',
+          icon: 'el-icon-chat-line-square'
+        }
+      },
+      {
         path: 'statistics',
         name: 'Statistics',
         component: () => import('../views/admin/Statistics.vue'),
