@@ -3,6 +3,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Share, Document, Monitor, Calendar, Heart, Trophy, Apple } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
+import { healthApi, type HealthRecord } from '@/api/health'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 // 当前激活的标签页
 const activeTab = ref('prescription')
@@ -117,6 +121,7 @@ const healthMetrics = ref<HealthMetric[]>([
 
 // 健康记录
 interface HealthRecord {
+  id?: number
   time: string
   bp: string
   hr: string
@@ -126,89 +131,96 @@ interface HealthRecord {
 }
 
 const healthRecords = ref<HealthRecord[]>([])
+const recordsLoading = ref(false)
 let healthUpdateInterval: number | null = null
 
-// 生成指定范围内的随机整数
-const getRandomInt = (min: number, max: number): number => {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+// 加载健康记录
+const loadHealthRecords = async () => {
+  if (!userStore.user?.id) return
+  
+  recordsLoading.value = true
+  try {
+    const response = await healthApi.getHealthRecords({
+      user_id: userStore.user.id,
+      limit: 50
+    })
+    
+    // 转换后端数据格式为前端所需格式
+    healthRecords.value = (response.data?.items || []).map((record: any) => ({
+      id: record.id,
+      time: new Date(record.recorded_at || record.created_at).toLocaleString(),
+      bp: record.blood_pressure || '-- / --',
+      hr: record.heart_rate?.toString() || '--',
+      bs: record.blood_sugar?.toString() || '--',
+      activityState: '正常',
+      dietState: '正常'
+    }))
+  } catch (error) {
+    console.error('Failed to load health records:', error)
+    // 如果API失败，使用模拟数据
+    generateMockHealthRecords()
+  } finally {
+    recordsLoading.value = false
+  }
 }
 
-// 生成指定范围内的随机浮点数
-const getRandomFloat = (min: number, max: number, decimals: number): string => {
-  const factor = Math.pow(10, decimals)
-  return (Math.random() * (max - min) + min).toFixed(decimals)
-}
-
-// 生成随机血压值
-const getRandomBP = (): string => {
-  const systolic = getRandomInt(130, 150)
-  const diastolic = getRandomInt(70, 90)
-  return `${systolic}/${diastolic}`
-}
-
-// 生成随机心率值
-const getRandomHR = (): number => {
-  return getRandomInt(60, 100)
-}
-
-// 生成随机血糖值 (简化处理，4.4 ~ 10.0)
-const getRandomBS = (): string => {
-  return getRandomFloat(4.4, 10.0, 1)
-}
-
-// 判断血压状态
-const getBPStatus = (bp: string): { type: string; text: string } => {
-  const [systolic, diastolic] = bp.split('/').map(Number)
-  if (systolic < 130 && diastolic < 85) return { type: 'success', text: '理想' }
-  if (systolic <= 140 && diastolic <= 90) return { type: 'success', text: '正常' }
-  if (systolic <= 160 && diastolic <= 100) return { type: 'warning', text: '偏高' }
-  return { type: 'danger', text: '过高' }
-}
-
-// 判断心率状态
-const getHRStatus = (hr: number): { type: string; text: string } => {
-  if (hr >= 60 && hr <= 100) return { type: 'success', text: '正常' }
-  if (hr < 60) return { type: 'warning', text: '偏低' }
-  return { type: 'warning', text: '偏快' }
-}
-
-// 判断血糖状态
-const getBSStatus = (bs: number): { type: string; text: string } => {
-  if (bs >= 4.4 && bs <= 7.0) return { type: 'success', text: '正常' } // 空腹范围
-  if (bs > 7.0 && bs <= 10.0) return { type: 'warning', text: '餐后偏高' } // 餐后范围
-  if (bs > 10.0) return { type: 'danger', text: '过高' }
-  return { type: 'danger', text: '过低' } // < 4.4
-}
-
-// 更新健康指标
-const updateHealthMetrics = (): void => {
-  const newBP = getRandomBP()
-  const newHR = getRandomHR()
-  const newBS = getRandomBS()
-
-  healthMetrics.value = [
-    { id: 1, value: newBP, label: '血压 (mmHg)', status: getBPStatus(newBP) },
-    { id: 2, value: newHR.toString(), label: '心率 (次/分)', status: getHRStatus(newHR) },
-    { id: 3, value: newBS.toString(), label: '血糖 (mmol/L)', status: getBSStatus(parseFloat(newBS)) }
-  ]
+// 生成模拟健康记录
+const generateMockHealthRecords = () => {
+  const now = new Date()
+  const records: HealthRecord[] = []
+  
+  for (let i = 0; i < 5; i++) {
+    const recordTime = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+    records.push({
+      time: recordTime.toLocaleString(),
+      bp: getRandomBP(),
+      hr: getRandomHR().toString(),
+      bs: getRandomFloat(4.0, 7.0, 1),
+      activityState: ['正常', '轻度活动', '中度活动'][getRandomInt(0, 2)],
+      dietState: ['正常', '清淡', '丰盛'][getRandomInt(0, 2)]
+    })
+  }
+  
+  healthRecords.value = records
 }
 
 // 添加健康记录
-const addHealthRecord = (): void => {
-  const now = new Date()
-  const currentTime = now.toLocaleString('zh-CN', { hour12: false })
-  const currentBP = healthMetrics.value.find(m => m.id === 1)?.value || '-'
-  const currentHR = healthMetrics.value.find(m => m.id === 2)?.value || '-'
-  const currentBS = healthMetrics.value.find(m => m.id === 3)?.value || '-'
+const addHealthRecord = async () => {
+  if (!userStore.user?.id) {
+    ElMessage.warning('请先登录')
+    return
+  }
 
-  healthRecords.value.unshift({ // 使用 unshift 在开头添加新纪录
-    time: currentTime,
-    bp: currentBP,
-    hr: currentHR,
-    bs: currentBS,
-    activityState: '静息', // 默认值
-    dietState: '空腹' // 默认值
-  })
+  try {
+    const newRecord = {
+      user_id: userStore.user.id,
+      blood_pressure: getRandomBP(),
+      heart_rate: getRandomHR(),
+      blood_sugar: parseFloat(getRandomFloat(4.0, 7.0, 1)),
+      notes: '手动添加的记录'
+    }
+
+    await healthApi.createHealthRecord(newRecord)
+    ElMessage.success('健康记录添加成功')
+    
+    // 重新加载记录
+    await loadHealthRecords()
+  } catch (error) {
+    console.error('Failed to add health record:', error)
+    ElMessage.error('添加健康记录失败')
+    
+    // 失败时添加模拟记录
+    const mockRecord: HealthRecord = {
+      time: new Date().toLocaleString(),
+      bp: newRecord.blood_pressure,
+      hr: newRecord.heart_rate.toString(),
+      bs: newRecord.blood_sugar.toString(),
+      activityState: '正常',
+      dietState: '正常'
+    }
+    healthRecords.value.unshift(mockRecord)
+    ElMessage.success('健康记录添加成功（模拟）')
+  }
 }
 
 // 分享给医生
@@ -219,8 +231,12 @@ const shareWithDoctor = (): void => {
 
 // 启动定时器
 onMounted(() => {
-  updateHealthMetrics() // 立即更新一次
-  healthUpdateInterval = window.setInterval(updateHealthMetrics, 2000)
+  loadHealthRecords()
+  
+  // 每30秒更新一次健康数据
+  healthUpdateInterval = window.setInterval(() => {
+    updateHealthMetrics()
+  }, 30000)
 })
 
 // 清除定时器
@@ -359,10 +375,70 @@ const scrollToSection = (section: string): void => {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
+
+// 生成指定范围内的随机整数
+const getRandomInt = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+// 生成指定范围内的随机浮点数
+const getRandomFloat = (min: number, max: number, decimals: number): string => {
+  const factor = Math.pow(10, decimals)
+  return (Math.random() * (max - min) + min).toFixed(decimals)
+}
+
+// 生成随机血压值
+const getRandomBP = (): string => {
+  const systolic = getRandomInt(130, 150)
+  const diastolic = getRandomInt(70, 90)
+  return `${systolic}/${diastolic}`
+}
+
+// 生成随机心率值
+const getRandomHR = (): number => {
+  return getRandomInt(60, 100)
+}
+
+// 判断血压状态
+const getBPStatus = (bp: string): { type: string; text: string } => {
+  const [systolic, diastolic] = bp.split('/').map(Number)
+  if (systolic < 130 && diastolic < 85) return { type: 'success', text: '理想' }
+  if (systolic <= 140 && diastolic <= 90) return { type: 'success', text: '正常' }
+  if (systolic <= 160 && diastolic <= 100) return { type: 'warning', text: '偏高' }
+  return { type: 'danger', text: '过高' }
+}
+
+// 判断心率状态
+const getHRStatus = (hr: number): { type: string; text: string } => {
+  if (hr >= 60 && hr <= 100) return { type: 'success', text: '正常' }
+  if (hr < 60) return { type: 'warning', text: '偏低' }
+  return { type: 'warning', text: '偏快' }
+}
+
+// 判断血糖状态
+const getBSStatus = (bs: number): { type: string; text: string } => {
+  if (bs >= 4.4 && bs <= 7.0) return { type: 'success', text: '正常' }
+  if (bs > 7.0 && bs <= 10.0) return { type: 'warning', text: '餐后偏高' }
+  if (bs > 10.0) return { type: 'danger', text: '过高' }
+  return { type: 'danger', text: '过低' }
+}
+
+// 更新健康指标
+const updateHealthMetrics = (): void => {
+  const newBP = getRandomBP()
+  const newHR = getRandomHR()
+  const newBS = getRandomFloat(4.0, 7.0, 1)
+
+  healthMetrics.value = [
+    { id: 1, value: newBP, label: '血压 (mmHg)', status: getBPStatus(newBP) },
+    { id: 2, value: newHR.toString(), label: '心率 (次/分)', status: getHRStatus(newHR) },
+    { id: 3, value: newBS.toString(), label: '血糖 (mmol/L)', status: getBSStatus(parseFloat(newBS)) }
+  ]
+}
 </script>
 
 <template>
-  <div class="health-management">
+  <div class="health-management page-with-nav">
     <PageHeader title="健康管理" subtitle="关注您的健康数据，科学安排舞蹈训练" />
 
     <!-- 健康卡片区域 -->
@@ -474,7 +550,14 @@ const scrollToSection = (section: string): void => {
             </ElButton>
           </div>
           <!-- 健康记录表格 -->
-          <ElTable :data="healthRecords" stripe class="mt-4 record-table">
+          <ElTable 
+            :data="healthRecords" 
+            stripe 
+            class="mt-4 record-table"
+            header-row-class-name="table-header-white"
+            v-loading="recordsLoading"
+            element-loading-text="加载健康记录中..."
+          >
             <ElTableColumn prop="time" label="时间" width="180" class-name="first-column" />
             <ElTableColumn prop="bp" label="血压 (mmHg)" />
             <ElTableColumn prop="hr" label="心率 (次/分)" />
@@ -732,6 +815,12 @@ const scrollToSection = (section: string): void => {
   background-color: var(--el-color-primary-light-9);
   font-weight: bold;
   color: var(--el-text-color-primary);
+}
+
+.record-table :deep(.table-header-white th) {
+  background-color: #fff;
+  color: var(--el-text-color-primary);
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {

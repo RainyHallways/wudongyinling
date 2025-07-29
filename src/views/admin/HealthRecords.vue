@@ -193,7 +193,13 @@ onMounted(() => {
       <ElButton type="primary" @click="handleAdd">添加记录</ElButton>
     </div>
 
-    <ElTable v-loading="loading" :data="records" border style="width: 100%">
+    <ElTable 
+      v-loading="loading" 
+      :data="records" 
+      border 
+      style="width: 100%"
+      header-row-class-name="table-header-white"
+    >
       <ElTableColumn prop="userId" label="用户ID" width="100" />
       <ElTableColumn prop="recordDate" label="记录日期" width="120">
         <template #default="{ row }">
