@@ -4,7 +4,7 @@ import PageHeader from '@/components/common/PageHeader.vue'
 </script>
 
 <template>
-  <div class="faq-page">
+  <div class="faq-page page-with-nav">
     <PageHeader title="常见问题" subtitle="帮助您更好地使用舞动银龄平台" />
     
     <ElCard class="faq-content">

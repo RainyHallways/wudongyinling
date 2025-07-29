@@ -126,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="about">
+  <div class="about-page page-with-nav">
     <h1 class="page-title">关于舞动银龄</h1>
 
     <!-- 公司介绍 -->
