@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, FolderOpened } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
@@ -87,6 +87,11 @@ const handleEdit = (row: CourseForm) => {
   formMode.value = 'edit'
   dialogTitle.value = '编辑课程'
   form.value = { ...row }
+  // 根据现有数据设置上传方式
+  uploadMethod.value = {
+    cover: row.cover_url ? 'url' : 'url',
+    video: row.video_url ? 'url' : 'url'
+  }
   dialogVisible.value = true
 }
 
@@ -274,40 +279,64 @@ onMounted(() => {
           <span class="unit">分钟</span>
         </ElFormItem>
         <ElFormItem label="封面图片" prop="cover_url">
-          <ElUpload
-            class="cover-uploader"
-            action="/api/upload/image"
-            :headers="uploadHeaders"
-            :show-file-list="false"
-            :on-success="handleCoverSuccess"
-            :on-error="handleUploadError"
-            accept="image/*"
-          >
+          <div class="file-input-container">
+            <ElInput 
+              v-model="form.cover_url" 
+              placeholder="请输入封面图片URL或选择文件上传"
+              clearable
+              class="file-input"
+            />
+            <ElUpload
+              class="file-upload-btn"
+              action="/api/upload/image"
+              :headers="uploadHeaders"
+              :show-file-list="false"
+              :on-success="handleCoverSuccess"
+              :on-error="handleUploadError"
+              accept="image/*"
+            >
+              <ElButton type="default" class="upload-trigger">
+                <el-icon><FolderOpened /></el-icon>
+                浏览文件
+              </ElButton>
+            </ElUpload>
+          </div>
+          <div v-if="form.cover_url" class="image-preview">
             <ElImage
-              v-if="form.cover_url"
               :src="form.cover_url"
               fit="cover"
-              class="cover-preview"
+              style="width: 100px; height: 100px; margin-top: 10px;"
+              :preview-src-list="[form.cover_url]"
             />
-            <el-icon v-else class="cover-uploader-icon"><Plus /></el-icon>
-          </ElUpload>
+          </div>
         </ElFormItem>
         <ElFormItem label="课程视频" prop="video_url">
-          <ElUpload
-            class="video-uploader"
-            action="/api/upload/video"
-            :headers="uploadHeaders"
-            :show-file-list="false"
-            :on-success="handleVideoSuccess"
-            :on-error="handleUploadError"
-            :before-upload="beforeVideoUpload"
-            accept="video/*"
-          >
-            <div v-if="form.video_url" class="video-preview">
-              <video :src="form.video_url" controls width="200"></video>
-            </div>
-            <el-icon v-else class="video-uploader-icon"><Plus /></el-icon>
-          </ElUpload>
+          <div class="file-input-container">
+            <ElInput 
+              v-model="form.video_url" 
+              placeholder="请输入视频URL或选择文件上传"
+              clearable
+              class="file-input"
+            />
+            <ElUpload
+              class="file-upload-btn"
+              action="/api/upload/video"
+              :headers="uploadHeaders"
+              :show-file-list="false"
+              :on-success="handleVideoSuccess"
+              :on-error="handleUploadError"
+              :before-upload="beforeVideoUpload"
+              accept="video/*"
+            >
+              <ElButton type="default" class="upload-trigger">
+                <el-icon><FolderOpened /></el-icon>
+                浏览文件
+              </ElButton>
+            </ElUpload>
+          </div>
+          <div v-if="form.video_url" class="video-preview">
+            <video :src="form.video_url" controls width="200" style="margin-top: 10px;"></video>
+          </div>
         </ElFormItem>
       </ElForm>
       <template #footer>
@@ -340,6 +369,24 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.upload-method-selector {
+  margin-bottom: 15px;
+}
+
+.url-input-section {
+  margin-bottom: 15px;
+}
+
+.image-preview,
+.video-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.upload-section {
+  margin-top: 10px;
 }
 
 .cover-uploader,

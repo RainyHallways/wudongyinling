@@ -134,6 +134,23 @@ async def get_course(
     
     return DataResponse(data=course)
 
+@router.post("/", response_model=DataResponse[CoursePublic])
+async def create_course(
+    course: CourseCreate, 
+    db: AsyncSession = Depends(get_async_db),
+    course_service: CourseService = Depends()
+):
+    """
+    创建新课程
+    """
+    # 检查课程标题是否已存在
+    existing_course = await course_service.get_by_title(db, title=course.title)
+    if existing_course:
+        raise HTTPException(status_code=400, detail="课程标题已存在")
+    
+    new_course = await course_service.create(db, obj_in=course)
+    return DataResponse(data=new_course, message="课程创建成功")
+
 @router.put("/{course_id}", response_model=DataResponse[CoursePublic])
 async def update_course(
     course_id: int, 

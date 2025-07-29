@@ -5,7 +5,7 @@ export interface Course {
   id: number
   title: string
   description: string
-  cover_image: string
+  cover_url: string
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   duration: number
   instructor_id: number

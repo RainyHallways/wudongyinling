@@ -32,6 +32,32 @@ const publicRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'course/:id',
+        name: 'CourseDetail',
+        component: () => import('../views/public/CourseDetail.vue'),
+        meta: {
+          title: '课程详情'
+        }
+      },
+      {
+        path: 'my-courses',
+        name: 'MyCourses',
+        component: () => import('../views/public/MyCourses.vue'),
+        meta: {
+          title: '我的课程',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'favorites',
+        name: 'Favorites',
+        component: () => import('../views/public/Favorites.vue'),
+        meta: {
+          title: '我的收藏',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'ai-coach',
         name: 'AICoach',
         component: () => import('../views/public/AICoach.vue'),
