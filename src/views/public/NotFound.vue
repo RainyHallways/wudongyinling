@@ -1,5 +1,5 @@
 <template>
-  <div class="not-found-container">
+  <div class="not-found-container page-with-nav">
     <div class="not-found-content">
       <el-result
         icon="error"
