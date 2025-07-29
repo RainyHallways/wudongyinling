@@ -87,3 +87,29 @@ from .chat import (
     ChatRoomMemberInDB,
     ChatRoomMemberPublic
 )
+
+from .social import (
+    PostBase,
+    PostCreate,
+    PostUpdate,
+    PostPublic,
+    PostWithUser,
+    PostCommentBase,
+    PostCommentCreate,
+    PostCommentUpdate,
+    PostCommentPublic,
+    PostCommentWithUser,
+    PostLikeCreate,
+    PostLikeUpdate,
+    PostLikePublic,
+    HeritageProjectBase,
+    HeritageProjectCreate,
+    HeritageProjectUpdate,
+    HeritageProjectPublic,
+    HeritageProjectWithInheritor,
+    HeritageInheritorBase,
+    HeritageInheritorCreate,
+    HeritageInheritorUpdate,
+    HeritageInheritorPublic,
+    HeritageInheritorWithProjects
+)

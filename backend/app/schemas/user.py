@@ -11,14 +11,14 @@ class UserBase(BaseSchema):
     email: EmailStr = Field(..., description="电子邮箱")
     nickname: Optional[str] = Field(None, max_length=50, description="昵称")
     avatar: Optional[str] = Field(None, description="头像URL")
-    role: Optional[UserRole] = Field(UserRole.USER, description="用户角色")
+    role: Optional[UserRole] = Field(UserRole.ELDERLY, description="用户角色")
 
 class UserCreate(UserBase):
     """创建用户的请求模型"""
     password: str = Field(..., min_length=6, description="密码")
     is_admin: Optional[bool] = Field(False, description="是否管理员")
     is_active: Optional[bool] = Field(True, description="是否激活")
-    role: Optional[UserRole] = Field(UserRole.USER, description="用户角色")
+    role: Optional[UserRole] = Field(UserRole.ELDERLY, description="用户角色")
     
     @validator('password')
     def password_complexity(cls, v):
@@ -44,7 +44,7 @@ class UserInDB(UserBase):
     hashed_password: str = Field(..., description="哈希密码")
     is_active: bool = Field(True, description="是否激活")
     is_admin: bool = Field(False, description="是否管理员")
-    role: UserRole = Field(UserRole.USER, description="用户角色")
+    role: UserRole = Field(UserRole.ELDERLY, description="用户角色")
     unique_id: str = Field(..., description="唯一用户标识")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
