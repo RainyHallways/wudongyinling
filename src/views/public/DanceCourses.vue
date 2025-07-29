@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Search, Star, Share, Back, Microphone } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { courseApi } from '@/api/course'
+
+const router = useRouter()
 
 // 类型定义
 interface CourseCategory {
@@ -176,8 +179,13 @@ const getDifficultyType = (difficulty) => {
   }
 }
 
-// 显示课程详情和视频
+// 跳转到课程详情页
 const showCourseDetails = (course) => {
+  router.push(`/course/${course.id}`)
+}
+
+// 显示课程视频（保留原有功能）
+const showCourseVideo = (course) => {
   currentCourse.value = course
   showVideoPlayer.value = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
