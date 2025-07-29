@@ -52,6 +52,21 @@
             <template #title>处方管理</template>
           </el-menu-item>
           
+          <el-menu-item index="/admin/posts">
+            <el-icon><ChatDotRound /></el-icon>
+            <template #title>动态广场</template>
+          </el-menu-item>
+          
+          <el-menu-item index="/admin/heritage">
+            <el-icon><Compass /></el-icon>
+            <template #title>非遗传承</template>
+          </el-menu-item>
+          
+          <el-menu-item index="/admin/chat">
+            <el-icon><Message /></el-icon>
+            <template #title>私信管理</template>
+          </el-menu-item>
+          
           <el-menu-item index="/admin/statistics">
             <el-icon><DataLine /></el-icon>
             <template #title>数据统计</template>
@@ -126,7 +141,10 @@ import {
   Setting,
   Fold,
   Expand,
-  ArrowDown
+  ArrowDown,
+  ChatDotRound,
+  Compass,
+  Message
 } from '@element-plus/icons-vue'
 
 // 路由和存储
@@ -318,7 +336,7 @@ const handleLogout = async () => {
 }
 
 .main {
-  padding: 20px;
+  padding: 15px 20px; /* 减少上方padding从20px到15px */
   overflow-y: auto;
   background-color: #f5f7fa;
   height: calc(100vh - 60px);
@@ -348,7 +366,7 @@ const handleLogout = async () => {
   }
   
   .main {
-    padding: 15px;
+    padding: 10px 15px; /* 移动端进一步减少padding */
   }
   
   /* 移动端遮罩 */
@@ -375,7 +393,7 @@ const handleLogout = async () => {
   }
   
   .main {
-    padding: 10px;
+    padding: 8px 10px; /* 小屏幕最小padding */
   }
 }
 </style> 
