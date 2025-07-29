@@ -39,14 +39,6 @@ T = TypeVar('T')
 RepoT = TypeVar('RepoT', bound=RepositoryBase)
 ServiceT = TypeVar('ServiceT', bound=BaseService)
 
-# 数据库会话依赖项
-def get_db_session() -> AsyncSession:
-    """
-    获取异步数据库会话
-    可以直接使用此依赖项，或者使用已有的get_async_db
-    """
-    return get_async_db()
-
 # 通用Repository依赖项生成器
 def get_repository(
     repo_type: Type[RepoT],
