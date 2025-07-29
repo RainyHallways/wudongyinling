@@ -10,32 +10,71 @@
 
       <ElTable :data="users" v-loading="loading">
         <ElTableColumn prop="id" label="ID" width="80" />
-        <ElTableColumn prop="username" label="用户名" />
-        <ElTableColumn prop="unique_id" label="用户ID" />
-        <ElTableColumn prop="email" label="邮箱" />
-        <ElTableColumn prop="nickname" label="昵称" />
-        <ElTableColumn prop="role" label="角色">
+        <ElTableColumn label="基本信息" width="200">
+          <template #default="{ row }">
+            <div class="user-info">
+              <el-avatar :src="row.avatar" :size="40">
+                {{ row.nickname?.[0] || row.username?.[0] }}
+              </el-avatar>
+              <div class="user-details">
+                <div class="username">{{ row.username }}</div>
+                <div class="nickname">{{ row.nickname || '未设置' }}</div>
+                <div class="unique-id">ID: {{ row.unique_id }}</div>
+              </div>
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn label="联系信息" width="200">
+          <template #default="{ row }">
+            <div class="contact-info">
+              <div>📧 {{ row.email }}</div>
+              <div v-if="row.phone">📱 {{ row.phone }}</div>
+              <div v-else class="text-gray-400">📱 未设置</div>
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn label="个人信息" width="150">
+          <template #default="{ row }">
+            <div class="personal-info">
+              <div v-if="row.gender">{{ getGenderText(row.gender) }}</div>
+              <div v-if="row.birthdate">{{ formatAge(row.birthdate) }}岁</div>
+              <div v-if="!row.gender && !row.birthdate" class="text-gray-400">未完善</div>
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="role" label="角色" width="100">
           <template #default="{ row }">
             <ElTag :type="getRoleType(row.role || (row.is_admin ? 'ADMIN' : 'USER'))">
               {{ getRoleText(row.role || (row.is_admin ? 'ADMIN' : 'USER')) }}
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="is_active" label="状态">
+        <ElTableColumn label="健康信息" width="120" v-if="showHealthInfo">
+          <template #default="{ row }">
+            <div v-if="row.role === 'elderly' || row.role === 'ELDERLY'">
+              <div v-if="row.medical_history" class="text-orange-600">有病史</div>
+              <div v-if="row.chronic_diseases" class="text-red-600">有慢性病</div>
+              <div v-if="!row.medical_history && !row.chronic_diseases" class="text-green-600">无记录</div>
+            </div>
+            <div v-else class="text-gray-400">-</div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="is_active" label="状态" width="80">
           <template #default="{ row }">
             <ElTag :type="row.is_active ? 'success' : 'danger'">
               {{ row.is_active ? '正常' : '禁用' }}
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="created_at" label="创建时间" width="180">
+        <ElTableColumn prop="created_at" label="创建时间" width="120">
           <template #default="{ row }">
             {{ formatDate(row.created_at) }}
           </template>
         </ElTableColumn>
-        <ElTableColumn label="操作" width="280">
+        <ElTableColumn label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <ElButtonGroup>
+              <ElButton type="info" size="small" @click="handleView(row)">详情</ElButton>
               <ElButton type="primary" size="small" @click="handleEdit(row)">编辑</ElButton>
               <ElButton type="warning" size="small" @click="handleResetPassword(row)">重置密码</ElButton>
               <ElButton type="danger" size="small" @click="handleDelete(row)">删除</ElButton>
@@ -64,31 +103,85 @@
       width="500px"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <ElFormItem label="用户名" prop="username">
-          <ElInput v-model="form.username" placeholder="请输入用户名" />
-        </ElFormItem>
-        <ElFormItem label="邮箱" prop="email">
-          <ElInput v-model="form.email" placeholder="请输入邮箱" />
-        </ElFormItem>
-        <ElFormItem label="昵称" prop="nickname">
-          <ElInput v-model="form.nickname" placeholder="请输入昵称" />
-        </ElFormItem>
-        <ElFormItem label="密码" prop="password" v-if="dialogType === 'add'">
-          <ElInput v-model="form.password" type="password" placeholder="请输入密码" show-password />
-        </ElFormItem>
-        <ElFormItem label="角色" prop="role">
-          <ElSelect v-model="form.role" placeholder="请选择角色">
-            <ElOption label="老年人" value="ELDERLY" />
-            <ElOption label="子女" value="CHILD" />
-            <ElOption label="志愿者" value="VOLUNTEER" />
-            <ElOption label="教师" value="TEACHER" />
-            <ElOption label="医生" value="DOCTOR" />
-            <ElOption label="管理员" value="ADMIN" />
-          </ElSelect>
-        </ElFormItem>
-        <ElFormItem label="状态" prop="is_active">
-          <ElSwitch v-model="form.is_active" />
-        </ElFormItem>
+        <el-tabs v-model="activeTab">
+          <el-tab-pane label="基本信息" name="basic">
+            <ElFormItem label="用户名" prop="username">
+              <ElInput v-model="form.username" placeholder="请输入用户名" />
+            </ElFormItem>
+            <ElFormItem label="邮箱" prop="email">
+              <ElInput v-model="form.email" placeholder="请输入邮箱" />
+            </ElFormItem>
+            <ElFormItem label="手机号" prop="phone">
+              <ElInput v-model="form.phone" placeholder="请输入手机号" />
+            </ElFormItem>
+            <ElFormItem label="昵称" prop="nickname">
+              <ElInput v-model="form.nickname" placeholder="请输入昵称" />
+            </ElFormItem>
+            <ElFormItem label="密码" prop="password" v-if="dialogType === 'add'">
+              <ElInput v-model="form.password" type="password" placeholder="请输入密码" show-password />
+            </ElFormItem>
+            <ElFormItem label="头像" prop="avatar">
+              <ElInput v-model="form.avatar" placeholder="请输入头像URL" />
+            </ElFormItem>
+          </el-tab-pane>
+          
+          <el-tab-pane label="个人信息" name="personal">
+            <ElFormItem label="性别" prop="gender">
+              <ElRadioGroup v-model="form.gender">
+                <ElRadio label="male">男</ElRadio>
+                <ElRadio label="female">女</ElRadio>
+              </ElRadioGroup>
+            </ElFormItem>
+            <ElFormItem label="出生日期" prop="birthdate">
+              <ElDatePicker
+                v-model="form.birthdate"
+                type="date"
+                placeholder="请选择出生日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </ElFormItem>
+            <ElFormItem label="角色" prop="role">
+              <ElSelect v-model="form.role" placeholder="请选择角色">
+                <ElOption label="老年人" value="elderly" />
+                <ElOption label="子女" value="child" />
+                <ElOption label="志愿者" value="volunteer" />
+                <ElOption label="教师" value="teacher" />
+                <ElOption label="医生" value="doctor" />
+                <ElOption label="管理员" value="admin" />
+              </ElSelect>
+            </ElFormItem>
+            <ElFormItem label="状态" prop="is_active">
+              <ElSwitch v-model="form.is_active" />
+            </ElFormItem>
+          </el-tab-pane>
+          
+          <el-tab-pane label="健康信息" name="health" v-if="form.role === 'elderly'">
+            <ElFormItem label="病史" prop="medical_history">
+              <ElInput
+                v-model="form.medical_history"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入病史信息"
+              />
+            </ElFormItem>
+            <ElFormItem label="慢性病" prop="chronic_diseases">
+              <ElInput
+                v-model="form.chronic_diseases"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入慢性病信息"
+              />
+            </ElFormItem>
+            <ElFormItem label="紧急联系人" prop="emergency_contact">
+              <ElInput v-model="form.emergency_contact" placeholder="请输入紧急联系人姓名" />
+            </ElFormItem>
+            <ElFormItem label="紧急联系电话" prop="emergency_phone">
+              <ElInput v-model="form.emergency_phone" placeholder="请输入紧急联系电话" />
+            </ElFormItem>
+          </el-tab-pane>
+        </el-tabs>
       </ElForm>
       
       <template #footer>
@@ -135,6 +228,110 @@
         </span>
       </template>
     </ElDialog>
+
+    <!-- 用户详情对话框 -->
+    <ElDialog
+      v-model="viewDialogVisible"
+      title="用户详情"
+      width="600px"
+    >
+      <div class="user-detail">
+        <div class="detail-section">
+          <h3>基本信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>用户名：</label>
+              <span>{{ viewUser.username }}</span>
+            </div>
+            <div class="detail-item">
+              <label>邮箱：</label>
+              <span>{{ viewUser.email }}</span>
+            </div>
+            <div class="detail-item">
+              <label>手机号：</label>
+              <span>{{ viewUser.phone || '未设置' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>昵称：</label>
+              <span>{{ viewUser.nickname || '未设置' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>用户ID：</label>
+              <span>{{ viewUser.unique_id }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <h3>个人信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>性别：</label>
+              <span>{{ getGenderText(viewUser.gender) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>出生日期：</label>
+              <span>{{ viewUser.birthdate || '未设置' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>年龄：</label>
+              <span>{{ viewUser.birthdate ? formatAge(viewUser.birthdate) + '岁' : '未知' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>角色：</label>
+              <span>{{ getRoleText(viewUser.role) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>状态：</label>
+              <ElTag :type="viewUser.is_active ? 'success' : 'danger'">
+                {{ viewUser.is_active ? '正常' : '禁用' }}
+              </ElTag>
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section" v-if="viewUser.role === 'elderly'">
+          <h3>健康信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item full-width">
+              <label>病史：</label>
+              <span>{{ viewUser.medical_history || '无' }}</span>
+            </div>
+            <div class="detail-item full-width">
+              <label>慢性病：</label>
+              <span>{{ viewUser.chronic_diseases || '无' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>紧急联系人：</label>
+              <span>{{ viewUser.emergency_contact || '未设置' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>紧急联系电话：</label>
+              <span>{{ viewUser.emergency_phone || '未设置' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <h3>系统信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>创建时间：</label>
+              <span>{{ formatDate(viewUser.created_at) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>最后更新：</label>
+              <span>{{ formatDate(viewUser.updated_at) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <template #footer>
+        <ElButton @click="viewDialogVisible = false">关闭</ElButton>
+        <ElButton type="primary" @click="handleEdit(viewUser); viewDialogVisible = false">编辑</ElButton>
+      </template>
+    </ElDialog>
   </div>
 </template>
 
@@ -156,6 +353,13 @@ interface User {
   role?: 'USER' | 'ADMIN' | 'TEACHER' | 'DOCTOR'
   unique_id?: string
   created_at?: string
+  updated_at?: string // Added for updated_at
+  gender?: 'MALE' | 'FEMALE' | 'OTHER'
+  birthdate?: string
+  medical_history?: boolean
+  chronic_diseases?: boolean
+  emergency_contact?: string
+  emergency_phone?: string
 }
 
 // 响应式数据
@@ -172,21 +376,56 @@ const dialogType = ref<'add' | 'edit'>('add')
 const formRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
 
-const form = ref<Partial<User> & { password?: string }>({
+const showHealthInfo = ref(true)
+const activeTab = ref('basic')
+
+// 性别文本转换
+const getGenderText = (gender: string) => {
+  return gender === 'male' ? '男' : gender === 'female' ? '女' : '未设置'
+}
+
+// 计算年龄
+const formatAge = (birthdate: string) => {
+  if (!birthdate) return '未知'
+  const birth = new Date(birthdate)
+  const today = new Date()
+  const age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    return age - 1
+  }
+  return age
+}
+
+// 查看用户详情
+const handleView = (row: any) => {
+  viewDialogVisible.value = true
+  viewUser.value = { ...row }
+}
+
+// 表单数据
+const form = ref({
+  id: null,
   username: '',
   email: '',
+  phone: '',
   nickname: '',
   password: '',
-  is_admin: false,
+  avatar: '',
+  gender: '',
+  birthdate: '',
+  role: 'elderly',
   is_active: true,
-  role: 'USER'
+  medical_history: '',
+  chronic_diseases: '',
+  emergency_contact: '',
+  emergency_phone: ''
 })
 
-const passwordForm = ref({
-  userId: 0,
-  password: '',
-  confirmPassword: ''
-})
+// 用户详情对话框
+const viewDialogVisible = ref(false)
+const viewUser = ref({})
 
 // 表单验证规则
 const rules = reactive<FormRules>({
@@ -483,13 +722,116 @@ onMounted(() => {
 
 .pagination {
   margin-top: 20px;
+  text-align: center;
+}
+
+.user-info {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.username {
+  font-weight: 500;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.nickname {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.unique-id {
+  font-size: 11px;
+  color: #999;
+}
+
+.contact-info {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.personal-info {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.text-orange-600 {
+  color: #ea580c;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.user-detail {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+
+.detail-item label {
+  font-weight: 500;
+  color: #374151;
+  margin-right: 8px;
+  min-width: 100px;
+}
+
+.detail-item span {
+  color: #6b7280;
+  word-break: break-all;
 }
 
 .dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  text-align: right;
+}
+
+.dialog-footer .el-button {
+  margin-left: 10px;
 }
 </style> 
