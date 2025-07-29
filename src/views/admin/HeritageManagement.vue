@@ -570,7 +570,7 @@ const getGenderText = (gender: string) => {
 const loadProjects = async () => {
   projectLoading.value = true
   try {
-    const response = await fetch(`/api/v1/social/heritage/projects?${new URLSearchParams({
+    const response = await fetch(`/v1/social/heritage/projects?${new URLSearchParams({
       skip: ((projectPagination.page - 1) * projectPagination.size).toString(),
       limit: projectPagination.size.toString(),
       ...(projectFilters.keyword && { keyword: projectFilters.keyword }),
@@ -614,9 +614,59 @@ const loadProjects = async () => {
         },
         is_active: true,
         created_at: '2024-01-01 09:00:00'
+      },
+      {
+        id: 2,
+        name: '安代舞',
+        description: '安代舞是蒙古族民间集体舞蹈，流传在内蒙古科尔沁草原等地区。',
+        origin_location: '内蒙古通辽',
+        category: 'dance',
+        level: 'national',
+        cover_image: '/images/安代舞图片.png',
+        video_url: '',
+        history: '安代舞起源于明末清初，最初是一种治病的萨满教舞蹈...',
+        characteristics: '舞蹈节奏明快，动作简单易学，具有浓厚的生活气息...',
+        inheritor_id: 2,
+        inheritor: {
+          id: 2,
+          name: '包布和',
+          gender: 'male',
+          birth_year: 1960,
+          hometown: '内蒙古通辽',
+          specialty: '安代舞',
+          is_active: true,
+          created_at: '2024-01-01 00:00:00'
+        },
+        is_active: true,
+        created_at: '2024-01-01 09:00:00'
+      },
+      {
+        id: 3,
+        name: '藏族锅庄舞',
+        description: '锅庄舞是藏族的民间舞蹈，在节庆活动中表演，是藏族文化的重要组成部分。',
+        origin_location: '西藏拉萨',
+        category: 'dance',
+        level: 'national',
+        cover_image: '/images/藏族锅庄舞图片.png',
+        video_url: '',
+        history: '锅庄舞历史悠久，起源于古代藏族祭祀活动...',
+        characteristics: '舞蹈队形变化丰富，男女分组对舞，动作优美大方...',
+        inheritor_id: 3,
+        inheritor: {
+          id: 3,
+          name: '次旺多吉',
+          gender: 'male',
+          birth_year: 1955,
+          hometown: '西藏拉萨',
+          specialty: '藏族锅庄舞',
+          is_active: true,
+          created_at: '2024-01-01 00:00:00'
+        },
+        is_active: true,
+        created_at: '2024-01-01 09:00:00'
       }
     ]
-    projectPagination.total = 1
+    projectPagination.total = 3
   } finally {
     projectLoading.value = false
   }
