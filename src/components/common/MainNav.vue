@@ -530,39 +530,79 @@ const handleLogout = async () => {
 
 .menu-card {
   @apply flex flex-col items-center justify-center;
-  @apply p-4 rounded-lg bg-gray-50;
-  @apply cursor-pointer transition-all duration-200;
-  @apply border border-gray-200;
-  min-height: 80px;
+  @apply p-6 rounded-xl bg-white; /* 改为白色背景，增加圆角 */
+  @apply cursor-pointer transition-all duration-300; /* 增加动画时长 */
+  @apply border border-gray-100 shadow-sm; /* 添加轻微阴影 */
+  min-height: 90px; /* 增加高度 */
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-card::before {
+  @apply absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50;
+  content: '';
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .menu-card:hover {
-  @apply bg-blue-50 border-blue-200;
+  @apply bg-white border-blue-200 shadow-md; /* 悬停时增加阴影 */
+  transform: translateY(-2px); /* 悬停时轻微上浮 */
+}
+
+.menu-card:hover::before {
+  opacity: 1;
 }
 
 .menu-card:active {
   @apply transform scale-95;
+  transition-duration: 0.1s;
 }
 
 .menu-card .el-icon {
-  @apply mb-2 text-xl;
+  @apply mb-3 text-2xl; /* 增加图标大小和间距 */
+  color: #606266;
+  z-index: 1;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover .el-icon {
+  color: #409eff;
+  transform: scale(1.1);
 }
 
 .menu-card span {
-  @apply text-sm text-gray-700;
+  @apply text-sm font-medium text-gray-700; /* 增加字体粗细 */
+  z-index: 1;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover span {
+  color: #409eff;
 }
 
 .logout-btn {
-  @apply bg-red-50 border-red-200;
+  @apply bg-red-50 border-red-100;
+}
+
+.logout-btn::before {
+  @apply bg-gradient-to-br from-red-50 to-red-100;
 }
 
 .logout-btn:hover {
-  @apply bg-red-100 border-red-300;
+  @apply bg-red-50 border-red-200 shadow-md;
 }
 
 .logout-btn .el-icon,
 .logout-btn span {
   @apply text-red-600;
+}
+
+.logout-btn:hover .el-icon,
+.logout-btn:hover span {
+  @apply text-red-700;
 }
 
 /* 自定义 Element Plus 菜单样式 */
