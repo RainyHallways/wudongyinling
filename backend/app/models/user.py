@@ -1,7 +1,8 @@
 from typing import List, Optional
 from enum import Enum
+from datetime import date
 
-from sqlalchemy import String, Boolean, Enum as SQLEnum
+from sqlalchemy import String, Boolean, Enum as SQLEnum, Date, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -15,6 +16,11 @@ class UserRole(str, Enum):
     DOCTOR = "doctor"       # 医生
     ADMIN = "admin"         # 管理员
 
+class Gender(str, Enum):
+    """性别枚举"""
+    MALE = "male"           # 男
+    FEMALE = "female"       # 女
+
 class User(Base):
     """用户模型"""
     __tablename__ = "users"
@@ -22,8 +28,18 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, comment="手机号")
     nickname: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     avatar: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    gender: Mapped[Optional[Gender]] = mapped_column(SQLEnum(Gender), nullable=True, comment="性别")
+    birthdate: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="出生日期")
+    
+    # 健康相关字段（主要针对老年用户）
+    medical_history: Mapped[Optional[str]] = mapped_column(Text, nullable=True, comment="病史")
+    chronic_diseases: Mapped[Optional[str]] = mapped_column(Text, nullable=True, comment="慢性病")
+    emergency_contact: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, comment="紧急联系人")
+    emergency_phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, comment="紧急联系电话")
+    
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)  # 保持向后兼容
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.ELDERLY, server_default='ELDERLY')

@@ -1,17 +1,33 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List
 from pydantic import EmailStr, Field, validator
 
 from .base import BaseSchema
-from ..models.user import UserRole
+from ..models.user import UserRole, Gender
 
 class UserBase(BaseSchema):
     """用户基础模型"""
     username: str = Field(..., min_length=3, max_length=50, description="用户名")
     email: EmailStr = Field(..., description="电子邮箱")
+    phone: Optional[str] = Field(None, max_length=20, description="手机号")
     nickname: Optional[str] = Field(None, max_length=50, description="昵称")
     avatar: Optional[str] = Field(None, description="头像URL")
+    gender: Optional[Gender] = Field(None, description="性别")
+    birthdate: Optional[date] = Field(None, description="出生日期")
     role: Optional[UserRole] = Field(UserRole.ELDERLY, description="用户角色")
+    
+    # 健康相关字段
+    medical_history: Optional[str] = Field(None, description="病史")
+    chronic_diseases: Optional[str] = Field(None, description="慢性病")
+    emergency_contact: Optional[str] = Field(None, max_length=100, description="紧急联系人")
+    emergency_phone: Optional[str] = Field(None, max_length=20, description="紧急联系电话")
+    
+    @validator('phone')
+    def validate_phone(cls, v):
+        """验证手机号格式"""
+        if v and not v.match(r'^1[3-9]\d{9}$'):
+            raise ValueError('请输入正确的手机号码')
+        return v
 
 class UserCreate(UserBase):
     """创建用户的请求模型"""
@@ -32,11 +48,20 @@ class UserUpdate(BaseSchema):
     """更新用户的请求模型"""
     username: Optional[str] = Field(None, min_length=3, max_length=50, description="用户名")
     email: Optional[EmailStr] = Field(None, description="电子邮箱")
+    phone: Optional[str] = Field(None, max_length=20, description="手机号")
     nickname: Optional[str] = Field(None, max_length=50, description="昵称")
     avatar: Optional[str] = Field(None, description="头像URL")
+    gender: Optional[Gender] = Field(None, description="性别")
+    birthdate: Optional[date] = Field(None, description="出生日期")
     password: Optional[str] = Field(None, min_length=8, description="密码")
     is_active: Optional[bool] = Field(None, description="是否激活")
     role: Optional[UserRole] = Field(None, description="用户角色")
+    
+    # 健康相关字段
+    medical_history: Optional[str] = Field(None, description="病史")
+    chronic_diseases: Optional[str] = Field(None, description="慢性病")
+    emergency_contact: Optional[str] = Field(None, max_length=100, description="紧急联系人")
+    emergency_phone: Optional[str] = Field(None, max_length=20, description="紧急联系电话")
 
 class UserInDB(UserBase):
     """数据库中的用户模型"""
