@@ -1,10 +1,15 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Callable, Type, TypeVar, Optional, Generic
+import logging
+from jose import JWTError, jwt
 
 from .core.database import get_async_db
+from .core.config import settings
 from .repositories.base import RepositoryBase
 from .services.base_service import BaseService
+from .schemas.user import UserPublic
+from .models.user import UserRole
 from .repositories import (
     user_repository,
     course_repository,
@@ -175,3 +180,36 @@ def get_ai_service() -> 'AIService':
     """获取AI服务实例"""
     from .services.ai_service import AIService
     return ai_service 
+
+async def get_current_user_websocket(token: str) -> Optional[UserPublic]:
+    """WebSocket用户认证"""
+    try:
+        from .services.auth_service import AuthService
+        auth_service = AuthService()
+        
+        # 验证token
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        
+        # 获取用户信息
+        user = await auth_service.get_user_by_username(username)
+        if user is None:
+            return None
+        
+        return UserPublic(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            nickname=user.nickname or user.username,
+            is_active=user.is_active,
+            role=user.role or UserRole.ELDERLY,
+            unique_id=user.unique_id or f"E{user.id:06d}",
+            created_at=user.created_at
+        )
+    except JWTError:
+        return None
+    except Exception as e:
+        logging.error(f"WebSocket auth error: {e}")
+        return None 

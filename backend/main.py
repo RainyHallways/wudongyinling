@@ -10,8 +10,9 @@ from app.core.database import initialize_db, close_db_connection
 from app.api.v1 import (
     courses, auth, stats, users, 
     health, prescriptions, challenges, 
-    chat, ai_analysis
+    chat, ai_analysis, social
 )
+from app.api.v1 import websocket as websocket_api
 
 # 配置日志
 logging.basicConfig(
@@ -75,16 +76,20 @@ app.add_middleware(
 # 配置静态文件
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
-# 注册路由
-app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["认证"])
-app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["用户管理"])
-app.include_router(courses.router, prefix=f"{settings.API_V1_STR}/courses", tags=["舞蹈课程"])
-app.include_router(health.router, prefix=f"{settings.API_V1_STR}/health", tags=["健康记录"])
-app.include_router(prescriptions.router, prefix=f"{settings.API_V1_STR}/prescriptions", tags=["健身处方"])
-app.include_router(challenges.router, prefix=f"{settings.API_V1_STR}/challenges", tags=["挑战"])
-app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["聊天"])
-app.include_router(ai_analysis.router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI分析"])
-app.include_router(stats.router, prefix=f"{settings.API_V1_STR}/stats", tags=["统计数据"])
+# 注册API路由
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["认证"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["用户"])
+app.include_router(courses.router, prefix="/api/v1/courses", tags=["课程"])
+app.include_router(health.router, prefix="/api/v1/health", tags=["健康"])
+app.include_router(prescriptions.router, prefix="/api/v1/prescriptions", tags=["处方"])
+app.include_router(challenges.router, prefix="/api/v1/challenges", tags=["挑战"])
+app.include_router(stats.router, prefix="/api/v1/stats", tags=["统计"])
+app.include_router(ai_analysis.router, prefix="/api/v1/ai-analysis", tags=["AI分析"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["聊天"])
+app.include_router(social.router, prefix="/api/v1/social", tags=["社交"])
+
+# WebSocket路由
+app.include_router(websocket_api.router, prefix="/api/v1", tags=["WebSocket"])
 
 @app.get("/")
 async def root():
