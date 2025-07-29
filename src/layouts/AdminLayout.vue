@@ -18,9 +18,6 @@
           :default-active="activeMenu"
           :collapse="isCollapse"
           :router="true"
-          background-color="#304156"
-          text-color="#bfcbd9"
-          active-text-color="#409EFF"
         >
           <el-menu-item index="/admin">
             <el-icon><Monitor /></el-icon>
@@ -166,13 +163,12 @@ const checkMobile = () => {
   const wasMobile = isMobile.value
   isMobile.value = window.innerWidth <= 768
   
-  // 只在初次检测或从桌面端切换到移动端时设置默认折叠状态
+  // 移动端默认折叠，桌面端默认展开
   if (isMobile.value && !wasMobile) {
     isCollapse.value = true // 移动端默认折叠
   }
-  // 从移动端切换回桌面端时展开侧边栏
   else if (!isMobile.value && wasMobile) {
-    isCollapse.value = false
+    isCollapse.value = false // 桌面端默认展开
   }
 }
 
@@ -186,13 +182,14 @@ const handleResize = () => {
   checkMobile()
 }
 
-// 点击外部区域收回侧边栏
+// 点击外部区域收回侧边栏（仅移动端）
 const handleClickOutside = (event: Event) => {
   if (isMobile.value && !isCollapse.value) {
     const aside = document.querySelector('.aside')
+    const toggleBtn = document.querySelector('.toggle-btn')
     const target = event.target as Node
     
-    if (aside && !aside.contains(target)) {
+    if (aside && !aside.contains(target) && toggleBtn && !toggleBtn.contains(target)) {
       isCollapse.value = true
     }
   }
@@ -227,6 +224,8 @@ const handleLogout = async () => {
 .admin-layout {
   height: 100vh;
   overflow: hidden;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .layout-container {
@@ -235,7 +234,7 @@ const handleLogout = async () => {
 
 /* 侧边栏样式 */
 .aside {
-  background-color: #304156;
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
   transition: width 0.3s;
   overflow-x: hidden;
   position: relative;
@@ -243,72 +242,103 @@ const handleLogout = async () => {
 }
 
 .aside.is-collapse {
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 6px rgba(44, 62, 80, 0.3);
 }
 
 .logo {
   height: 60px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .logo h1 {
-  color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   margin: 0;
-  line-height: 1.2;
-  transition: opacity 0.3s;
-}
-
-.logo-mini {
-  font-size: 24px !important;
-  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .logo p {
-  color: #bfcbd9;
-  font-size: 12px;
-  margin: 5px 0 0;
-  transition: opacity 0.3s;
+  font-size: 11px;
+  margin: 0;
+  color: white;
+  opacity: 0.8;
 }
 
-.el-menu-vertical {
+.logo-mini {
+  font-size: 20px;
+}
+
+/* Element Plus 菜单样式覆盖 */
+:deep(.el-menu) {
   border-right: none;
-  height: calc(100vh - 60px);
+  background: transparent;
 }
 
-/* 顶部导航样式 */
+:deep(.el-menu-item) {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  height: 50px;
+  line-height: 50px;
+  margin: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-menu-item:hover) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(3px);
+}
+
+:deep(.el-menu-item.is-active) {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+:deep(.el-menu-item .el-icon) {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+  margin-right: 8px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* 主容器 */
+.main-container {
+  background-color: #f0f2f5;
+}
+
+/* 头部样式 */
 .header {
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 15px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .header-left {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .toggle-btn {
-  margin-right: 15px;
-  padding: 8px 12px;
-  border: 1px solid #dcdfe6;
-  background-color: #fff;
-  color: #606266;
-}
-
-.toggle-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
-  background-color: #ecf5ff;
+  font-size: 16px;
+  color: #666;
 }
 
 .header-right {
@@ -319,54 +349,60 @@ const handleLogout = async () => {
 .user-info {
   display: flex;
   align-items: center;
+  gap: 8px;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.user-info:hover {
+  background-color: #f5f5f5;
 }
 
 .username {
-  margin: 0 8px;
-  color: #606266;
+  font-size: 13px;
+  color: #333;
 }
 
-/* 主内容区域样式 */
-.main-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
+/* 主体内容 */
 .main {
-  padding: 15px 20px; /* 减少上方padding从20px到15px */
+  padding: 16px;
   overflow-y: auto;
-  background-color: #f5f7fa;
-  height: calc(100vh - 60px);
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 60px);
+  font-size: 13px;
 }
 
-/* 响应式调整 */
+/* 响应式设计 */
 @media screen and (max-width: 768px) {
   .aside {
     position: fixed;
-    z-index: 1000;
-    height: 100%;
-    transform: translateX(0);
-    transition: transform 0.3s;
-    width: 240px !important; /* 移动端固定宽度 */
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1001;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 240px !important;
   }
   
-  .aside.is-collapse {
-    transform: translateX(-240px);
+  .aside:not(.is-collapse) {
+    transform: translateX(0);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
   }
   
   .main-container {
     margin-left: 0;
+    width: 100%;
   }
   
   .header {
-    padding: 0 10px;
+    padding: 0 16px;
   }
   
   .main {
-    padding: 10px 15px; /* 移动端进一步减少padding */
+    padding: 12px;
   }
   
   /* 移动端遮罩 */
@@ -377,23 +413,27 @@ const handleLogout = async () => {
     left: 240px;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 99;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
     pointer-events: auto;
   }
 }
 
 @media screen and (max-width: 480px) {
   .username {
-    display: none; /* 小屏幕隐藏用户名 */
-  }
-  
-  .header {
-    padding: 0 5px;
+    display: none;
   }
   
   .main {
-    padding: 8px 10px; /* 小屏幕最小padding */
+    padding: 10px;
+  }
+  
+  .aside {
+    width: 280px !important;
+  }
+  
+  .aside:not(.is-collapse)::after {
+    left: 280px;
   }
 }
 </style> 
