@@ -59,7 +59,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="my-courses">
+  <div class="my-courses page-with-nav">
     <div class="page-header">
       <h1>我的课程</h1>
       <p>继续您的舞蹈学习之旅</p>

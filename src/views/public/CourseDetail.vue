@@ -97,7 +97,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="course-detail" v-loading="loading">
+  <div class="course-detail page-with-nav" v-loading="loading">
     <div v-if="course" class="course-content">
       <!-- 课程头部信息 -->
       <ElCard class="course-header">

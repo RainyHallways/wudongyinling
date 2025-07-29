@@ -215,7 +215,7 @@ updateScores()
 </script>
 
 <template>
-  <div class="ai-coach">
+  <div class="ai-coach-page page-with-nav">
     <PageHeader title="AI 智能教练" subtitle="实时分析您的舞蹈动作，提供专业指导" />
 
     <!-- 视频区域 -->

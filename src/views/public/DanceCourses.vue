@@ -263,7 +263,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="dance-courses">
+  <div class="dance-courses-page page-with-nav">
     <h1 class="page-title">舞蹈课程</h1>
     <p class="section-subtitle">探索多样化舞蹈课程，享受舞动乐趣</p>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="challenge-detail">
+  <div class="challenge-detail page-with-nav">
     <PageHeader />
     
     <div class="container">
@@ -162,7 +162,7 @@
                   </div>
                   <div class="post-actions">
                     <el-button text size="small">
-                      <el-icon><Heart /></el-icon>
+                      <el-icon><StarFilled /></el-icon>
                       {{ post.likes }}
                     </el-button>
                     <el-button text size="small">
@@ -250,7 +250,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Check, Heart, ChatDotRound } from '@element-plus/icons-vue'
+import { Check, StarFilled, ChatDotRound } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useUserStore } from '@/stores/user'
 

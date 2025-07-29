@@ -117,7 +117,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="favorites">
+  <div class="favorites page-with-nav">
     <div class="page-header">
       <h1>我的收藏</h1>
       <p>您收藏的精彩课程</p>

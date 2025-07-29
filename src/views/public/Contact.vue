@@ -40,7 +40,7 @@ const submitForm = (): void => {
 </script>
 
 <template>
-  <div class="contact-page">
+  <div class="contact-page page-with-nav">
     <PageHeader title="联系我们" subtitle="感谢您对舞动银龄平台的关注和支持" />
     
     <ElCard class="contact-content">
