@@ -75,7 +75,10 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 
 <style scoped>
 .app-footer {
-  @apply bg-gray-800 text-white py-12 pb-6;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 48px 0 24px;
+  border-top: 1px solid var(--border-color);
 }
 
 .container {
@@ -84,10 +87,12 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 
 .footer-title {
   @apply text-xl font-medium mb-4;
+  color: var(--text-primary);
 }
 
 .footer-desc {
-  @apply text-gray-300 text-lg;
+  color: var(--text-secondary);
+  font-size: var(--font-size-large);
 }
 
 .link-list {
@@ -99,11 +104,14 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 }
 
 .link-list a {
-  @apply text-gray-300 no-underline text-lg transition-colors;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-large);
+  transition: all 0.3s ease;
 }
 
 .link-list a:hover {
-  @apply text-white;
+  color: var(--primary-color);
 }
 
 .contact-list {
@@ -111,27 +119,53 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 }
 
 .contact-list li {
-  @apply flex items-center mb-3 text-gray-300 text-lg;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-large);
 }
 
 .contact-list .el-icon {
-  @apply mr-2 text-blue-400;
+  margin-right: 8px;
+  color: var(--primary-color);
+  font-size: 24px; /* 放大图标 */
 }
 
 .social-links {
-  @apply flex gap-4 mt-6;
+  display: flex;
+  gap: 20px;
+  margin-top: 24px;
 }
 
 .social-link {
-  @apply text-gray-300 text-2xl transition-colors inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-700;
+  color: var(--text-secondary);
+  font-size: 24px; /* 增大社交图标 */
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px; /* 增大点击区域 */
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
 }
 
 .social-link:hover {
-  @apply text-white bg-gray-600;
+  color: var(--primary-color);
+  background: var(--bg-hover);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
 }
 
 .copyright {
-  @apply border-t border-gray-700 mt-8 pt-6 text-center text-gray-400;
+  border-top: 1px solid var(--border-color);
+  margin-top: 32px;
+  padding-top: 24px;
+  text-align: center;
+  color: var(--text-light);
 }
 
 /* 响应式调整 */

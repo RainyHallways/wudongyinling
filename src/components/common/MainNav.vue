@@ -4,14 +4,14 @@
     <div class="container">
       <el-row class="nav-container">
         <!-- 响应式logo区域 -->
-        <el-col :xs="6" :sm="4" :md="3" :lg="3" :xl="3" class="logo-container">
+        <el-col :xs="8" :sm="5" :md="4" :lg="3" :xl="3" class="logo-container">
           <router-link to="/" class="logo">
             <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
           </router-link>
         </el-col>
         
         <!-- 响应式导航菜单 -->
-        <el-col :xs="12" :sm="14" :md="15" :lg="16" :xl="17" class="nav-links-desktop">
+        <el-col :xs="10" :sm="13" :md="14" :lg="16" :xl="17" class="nav-links-desktop">
           <el-menu 
             mode="horizontal" 
             :router="true"
@@ -112,15 +112,18 @@
       
       <!-- 用户菜单项 -->
       <div class="nav-item user-menu-item" @click="showUserMenu = !showUserMenu">
-        <el-icon :size="24" class="nav-icon">
-          <User v-if="!userStore.isLoggedIn" />
-          <el-avatar 
-            v-else
-            :size="24" 
-            :src="userStore.userInfo.avatar || defaultAvatar"
-          />
+        <el-icon :size="24" class="nav-icon" v-if="!userStore.isLoggedIn">
+          <User />
         </el-icon>
-        <span class="nav-label">{{ userStore.isLoggedIn ? '我的' : '登录' }}</span>
+        <el-avatar 
+          v-else
+          :size="24" 
+          :src="userStore.userInfo.avatar || defaultAvatar"
+          class="nav-icon"
+        />
+        <span class="nav-label user-label" :class="{ 'hide-on-small': userStore.isLoggedIn }">
+          {{ userStore.isLoggedIn ? '我的' : '登录' }}
+        </span>
       </div>
     </div>
     
@@ -130,6 +133,9 @@
       direction="btt"
       size="auto"
       class="user-menu-drawer"
+      :z-index="9999"
+      :modal="true"
+      :append-to-body="true"
     >
       <template #header>
         <div class="drawer-header">
@@ -239,10 +245,16 @@ const handleLogout = async () => {
   top: 0;
   left: 0;
   right: 0;
-  background: white;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
-  display: none;
+  height: 64px;
+  background: rgba(212, 175, 55, 0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 9999; /* 确保在最顶层 */
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
 }
 
 /* 桌面端显示顶部导航栏 */
@@ -266,6 +278,7 @@ const handleLogout = async () => {
   align-items: center;
   justify-content: flex-start;
   overflow: hidden;
+  z-index: 1001;
 }
 
 .logo {
@@ -273,18 +286,72 @@ const handleLogout = async () => {
   align-items: center;
   text-decoration: none;
   white-space: nowrap;
+  z-index: 1001;
 }
 
 .logo-img {
   height: 40px;
   width: auto;
   flex-shrink: 0;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  z-index: 1001;
+  position: relative;
 }
 
 /* 响应式logo */
+@media (max-width: 1000px) and (min-width: 769px) {
+  .logo-img {
+    height: 38px;
+  }
+  
+  .username {
+    display: none;
+  }
+  
+  .user-info {
+    gap: 4px;
+  }
+  
+  .nav-actions {
+    max-width: 90px;
+  }
+}
+
 @media (max-width: 768px) {
   .logo-img {
+    height: 36px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-img {
     height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-img {
+    height: 28px;
+  }
+}
+
+@media (max-width: 375px) {
+  .logo-img {
+    height: 24px;
+  }
+  
+  .user-label.hide-on-small {
+    display: none !important;
+  }
+  
+  .user-menu-item .el-avatar {
+    margin-bottom: 0 !important;
+  }
+  
+  /* 进一步减少用户操作区域的宽度 */
+  .nav-actions {
+    max-width: 60px;
   }
 }
 
@@ -315,6 +382,39 @@ const handleLogout = async () => {
 .main-menu {
   border: none;
   justify-content: center;
+  background: transparent;
+}
+
+.main-menu .el-menu-item {
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: 25px;
+  margin: 0 4px;
+  position: relative;
+  border-bottom: none !important;
+}
+
+.main-menu .el-menu-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-2px);
+  border-radius: 25px;
+}
+
+.main-menu .el-menu-item.is-active {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 600;
+  border-radius: 25px;
+  box-shadow: var(--shadow-light);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.main-menu .el-menu-item.is-active .menu-text {
+  color: white;
+  font-weight: 600;
 }
 
 /* 响应式菜单文字 */
@@ -348,83 +448,54 @@ const handleLogout = async () => {
   }
 }
 
+/* 用户操作区域 */
 .nav-actions {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  z-index: 1001;
+  gap: 12px;
+  z-index: 1000;
   position: relative;
-}
-
-/* 小屏幕下进一步优化用户信息位置 */
-@media (max-width: 1024px) {
-  .nav-actions {
-    min-width: 0;
-    flex-shrink: 1;
-  }
-  
-  .user-info {
-    padding: 6px;
-  }
-  
-  .username {
-    max-width: 80px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-actions {
-    min-width: 40px;
-  }
-  
-  .user-info {
-    padding: 4px;
-  }
 }
 
 .action-buttons {
   display: flex;
+  gap: 8px;
   align-items: center;
+}
+
+.action-buttons .el-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-buttons .el-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .user-info {
   display: flex;
   align-items: center;
+  gap: 8px;
+  color: white;
   cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 .user-info:hover {
-  background-color: rgba(64, 158, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .username {
-  margin-left: 8px;
-  margin-right: 4px;
-  color: #303133;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-  font-size: 14px;
-}
-
-/* 中等宽度隐藏用户名文字防止堆叠 */
-@media (min-width: 769px) and (max-width: 960px) {
-  .username {
-    display: none;
-  }
-}
-
-/* 移动端隐藏用户名文字 */
-@media (max-width: 639px) {
-  .username {
-    display: none;
-  }
+  font-weight: 500;
+  color: white;
 }
 
 /* 移动端底部导航栏 */
@@ -433,14 +504,13 @@ const handleLogout = async () => {
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  border-top: 1px solid #ebeef5;
-  z-index: 1000;
+  background: rgba(212, 175, 55, 0.92);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid rgba(212, 175, 55, 0.3);
+  z-index: 999;
   display: block;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 桌面端隐藏移动端导航栏 */
 @media (min-width: 640px) {
   .mobile-bottom-nav {
     display: none;
@@ -451,8 +521,9 @@ const handleLogout = async () => {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0;
-  padding-bottom: env(safe-area-inset-bottom, 8px);
+  padding: 18px 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 18px) + 6px);
+  min-height: 90px;
 }
 
 .nav-item {
@@ -460,42 +531,79 @@ const handleLogout = async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
-  border-radius: 8px;
-  color: #606266;
+  padding: 12px 6px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   min-width: 0;
   flex: 1;
   max-width: 80px;
+  min-height: 60px;
 }
 
 .nav-item.active {
-  color: #409eff;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
 }
 
 .nav-item.active .nav-icon {
-  color: #409eff;
-  transform: scale(1.1);
+  color: white;
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
 }
 
 .nav-icon {
-  margin-bottom: 4px;
-  transition: all 0.2s;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  font-size: 22px;
 }
 
 .nav-label {
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 18px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  font-weight: 500;
+  color: inherit;
+}
+
+.user-label.hide-on-small {
+  display: block;
+}
+
+@media (max-width: 580px) {
+  .username {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-label.hide-on-small {
+    display: none;
+  }
+  
+  .user-menu-item .el-avatar {
+    margin-bottom: 0;
+  }
+}
+
+.user-menu-item .el-avatar {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.user-menu-item:hover .el-avatar {
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.1);
 }
 
 .user-menu-item {
-  @apply cursor-pointer;
+  cursor: pointer;
 }
 
 /* 用户菜单抽屉 */
@@ -503,8 +611,49 @@ const handleLogout = async () => {
   @apply border-radius-t-lg;
 }
 
+:deep(.user-menu-drawer .el-drawer) {
+  z-index: 9999 !important;
+}
+
+:deep(.user-menu-drawer .el-drawer__wrapper) {
+  z-index: 9999 !important;
+}
+
+:deep(.user-menu-drawer .el-overlay) {
+  z-index: 9998 !important;
+}
+
+:deep(.user-menu-drawer .el-drawer__body) {
+  padding: 0;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+:deep(.user-menu-drawer .el-drawer__header) {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+/* 移动端抽屉优化 */
+@media (max-width: 640px) {
+  :deep(.user-menu-drawer .el-drawer) {
+    z-index: 9999 !important;
+    position: fixed !important;
+  }
+  
+  :deep(.user-menu-drawer .el-drawer__wrapper) {
+    z-index: 9999 !important;
+  }
+  
+  :deep(.user-menu-drawer .el-overlay) {
+    z-index: 9998 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
 .drawer-header {
-  @apply flex items-center p-4 bg-gradient-to-r from-blue-500 to-purple-600;
+  background: var(--gradient-primary);
+  @apply flex items-center p-4;
   @apply text-white;
 }
 
@@ -514,6 +663,7 @@ const handleLogout = async () => {
 
 .user-info-text h3 {
   @apply text-lg font-medium mb-1;
+  color: white;
 }
 
 .user-info-text p {
@@ -522,6 +672,7 @@ const handleLogout = async () => {
 
 .menu-content {
   @apply p-4;
+  background: var(--bg-primary);
 }
 
 .menu-grid {
@@ -530,103 +681,125 @@ const handleLogout = async () => {
 
 .menu-card {
   @apply flex flex-col items-center justify-center;
-  @apply p-6 rounded-xl bg-white; /* 改为白色背景，增加圆角 */
-  @apply cursor-pointer transition-all duration-300; /* 增加动画时长 */
-  @apply border border-gray-100 shadow-sm; /* 添加轻微阴影 */
-  min-height: 90px; /* 增加高度 */
+  @apply p-8 rounded-xl bg-white;
+  @apply cursor-pointer transition-all duration-300;
+  @apply border border-gray-100 shadow-sm;
+  min-height: 120px;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow);
+  gap: 12px;
 }
 
 .menu-card::before {
-  @apply absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50;
   content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-warm);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .menu-card:hover {
-  @apply bg-white border-blue-200 shadow-md; /* 悬停时增加阴影 */
-  transform: translateY(-2px); /* 悬停时轻微上浮 */
+  background: white;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-heavy);
+  transform: translateY(-2px);
 }
 
 .menu-card:hover::before {
-  opacity: 1;
+  opacity: 0.1;
 }
 
 .menu-card:active {
-  @apply transform scale-95;
+  transform: scale(0.95);
   transition-duration: 0.1s;
 }
 
 .menu-card .el-icon {
-  @apply mb-3 text-2xl; /* 增加图标大小和间距 */
-  color: #606266;
+  margin-bottom: 0;
+  font-size: 32px;
+  color: var(--primary-color);
   z-index: 1;
   position: relative;
   transition: all 0.3s ease;
 }
 
 .menu-card:hover .el-icon {
-  color: #409eff;
+  color: var(--primary-dark);
   transform: scale(1.1);
 }
 
 .menu-card span {
-  @apply text-sm font-medium text-gray-700; /* 增加字体粗细 */
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
   z-index: 1;
   position: relative;
   transition: all 0.3s ease;
+  text-align: center;
 }
 
 .menu-card:hover span {
-  color: #409eff;
+  color: var(--primary-dark);
 }
 
 .logout-btn {
-  @apply bg-red-50 border-red-100;
+  background: #fff5f5;
+  border-color: #fecaca;
 }
 
 .logout-btn::before {
-  @apply bg-gradient-to-br from-red-50 to-red-100;
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
 }
 
 .logout-btn:hover {
-  @apply bg-red-50 border-red-200 shadow-md;
+  background: #fff5f5;
+  border-color: #f87171;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
 }
 
 .logout-btn .el-icon,
 .logout-btn span {
-  @apply text-red-600;
+  color: #dc2626;
 }
 
 .logout-btn:hover .el-icon,
 .logout-btn:hover span {
-  @apply text-red-700;
+  color: #b91c1c;
 }
 
 /* 自定义 Element Plus 菜单样式 */
 :deep(.el-menu--horizontal > .el-menu-item) {
-  @apply text-lg;
+  border-radius: 25px !important;
+  margin: 0 4px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  border-bottom: none !important;
+}
+
+:deep(.el-menu--horizontal > .el-menu-item:hover) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  border-bottom: none !important;
+  border-radius: 25px !important;
 }
 
 :deep(.el-menu--horizontal > .el-menu-item.is-active) {
-  @apply text-blue-500 border-blue-500;
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: white !important;
+  border-radius: 25px !important;
+  box-shadow: var(--shadow-light) !important;
+  border-bottom: none !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-/* 为页面内容添加上下边距 */
-:global(body) {
-  margin: 0;
-  padding: 0;
-  padding-bottom: 70px; /* 默认移动端底部导航栏高度 */
-}
-
-/* 桌面端：顶部导航栏 */
-@media (min-width: 640px) {
-  :global(body) {
-    padding-top: 64px; /* 桌面端顶部导航栏高度 */
-    padding-bottom: 0; /* 桌面端取消底部边距 */
-  }
+:deep(.el-menu--horizontal > .el-menu-item.is-active .menu-text) {
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 /* 安全区域适配 */
@@ -653,5 +826,26 @@ const handleLogout = async () => {
   .action-buttons {
     @apply hidden;
   }
+}
+
+/* 关闭按钮样式 */
+:deep(.user-menu-drawer .el-drawer__close-btn) {
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50% !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+  font-size: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.user-menu-drawer .el-drawer__close-btn:hover) {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: scale(1.1) !important;
 }
 </style> 
