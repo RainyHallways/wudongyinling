@@ -72,7 +72,7 @@ export const userApi = {
    * @param data 注册参数
    */
   register(data: RegisterParams) {
-    return request.post<UserData>('/auth/register', data)
+    return request.post<UserData>('/v1/auth/register', data)
   },
 
   /**

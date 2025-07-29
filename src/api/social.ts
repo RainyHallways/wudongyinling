@@ -46,6 +46,7 @@ export interface PostComment {
 
 export interface CommentCreate {
   content: string
+  post_id: number
   parent_id?: number
 }
 
@@ -85,10 +86,33 @@ export interface HeritageInheritor {
   updated_at: string
 }
 
+export interface HeritageProjectCreate {
+  name: string
+  description: string
+  origin_location: string
+  category: string
+  level: string
+  cover_image?: string
+  video_url?: string
+  history?: string
+  characteristics?: string
+  inheritor_id?: number
+}
+
+export interface InheritorCreate {
+  name: string
+  gender: 'male' | 'female'
+  birth_year: number
+  hometown: string
+  specialty: string
+  avatar?: string
+  bio?: string
+}
+
 // 动态广场API
 export const postApi = {
   // 获取动态列表
-  getPosts: (params: {
+  getPosts: (params?: {
     page?: number
     page_size?: number
     post_type?: string
@@ -96,139 +120,155 @@ export const postApi = {
     is_public?: boolean
     is_featured?: boolean
   }) => {
-    return request.get('/api/v1/social/posts', { params })
+    return request.get('/v1/social/posts', { params })
   },
 
   // 创建动态
   createPost: (data: PostCreate) => {
-    return request.post('/api/v1/social/posts', data)
+    return request.post('/v1/social/posts', data)
   },
 
   // 获取动态详情
   getPost: (id: number) => {
-    return request.get(`/api/v1/social/posts/${id}`)
+    return request.get(`/v1/social/posts/${id}`)
   },
 
-  // 点赞动态
-  likePost: (id: number) => {
-    return request.post(`/api/v1/social/posts/${id}/like`)
+  // 更新动态
+  updatePost: (id: number, data: Partial<PostCreate>) => {
+    return request.put(`/v1/social/posts/${id}`, data)
   },
 
-  // 取消点赞
-  unlikePost: (id: number) => {
-    return request.delete(`/api/v1/social/posts/${id}/like`)
+  // 删除动态
+  deletePost: (id: number) => {
+    return request.delete(`/v1/social/posts/${id}`)
   },
 
   // 获取动态评论
-  getComments: (postId: number, params?: {
+  getPostComments: (postId: number, params?: {
     page?: number
     page_size?: number
   }) => {
-    return request.get(`/api/v1/social/posts/${postId}/comments`, { params })
+    return request.get(`/v1/social/posts/${postId}/comments`, { params })
   },
 
   // 添加评论
   addComment: (postId: number, data: CommentCreate) => {
-    return request.post(`/api/v1/social/posts/${postId}/comments`, data)
+    return request.post(`/v1/social/posts/${postId}/comments`, data)
   },
 
-  // 删除评论
-  deleteComment: (postId: number, commentId: number) => {
-    return request.delete(`/api/v1/social/posts/${postId}/comments/${commentId}`)
+  // 点赞动态
+  likePost: (postId: number) => {
+    return request.post(`/v1/social/posts/${postId}/like`)
   },
 
-  // 切换动态精选状态（管理员）
-  toggleFeatured: (id: number) => {
-    return request.patch(`/api/v1/social/posts/${id}/featured`)
+  // 取消点赞
+  unlikePost: (postId: number) => {
+    return request.delete(`/v1/social/posts/${postId}/like`)
   },
 
-  // 切换动态可见性（管理员）
-  toggleVisibility: (id: number) => {
-    return request.patch(`/api/v1/social/posts/${id}/visibility`)
+  // 分享动态
+  sharePost: (postId: number) => {
+    return request.post(`/v1/social/posts/${postId}/share`)
   },
 
-  // 删除动态（管理员）
-  deletePost: (id: number) => {
-    return request.delete(`/api/v1/social/posts/${id}`)
-  }
-}
+  // 举报动态
+  reportPost: (postId: number, data: { reason: string; description?: string }) => {
+    return request.post(`/v1/social/posts/${postId}/report`, data)
+  },
 
-// 非遗项目API
-export const heritageProjectApi = {
-  // 获取项目列表
-  getProjects: (params: {
+  // 获取用户动态
+  getUserPosts: (userId: number, params?: {
     page?: number
     page_size?: number
-    keyword?: string
-    category?: string
-    level?: string
-    status?: string
   }) => {
-    return request.get('/api/v1/social/heritage/projects', { params })
+    return request.get(`/v1/social/users/${userId}/posts`, { params })
   },
 
-  // 创建项目
-  createProject: (data: Partial<HeritageProject>) => {
-    return request.post('/api/v1/social/heritage/projects', data)
+  // 获取关注用户的动态
+  getFollowingPosts: (params?: {
+    page?: number
+    page_size?: number
+  }) => {
+    return request.get('/v1/social/following/posts', { params })
+  },
+
+  // 获取热门动态
+  getTrendingPosts: (params?: {
+    page?: number
+    page_size?: number
+    timeframe?: 'day' | 'week' | 'month'
+  }) => {
+    return request.get('/v1/social/posts/trending', { params })
+  },
+
+  // 非遗传承相关接口
+  // 获取非遗项目
+  getProjects: (params?: {
+    page?: number
+    page_size?: number
+    category?: string
+    region?: string
+  }) => {
+    return request.get('/v1/social/heritage/projects', { params })
   },
 
   // 获取项目详情
   getProject: (id: number) => {
-    return request.get(`/api/v1/social/heritage/projects/${id}`)
+    return request.get(`/v1/social/heritage/projects/${id}`)
   },
 
-  // 更新项目
-  updateProject: (id: number, data: Partial<HeritageProject>) => {
-    return request.put(`/api/v1/social/heritage/projects/${id}`, data)
+  // 创建非遗项目
+  createProject: (data: HeritageProjectCreate) => {
+    return request.post('/v1/social/heritage/projects', data)
   },
 
-  // 切换项目状态
-  toggleStatus: (id: number) => {
-    return request.patch(`/api/v1/social/heritage/projects/${id}/status`)
+  // 更新非遗项目
+  updateProject: (id: number, data: Partial<HeritageProjectCreate>) => {
+    return request.put(`/v1/social/heritage/projects/${id}`, data)
   },
 
-  // 删除项目
+  // 删除非遗项目
   deleteProject: (id: number) => {
-    return request.delete(`/api/v1/social/heritage/projects/${id}`)
-  }
-}
+    return request.delete(`/v1/social/heritage/projects/${id}`)
+  },
 
-// 非遗传承人API
-export const heritageInheritorApi = {
-  // 获取传承人列表
-  getInheritors: (params: {
+  // 获取传承人
+  getInheritors: (params?: {
     page?: number
     page_size?: number
-    keyword?: string
-    hometown?: string
-    gender?: string
-    status?: string
+    project_id?: number
+    region?: string
   }) => {
-    return request.get('/api/v1/social/heritage/inheritors', { params })
-  },
-
-  // 创建传承人
-  createInheritor: (data: Partial<HeritageInheritor>) => {
-    return request.post('/api/v1/social/heritage/inheritors', data)
+    return request.get('/v1/social/heritage/inheritors', { params })
   },
 
   // 获取传承人详情
   getInheritor: (id: number) => {
-    return request.get(`/api/v1/social/heritage/inheritors/${id}`)
+    return request.get(`/v1/social/heritage/inheritors/${id}`)
+  },
+
+  // 创建传承人
+  createInheritor: (data: InheritorCreate) => {
+    return request.post('/v1/social/heritage/inheritors', data)
   },
 
   // 更新传承人
-  updateInheritor: (id: number, data: Partial<HeritageInheritor>) => {
-    return request.put(`/api/v1/social/heritage/inheritors/${id}`, data)
-  },
-
-  // 切换传承人状态
-  toggleStatus: (id: number) => {
-    return request.patch(`/api/v1/social/heritage/inheritors/${id}/status`)
+  updateInheritor: (id: number, data: Partial<InheritorCreate>) => {
+    return request.put(`/v1/social/heritage/inheritors/${id}`, data)
   },
 
   // 删除传承人
   deleteInheritor: (id: number) => {
-    return request.delete(`/api/v1/social/heritage/inheritors/${id}`)
+    return request.delete(`/v1/social/heritage/inheritors/${id}`)
+  },
+
+  // 加入非遗计划
+  joinHeritageProject: (projectId: number, userId: number) => {
+    return request.post(`/v1/social/heritage/projects/${projectId}/join`, { user_id: userId })
+  },
+
+  // 退出非遗计划
+  leaveHeritageProject: (projectId: number, userId: number) => {
+    return request.post(`/v1/social/heritage/projects/${projectId}/leave`, { user_id: userId })
   }
 } 

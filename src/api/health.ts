@@ -83,7 +83,7 @@ export const healthApi = {
    * @param params 查询参数
    */
   getHealthRecords(params?: HealthRecordParams) {
-    return request.get<{ items: HealthRecord[], total: number }>('/health', params)
+    return request.get<{ items: HealthRecord[], total: number }>('/v1/health', params)
   },
   
   /**
@@ -91,7 +91,7 @@ export const healthApi = {
    * @param id 记录ID
    */
   getHealthRecordById(id: number) {
-    return request.get<HealthRecord>(`/health/${id}`)
+    return request.get<HealthRecord>(`/v1/health/${id}`)
   },
   
   /**
@@ -99,7 +99,7 @@ export const healthApi = {
    * @param data 健康记录数据
    */
   createHealthRecord(data: Partial<HealthRecord>) {
-    return request.post<HealthRecord>('/health', data)
+    return request.post<HealthRecord>('/v1/health', data)
   },
   
   /**
@@ -108,7 +108,7 @@ export const healthApi = {
    * @param data 健康记录数据
    */
   updateHealthRecord(id: number, data: Partial<HealthRecord>) {
-    return request.put<HealthRecord>(`/health/${id}`, data)
+    return request.put<HealthRecord>(`/v1/health/${id}`, data)
   },
   
   /**
@@ -116,7 +116,7 @@ export const healthApi = {
    * @param id 记录ID
    */
   deleteHealthRecord(id: number) {
-    return request.delete(`/health/${id}`)
+    return request.delete(`/v1/health/${id}`)
   },
   
   /**
@@ -125,7 +125,7 @@ export const healthApi = {
    * @param days 统计天数
    */
   getHealthStatistics(userId: number, days: number = 30) {
-    return request.get(`/health/statistics/${userId}`, { params: { days } })
+    return request.get(`/v1/health/statistics/${userId}`, { params: { days } })
   },
   
   /**
@@ -133,7 +133,7 @@ export const healthApi = {
    * @param params 查询参数
    */
   getPrescriptions(params?: { skip?: number, limit?: number, user_id?: number, status?: string }) {
-    return request.get<{ items: Prescription[], total: number }>('/prescriptions', params)
+    return request.get<{ items: Prescription[], total: number }>('/v1/prescriptions', params)
   },
   
   /**
@@ -141,7 +141,7 @@ export const healthApi = {
    * @param id 处方ID
    */
   getPrescriptionById(id: number) {
-    return request.get<Prescription>(`/prescriptions/${id}`)
+    return request.get<Prescription>(`/v1/prescriptions/${id}`)
   },
   
   /**
@@ -149,7 +149,7 @@ export const healthApi = {
    * @param data 处方数据
    */
   createPrescription(data: Partial<Prescription>) {
-    return request.post<Prescription>('/prescriptions', data)
+    return request.post<Prescription>('/v1/prescriptions', data)
   },
   
   /**
@@ -158,7 +158,7 @@ export const healthApi = {
    * @param data 处方数据
    */
   updatePrescription(id: number, data: Partial<Prescription>) {
-    return request.put<Prescription>(`/prescriptions/${id}`, data)
+    return request.put<Prescription>(`/v1/prescriptions/${id}`, data)
   },
   
   /**
@@ -166,7 +166,7 @@ export const healthApi = {
    * @param id 处方ID
    */
   deletePrescription(id: number) {
-    return request.delete(`/prescriptions/${id}`)
+    return request.delete(`/v1/prescriptions/${id}`)
   },
   
   /**
@@ -175,7 +175,7 @@ export const healthApi = {
    */
   getHealthGoals(userId?: number) {
     const params = userId ? { user_id: userId } : {}
-    return request.get<HealthGoal[]>('/health/goals', params)
+    return request.get<HealthGoal[]>('/v1/health/goals', params)
   },
   
   /**
@@ -183,7 +183,7 @@ export const healthApi = {
    * @param data 目标数据
    */
   createHealthGoal(data: Partial<HealthGoal>) {
-    return request.post<HealthGoal>('/health/goals', data)
+    return request.post<HealthGoal>('/v1/health/goals', data)
   },
   
   /**
@@ -192,7 +192,7 @@ export const healthApi = {
    * @param data 目标数据
    */
   updateHealthGoal(id: number, data: Partial<HealthGoal>) {
-    return request.put<HealthGoal>(`/health/goals/${id}`, data)
+    return request.put<HealthGoal>(`/v1/health/goals/${id}`, data)
   },
   
   /**
@@ -200,6 +200,6 @@ export const healthApi = {
    * @param id 目标ID
    */
   deleteHealthGoal(id: number) {
-    return request.delete(`/health/goals/${id}`)
+    return request.delete(`/v1/health/goals/${id}`)
   }
 } 
