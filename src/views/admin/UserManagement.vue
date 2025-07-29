@@ -78,10 +78,12 @@
         </ElFormItem>
         <ElFormItem label="角色" prop="role">
           <ElSelect v-model="form.role" placeholder="请选择角色">
-            <ElOption label="普通用户" value="USER" />
-            <ElOption label="管理员" value="ADMIN" />
+            <ElOption label="老年人" value="ELDERLY" />
+            <ElOption label="子女" value="CHILD" />
+            <ElOption label="志愿者" value="VOLUNTEER" />
             <ElOption label="教师" value="TEACHER" />
             <ElOption label="医生" value="DOCTOR" />
+            <ElOption label="管理员" value="ADMIN" />
           </ElSelect>
         </ElFormItem>
         <ElFormItem label="状态" prop="is_active">
@@ -231,31 +233,43 @@ const passwordRules = reactive<FormRules>({
 
 // 获取角色标签类型
 const getRoleType = (role: string) => {
-  switch (role) {
+  switch (role?.toUpperCase()) {
     case 'ADMIN':
       return 'danger'
     case 'TEACHER':
       return 'warning'
     case 'DOCTOR':
       return 'success'
+    case 'VOLUNTEER':
+      return 'primary'
+    case 'CHILD':
+      return 'info'
+    case 'ELDERLY':
+      return 'success'
     case 'USER':
     default:
-      return 'info'
+      return 'success'
   }
 }
 
 // 获取角色文本
 const getRoleText = (role: string) => {
-  switch (role) {
+  switch (role?.toUpperCase()) {
     case 'ADMIN':
       return '管理员'
     case 'TEACHER':
       return '教师'
     case 'DOCTOR':
       return '医生'
+    case 'VOLUNTEER':
+      return '志愿者'
+    case 'CHILD':
+      return '子女'
+    case 'ELDERLY':
+      return '老年人'
     case 'USER':
     default:
-      return '普通用户'
+      return '老年人'
   }
 }
 
