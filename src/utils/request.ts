@@ -3,14 +3,10 @@ import { ElMessage } from 'element-plus'
 import router from '../router'
 import { useUserStore } from '../stores/user'
 
-// 环境变量类型扩展
-declare global {
-  interface ImportMeta {
-    env: {
-      VITE_API_BASE_URL?: string
-      [key: string]: any
-    }
-  }
+// 定义环境变量接口
+interface ViteEnv {
+  VITE_API_BASE_URL?: string
+  [key: string]: any
 }
 
 // 定义响应数据接口
@@ -22,7 +18,7 @@ interface ApiResponse<T = any> {
 
 // 创建axios实例
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: (import.meta.env as any).VITE_API_BASE_URL || '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
@@ -71,6 +67,11 @@ service.interceptors.response.use(
       
       return Promise.reject(new Error(res.message || '未知错误'))
     } else {
+      // 如果响应包含分页信息，返回完整响应对象
+      if (res.hasOwnProperty('total') || res.hasOwnProperty('page')) {
+        return res
+      }
+      // 否则只返回data部分（保持向后兼容）
       return res.data
     }
   },
@@ -129,6 +130,9 @@ export const request = {
   },
   delete<T = any>(url: string, params?: object): Promise<T> {
     return service.delete(url, { params })
+  },
+  patch<T = any>(url: string, data?: object): Promise<T> {
+    return service.patch(url, data)
   }
 }
 
