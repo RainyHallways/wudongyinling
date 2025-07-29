@@ -6,6 +6,7 @@ from .base_service import BaseService
 from ..models.user import User
 from ..repositories import user_repository
 from ..schemas.user import UserCreate, UserUpdate, PasswordChange
+from ..core.security import get_password_hash
 
 class UserService(BaseService[User, UserCreate, UserUpdate]):
     """
@@ -17,6 +18,44 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         初始化用户服务
         """
         super().__init__(user_repository)
+    
+    async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
+        """
+        创建用户，处理密码哈希
+        
+        Args:
+            db: 数据库会话
+            obj_in: 用户创建数据
+            
+        Returns:
+            创建的用户对象
+        """
+        # 将密码哈希化并准备数据
+        create_data = obj_in.model_dump(exclude={'password'})
+        create_data['hashed_password'] = get_password_hash(obj_in.password)
+        
+        # 确保role和is_admin字段的一致性
+        from ..models.user import UserRole
+        if hasattr(obj_in, 'role') and obj_in.role:
+            create_data['role'] = obj_in.role
+            # 设置is_admin字段以保持向后兼容
+            create_data['is_admin'] = (obj_in.role == UserRole.ADMIN)
+        else:
+            # 如果没有设置role，根据is_admin设置role
+            if getattr(obj_in, 'is_admin', False):
+                create_data['role'] = UserRole.ADMIN
+            else:
+                create_data['role'] = UserRole.USER
+                
+        # 生成唯一用户ID
+        create_data['unique_id'] = await self._generate_unique_id(create_data['role'])
+        
+        # 使用User模型创建用户
+        db_obj = User(**create_data)
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
     
     async def get_by_email(
         self, 
@@ -257,6 +296,43 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         # 生成新密码哈希
         new_hashed_password = pwd_context.hash(password_data.new_password)
         
+        # 直接更新用户密码
+        user.hashed_password = new_hashed_password
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        
+        return True
+    
+    async def _generate_unique_id(self, role) -> str:
+        """
+        根据角色生成唯一用户ID
+        
+        Args:
+            role: 用户角色
+            
+        Returns:
+            唯一用户ID字符串
+        """
+        import time
+        import random
+        from ..models.user import UserRole
+        
+        # 根据角色确定前缀
+        prefix_map = {
+            UserRole.USER: 'U',
+            UserRole.ADMIN: 'A', 
+            UserRole.TEACHER: 'T',
+            UserRole.DOCTOR: 'D'
+        }
+        
+        prefix = prefix_map.get(role, 'U')
+        
+        # 生成基于时间戳和随机数的唯一ID
+        timestamp = str(int(time.time()))[-6:]  # 取时间戳后6位
+        random_num = str(random.randint(100, 999))  # 3位随机数
+        
+        return f"{prefix}{timestamp}{random_num}" 
         # 更新密码
         user_update = UserUpdate(hashed_password=new_hashed_password)
         await self.repository.update(db, db_obj=user, obj_in=user_update)

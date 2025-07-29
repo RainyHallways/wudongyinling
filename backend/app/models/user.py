@@ -1,9 +1,17 @@
 from typing import List, Optional
+from enum import Enum
 
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+
+class UserRole(str, Enum):
+    """用户角色枚举"""
+    USER = "user"           # 普通用户
+    ADMIN = "admin"         # 管理员
+    TEACHER = "teacher"     # 教师
+    DOCTOR = "doctor"       # 医生
 
 class User(Base):
     """用户模型"""
@@ -15,7 +23,9 @@ class User(Base):
     nickname: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     avatar: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)  # 保持向后兼容
+    role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.USER, server_default='USER')
+    unique_id: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     
     # 关系定义 - 这些将在其他模型定义后添加
     health_records: Mapped[List["HealthRecord"]] = relationship("HealthRecord", back_populates="user")

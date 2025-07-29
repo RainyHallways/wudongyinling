@@ -121,6 +121,11 @@ class AuthService:
             expires_delta=access_token_expires
         )
         
+        # 确保role和unique_id有值
+        from ..models.user import UserRole
+        user_role = user.role if hasattr(user, 'role') and user.role else (UserRole.ADMIN if user.is_admin else UserRole.USER)
+        user_unique_id = user.unique_id if hasattr(user, 'unique_id') and user.unique_id else f"{'A' if user.is_admin else 'U'}{user.id:06d}"
+        
         # 构建UserPublic对象
         user_data = UserPublic(
             id=user.id,
@@ -130,6 +135,8 @@ class AuthService:
             avatar=user.avatar if hasattr(user, 'avatar') else None,
             is_active=user.is_active,
             is_admin=user.is_admin,
+            role=user_role,
+            unique_id=user_unique_id,
             created_at=user.created_at
         )
         

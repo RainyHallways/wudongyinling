@@ -4,12 +4,12 @@ from typing import List
 
 from ...core.database import get_async_db
 from ...schemas.user import UserCreate, UserUpdate, UserPublic, PasswordChange
-from ...schemas.base import DataResponse, ListResponse
+from ...schemas.base import DataResponse, ListResponse, PaginatedResponse
 from ...services.user_service import UserService
 
 router = APIRouter()
 
-@router.get("/", response_model=ListResponse[UserPublic])
+@router.get("/", response_model=PaginatedResponse[UserPublic])
 async def get_users(
     skip: int = 0, 
     limit: int = 10, 
@@ -22,7 +22,7 @@ async def get_users(
     users = await user_service.get_multi(db, skip=skip, limit=limit)
     total = await user_service.repository.count(db)
     
-    return ListResponse(
+    return PaginatedResponse(
         data=users,
         total=total,
         page=skip // limit + 1 if limit else 1,
@@ -110,6 +110,31 @@ async def deactivate_user(
         raise HTTPException(status_code=404, detail="用户不存在")
     
     return DataResponse(data=user, message="用户已停用")
+
+@router.post("/", response_model=DataResponse[UserPublic])
+async def create_user(
+    user_create: UserCreate,
+    db: AsyncSession = Depends(get_async_db),
+    user_service: UserService = Depends()
+):
+    """
+    创建新用户（管理员操作）
+    """
+    # 检查用户名是否已存在
+    existing_user = await user_service.get_by_username(db, user_create.username)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="用户名已存在")
+    
+    # 检查邮箱是否已存在
+    existing_email = await user_service.get_by_email(db, user_create.email)
+    if existing_email:
+        raise HTTPException(status_code=400, detail="邮箱已被注册")
+    
+    try:
+        user = await user_service.create(db, obj_in=user_create)
+        return DataResponse(data=user, message="用户创建成功")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"创建用户失败: {str(e)}")
 
 @router.patch("/{user_id}/change-password", response_model=DataResponse)
 async def change_user_password(
