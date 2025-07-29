@@ -106,7 +106,7 @@ const demoLogin = () => {
 </script>
 
 <template>
-  <div class="login-container">
+  <div class="login-container page-with-nav">
     <ElCard class="login-card">
       <template #header>
         <div class="card-header">
