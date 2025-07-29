@@ -1,200 +1,239 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElCard, ElButton, ElRow, ElCol } from 'element-plus'
-import { useDanceStore } from '@/stores/dance'
-import { getBanners, getFeatures, getPartners, type Banner, type Feature, type Partner } from '@/api/home'
+import { onMounted } from 'vue'
 
-const router = useRouter()
-const danceStore = useDanceStore()
-
-const loading = ref({
-  courses: true,
-  banners: true,
-  features: true,
-  partners: true
-})
-
-// 课程数据
-const courses = ref([])
-// 默认数据
-const defaultCourses = [
-  {
-    id: 1,
-    title: '广场舞基础入门',
-    image: '/images/gcw.jpeg',
-    duration: '12节课',
-    level: '适合初学者'
-  },
-  {
-    id: 2,
-    title: '民族舞精选',
-    image: '/images/mzw.jpg',
-    duration: '8节课',
-    level: '中级水平'
-  },
-  {
-    id: 3,
-    title: '健身舞每日练',
-    image: '/images/jsw.png',
-    duration: '30节课',
-    level: '适合所有人'
-  },
-  {
-    id: 4,
-    title: '交谊舞基础',
-    image: '/images/jyw.jpg',
-    duration: '10节课',
-    level: '双人学习'
-  }
-]
-
-// 用户评价数据
-const reviews = ref([
-  {
-    id: 1,
-    name: '张玉梅',
-    avatar: '/images/zym.png',
-    stars: 5,
-    halfStar: false,
-    content: '"这个平台的AI教练太神奇了，能指出我跳舞时的小毛病，现在我跳得越来越好了！"'
-  },
-  {
-    id: 2,
-    name: '王德福',
-    avatar: '/images/wdf.png',
-    stars: 5,
-    halfStar: false,
-    content: '"健康管理功能很实用，能监测我的血压和心率，跳舞时更安心了。"'
-  },
-  {
-    id: 3,
-    name: '陈淑芬',
-    avatar: '/images/csf.png',
-    stars: 4,
-    halfStar: true,
-    content: '"在社交平台认识了很多舞友，大家一起打卡互相鼓励，跳舞更有动力了！"'
-  }
-])
-
-// 获取推荐课程
-const fetchFeaturedCourses = async () => {
-  loading.value.courses = true
-  try {
-    await danceStore.fetchCourses({ limit: 4, featured: true })
-    courses.value = danceStore.courses.length ? danceStore.courses : defaultCourses
-  } catch (error) {
-    console.error('获取推荐课程失败:', error)
-    courses.value = defaultCourses
-  } finally {
-    loading.value.courses = false
-  }
-}
-
-// 导航方法
-const navigateTo = (path: string) => {
-  router.push(path)
-}
-
-// 滚动到特色部分
-const scrollToFeatures = () => {
-  document.getElementById('features')?.scrollIntoView({ 
-    behavior: 'smooth' 
-  })
-}
-
+// 页面加载动画
 onMounted(() => {
-  fetchFeaturedCourses()
+  // 添加渐入动画
+  const cards = document.querySelectorAll('.fade-in')
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible')
+      }
+    })
+  })
+  
+  cards.forEach((card) => {
+    observer.observe(card)
+  })
 })
 </script>
 
 <template>
-  <div class="home">
+  <div class="home-container page-with-nav">
     <!-- 英雄区域 -->
     <section class="hero-section">
-      <div class="container">
-        <h1 class="hero-title">舞动青春，乐享银龄</h1>
-        <p class="hero-subtitle">专为老年人设计的智能舞蹈学习平台，让舞蹈变得简单、健康、有趣！</p>
-        <div class="d-flex justify-content-center gap-3">
-          <el-button type="primary" size="large" @click="navigateTo('/ai-coach')">开始学习</el-button>
-          <el-button plain size="large" @click="scrollToFeatures">了解更多</el-button>
+      <div class="hero-content">
+        <h1 class="hero-title">舞动银龄</h1>
+        <p class="hero-subtitle">
+          专为银发族打造的智能舞蹈学习平台<br>
+          让舞蹈成为健康生活的美好伴侣
+        </p>
+        <div class="hero-actions">
+          <el-button 
+            type="primary" 
+            size="large" 
+            @click="$router.push('/courses')"
+            class="hero-btn primary-btn"
+          >
+            <i class="el-icon-video-play"></i>
+            开始学习舞蹈
+          </el-button>
+          <el-button 
+            size="large" 
+            @click="$router.push('/about')"
+            class="hero-btn secondary-btn"
+          >
+            <i class="el-icon-info"></i>
+            了解更多
+          </el-button>
         </div>
       </div>
     </section>
-    <br />
-    
-    <!-- 特色功能 -->
-    <section id="features" class="py-5">
-      <div class="container">
-        <h2 class="section-title">我们的特色服务</h2>
-        <div class="features-grid">
-          <div class="feature-card" @click="navigateTo('/ai-coach')">
-            <div class="feature-icon">👨‍🏫</div>
-            <h3 class="feature-title">AI 教练</h3>
-            <p class="feature-desc">智能舞蹈教学与动作纠正，让您在家也能享受专业指导</p>
-          </div>
-          <div class="feature-card" @click="navigateTo('/health-management')">
-            <div class="feature-icon">❤️</div>
-            <h3 class="feature-title">健康管理</h3>
-            <p class="feature-desc">根据您的身体状况，为您定制专属运动方案，实时监测健康数据</p>
-          </div>
-          <div class="feature-card" @click="navigateTo('/social-platform')">
-            <div class="feature-icon">🎉</div>
-            <h3 class="feature-title">社交激励</h3>
-            <p class="feature-desc">结交志同道合的朋友，共同参与舞蹈挑战，传承非遗文化</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <br/>
-    
-    <!-- 热门课程 -->
-    <section class="py-5 bg-light" v-loading="loading.courses">
-      <div class="container">
-        <h2 class="section-title">热门舞蹈课程</h2>
-        <p class="section-subtitle">选择您感兴趣的舞蹈开始学习</p>
 
-        <div class="row">
-          <div class="col-md-3" v-for="course in courses" :key="course.id">
-            <div class="course-card">
-              <img :src="course.image || course.coverImage" :alt="course.title" class="course-img">
-              <div class="p-3">
-                <h4 class="course-title">{{ course.title }}</h4>
-                <p class="course-duration">
-                  <i class="far fa-clock"></i> {{ course.duration }} · {{ course.level || course.difficulty }}
-                </p>
-                <el-button type="primary" class="w-100" @click="navigateTo('/dance-courses')">开始学习</el-button>
-              </div>
+    <!-- 特色功能区域 -->
+    <section class="features-section">
+      <div class="section-header">
+        <h2 class="section-title">平台特色</h2>
+        <p class="section-subtitle">为银发族量身定制的贴心功能</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🎵</div>
+          <h3 class="feature-title">专业舞蹈课程</h3>
+          <p class="feature-description">
+            涵盖广场舞、太极、民族舞等多种舞蹈形式，
+            由专业老师录制，动作简单易学
+          </p>
+        </div>
+        
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🏥</div>
+          <h3 class="feature-title">健康管理</h3>
+          <p class="feature-description">
+            记录运动数据，监测身体状况，
+            提供个性化健康建议和运动处方
+          </p>
+        </div>
+        
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">AI智能指导</h3>
+          <p class="feature-description">
+            AI教练实时纠正动作，提供个性化学习建议，
+            让每一次练习都更加高效
+          </p>
+        </div>
+        
+        <div class="feature-card fade-in">
+          <div class="feature-icon">👥</div>
+          <h3 class="feature-title">社交互动</h3>
+          <p class="feature-description">
+            与舞友们分享学习心得，参与打卡挑战，
+            在欢乐的氛围中坚持运动
+          </p>
+        </div>
+        
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🏆</div>
+          <h3 class="feature-title">学习激励</h3>
+          <p class="feature-description">
+            完成学习目标获得奖章，参与挑战赛事，
+            让舞蹈学习充满成就感
+          </p>
+        </div>
+        
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🎭</div>
+          <h3 class="feature-title">非遗传承</h3>
+          <p class="feature-description">
+            学习传统民族舞蹈，了解文化内涵，
+            在舞蹈中感受中华文化之美
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数据统计区域 -->
+    <section class="stats-section">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number">10,000+</div>
+          <div class="stat-label">注册用户</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">精品课程</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">50+</div>
+          <div class="stat-label">专业老师</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">98%</div>
+          <div class="stat-label">用户满意度</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 快速入门区域 -->
+    <section class="quick-start-section">
+      <div class="section-header">
+        <h2 class="section-title">快速开始</h2>
+        <p class="section-subtitle">三步开启您的舞蹈之旅</p>
+      </div>
+      
+      <div class="steps-container">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3 class="step-title">注册账户</h3>
+            <p class="step-description">简单注册，立即开始舞蹈学习之旅</p>
+          </div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3 class="step-title">选择课程</h3>
+            <p class="step-description">根据兴趣和身体状况选择合适的课程</p>
+          </div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3 class="step-title">开始学习</h3>
+            <p class="step-description">跟随视频教程，享受舞蹈带来的快乐</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="quick-start-actions">
+        <el-button 
+          type="primary" 
+          size="large" 
+          @click="$router.push('/register')"
+          class="start-btn"
+        >
+          立即开始
+        </el-button>
+      </div>
+    </section>
+
+    <!-- 用户评价区域 -->
+    <section class="testimonials-section">
+      <div class="section-header">
+        <h2 class="section-title">用户心声</h2>
+        <p class="section-subtitle">听听他们的舞蹈故事</p>
+      </div>
+      
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">
+            <img src="/images/zym.png" alt="张玉梅">
+          </div>
+          <div class="testimonial-content">
+            <p class="testimonial-text">
+              "在这个平台上学会了好多舞蹈，身体越来越健康，
+              心情也变得更好了。老师讲解得很仔细，动作简单易学。"
+            </p>
+            <div class="testimonial-author">
+              <div class="author-name">张玉梅</div>
+              <div class="author-age">65岁</div>
             </div>
           </div>
         </div>
-
-        <div class="text-center mt-4">
-          <el-button type="primary" size="large" @click="navigateTo('/dance-courses')">浏览更多课程</el-button>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">
+            <img src="/images/wdf.png" alt="王德福">
+          </div>
+          <div class="testimonial-content">
+            <p class="testimonial-text">
+              "以前不敢跳舞，现在跟着视频学，没有心理压力。
+              AI教练还能纠正我的动作，进步很快！"
+            </p>
+            <div class="testimonial-author">
+              <div class="author-name">王德福</div>
+              <div class="author-age">68岁</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-
-    <!-- 用户评价 -->
-    <section class="py-5">
-      <div class="container">
-        <h2 class="section-title">用户评价</h2>
-        <p class="section-subtitle">听听大家怎么说</p>
-
-        <div class="row">
-          <div class="col-md-4" v-for="review in reviews" :key="review.id">
-            <div class="feature-card">
-              <div class="d-flex align-items-center mb-3">
-                <img :src="review.avatar" :alt="review.name" class="rounded-circle me-3" width="60">
-                <div>
-                  <h5 class="mb-0">{{ review.name }}</h5>
-                  <div class="text-warning">
-                    <i class="fas fa-star" v-for="n in review.stars" :key="n"></i>
-                    <i class="fas fa-star-half-alt" v-if="review.halfStar"></i>
-                  </div>
-                </div>
-              </div>
-              <p>{{ review.content }}</p>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">
+            <img src="/images/csf.png" alt="陈淑芬">
+          </div>
+          <div class="testimonial-content">
+            <p class="testimonial-text">
+              "社交功能很棒，认识了很多舞友，大家互相鼓励，
+              一起打卡挑战，让运动变得更有趣。"
+            </p>
+            <div class="testimonial-author">
+              <div class="author-name">陈淑芬</div>
+              <div class="author-age">62岁</div>
             </div>
           </div>
         </div>
@@ -204,321 +243,403 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* 主页特殊样式调整 */
+.home-container {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  position: relative;
+}
+
 .hero-section {
   position: relative;
-  width: 100%;
-  padding-top: 100%; /* 1:1 Aspect Ratio */
-  background: #8e99f3 url('/background.png') center/cover no-repeat;
-  aspect-ratio: 1/1; /* 现代浏览器支持 */
-  z-index: 1;
-}
-
-/* 添加遮罩层 */
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2); /* 40%的黑色遮罩 */
-  z-index: 1;
-}
-
-.hero-section .container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 20px;
-  color: white;
+  min-height: calc(100vh - 64px); /* 减去导航栏高度 */
+  background: 
+    linear-gradient(135deg, 
+      rgba(212, 175, 55, 0.4) 0%, 
+      rgba(205, 133, 63, 0.3) 50%,
+      rgba(218, 165, 32, 0.4) 100%
+    ),
+    url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: multiply;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  z-index: 2; /* 确保文字在遮罩层之上 */
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* 减小文字阴影，因为已经有遮罩 */
-  letter-spacing: 0.05em;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 30px;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* 减小文字阴影，因为已经有遮罩 */
-  line-height: 1.4;
-}
-
-.btn-primary {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
-  font-size: 18px;
-  padding: 10px 25px;
-}
-
-.btn-primary:hover {
-  background-color: #e05a2b;
-  border-color: #e05a2b;
-}
-
-.btn-outline-light {
   color: white;
-  border-color: white;
-  font-size: 18px;
-  padding: 10px 25px;
+  overflow: hidden;
 }
 
-.btn-outline-primary {
+/* 桌面端：为主页内容添加顶部间距 */
+@media (min-width: 641px) {
+  .home-container {
+    padding-top: 64px;
+  }
+}
+
+/* 组件特有样式 - 优雅金棕色主题 */
+.hero-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.hero-btn {
+  min-width: 180px;
+  font-size: var(--font-size-large);
+  padding: 16px 32px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+
+.primary-btn {
+  background: var(--bg-secondary);
   color: var(--primary-color);
-  border-color: var(--primary-color);
-  font-size: 18px;
-  padding: 10px 25px;
+  border: 2px solid var(--bg-secondary);
 }
 
-.btn-outline-primary:hover {
-  background-color: var(--primary-color);
-  color: white;
+.primary-btn:hover {
+  background: var(--primary-color);
+  color: var(--text-white);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-white);
+  border: 2px solid var(--text-white);
+  backdrop-filter: blur(10px);
+}
+
+.secondary-btn:hover {
+  background: var(--text-white);
+  color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--el-color-primary);
-  margin-bottom: 30px;
-  text-align: center;
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: var(--gradient-warm);
+  border-radius: 2px;
 }
 
 .section-subtitle {
-  font-size: 1.2rem;
-  color: #666;
-  text-align: center;
-  margin-bottom: 40px;
+  font-size: var(--font-size-large);
+  color: var(--text-secondary);
+  margin: 0;
 }
 
-.features-grid {
+/* 数据统计样式 */
+.stats-section {
+  background: var(--gradient-primary);
+  color: var(--text-white);
+  padding: 60px 0;
+  margin: 60px 0;
+}
+
+.stats-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.feature-card {
-  background-color: var(--white);
-  border-radius: 15px;
-  padding: 30px;
+.stat-item {
   text-align: center;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-  cursor: pointer;
 }
 
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.feature-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
+.stat-label {
+  font-size: var(--font-size-large);
+  opacity: 0.95;
+  font-weight: 500;
 }
 
-.feature-title {
-  font-size: 24px;
-  margin-bottom: 15px;
-  color: var(--el-color-primary);
+/* 快速入门样式 */
+.quick-start-section {
+  padding: 60px 0;
+  background: var(--bg-accent);
 }
 
-.feature-desc {
-  font-size: 18px;
-  color: #666;
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  max-width: 900px;
+  margin: 0 auto 40px;
+  padding: 0 24px;
 }
 
-.bg-light {
-  background-color: #f8f9fa;
-}
-
-.row {
+.step-item {
   display: flex;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
-}
-
-.col-md-3, .col-md-4 {
-  position: relative;
-  width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-}
-
-.col-md-3 {
-  flex: 0 0 25%;
-  max-width: 25%;
-}
-
-.col-md-4 {
-  flex: 0 0 33.333333%;
-  max-width: 33.333333%;
-}
-
-.course-card {
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  margin-bottom: 25px;
-  transition: transform 0.3s;
-  background-color: var(--white);
-}
-
-.course-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-.course-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.course-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-.course-duration {
-  color: #777;
-  font-size: 0.9rem;
-  margin-bottom: 15px;
-}
-
-.gap-3 {
-  gap: 1rem;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.justify-content-center {
-  justify-content: center;
-}
-
-.align-items-center {
   align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
-.mb-3 {
-  margin-bottom: 1rem;
+.step-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--primary-light);
 }
 
-.mb-0 {
-  margin-bottom: 0;
+.step-number {
+  width: 60px;
+  height: 60px;
+  background: var(--gradient-warm);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xlarge);
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-light);
 }
 
-.me-3 {
-  margin-right: 1rem;
+.step-content {
+  flex: 1;
 }
 
-.mt-4 {
-  margin-top: 1.5rem;
+.step-title {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
 }
 
-.p-3 {
-  padding: 1rem;
+.step-description {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.w-100 {
-  width: 100%;
-}
-
-.text-center {
+.quick-start-actions {
   text-align: center;
 }
 
-.text-warning {
-  color: #ffc107;
+.start-btn {
+  min-width: 200px;
+  font-size: var(--font-size-large);
+  padding: 16px 40px;
+  border-radius: 25px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  background: var(--gradient-warm);
+  border: none;
+  color: var(--text-white);
 }
 
-.rounded-circle {
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-heavy);
+}
+
+/* 用户评价样式 */
+.testimonials-section {
+  padding: 60px 0;
+  background: var(--bg-secondary);
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.testimonial-card {
+  display: flex;
+  gap: 20px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--primary-light);
+}
+
+.testimonial-avatar {
+  flex-shrink: 0;
+}
+
+.testimonial-avatar img {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-color);
+  box-shadow: var(--shadow-light);
 }
 
+.testimonial-content {
+  flex: 1;
+}
+
+.testimonial-text {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-style: italic;
+  position: relative;
+}
+
+.testimonial-text::before {
+  content: '"';
+  font-size: 3em;
+  color: var(--primary-light);
+  position: absolute;
+  left: -10px;
+  top: -10px;
+  line-height: 1;
+  opacity: 0.3;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.author-age {
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  background: var(--bg-accent);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+}
+
+/* 动画效果 */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
   }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  
+  .hero-btn {
+    min-width: 160px;
+    font-size: var(--font-size-base);
+    padding: 14px 28px;
   }
-
-  .section-title {
-    font-size: 1.8rem;
+  
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
   }
-
-  .features-grid {
+  
+  .stat-number {
+    font-size: 2.5rem;
+  }
+  
+  .steps-container {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
-
-  .col-md-3, .col-md-4 {
-    flex: 0 0 100%;
-    max-width: 100%;
+  
+  .step-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .testimonial-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
   }
 }
 
-:deep(.el-button--primary) {
-  background-color: #daa01b;
-  border-color: #daa01b;
-  font-size: 18px;
-  padding: 10px 25px;
-  height: auto;
-  line-height: 1.5;
-}
-
-:deep(.el-button--primary:hover) {
-  background-color: #ff8a65;
-  border-color: #ff8a65;
-}
-
-:deep(.el-button--primary.is-plain) {
-  color: #daa01b;
-  background-color: transparent;
-  border-color: #daa01b;
-}
-
-:deep(.el-button--primary.is-plain:hover) {
-  background-color: #daa01b;
-  color: white;
-  border-color: #daa01b;
-}
-
-:deep(.el-button.is-plain) {
-  color: white;
-  background-color: transparent;
-  border-color: white;
-  font-size: 18px;
-  padding: 10px 25px;
-  height: auto;
-  line-height: 1.5;
-}
-
-:deep(.el-button.is-plain:hover) {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* 删除这些不再需要的样式 */
-.btn-primary,
-.btn-primary:hover,
-.btn-outline-light,
-.btn-outline-primary,
-.btn-outline-primary:hover {
-  display: none;
+@media (max-width: 480px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .features-grid {
+    padding: 0 16px;
+  }
+  
+  .testimonials-grid {
+    padding: 0 16px;
+  }
+  
+  .steps-container {
+    padding: 0 16px;
+  }
 }
 </style> 
