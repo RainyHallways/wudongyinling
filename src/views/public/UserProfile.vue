@@ -1,5 +1,5 @@
 <template>
-  <div class="user-profile-container">
+  <div class="user-profile-container page-with-nav">
     <page-header title="个人中心" subtitle="管理您的账户信息和舞蹈历程"></page-header>
     
     <el-row :gutter="20">
