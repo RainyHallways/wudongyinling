@@ -1,8 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { StarFilled, ChatDotRound, Share, Promotion, Sunrise, Star, Trophy, Clock } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { 
+  StarFilled, 
+  ChatDotRound, 
+  Share, 
+  Promotion, 
+  Sunrise, 
+  Star, 
+  Trophy, 
+  Clock,
+  Plus,
+  Like,
+  MessageBox,
+  Loading
+} from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
+import { postApi, heritageProjectApi, heritageInheritorApi, type Post, type HeritageProject, type HeritageInheritor } from '@/api/social'
+import { useUserStore } from '@/stores/user'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 // 当前激活的标签页
 const activeTab = ref('feed')
@@ -21,294 +40,286 @@ const tabOptions: TabOption[] = [
 ]
 
 // 动态广场数据
-interface Post {
-  id: number
-  username: string
-  avatar: string
-  time: string
-  location: string
-  content: string
-  image: string
-  likes: number
-  comments: number
-}
+const posts = ref<Post[]>([])
+const postsLoading = ref(false)
+const postsPagination = ref({
+  page: 1,
+  page_size: 10,
+  total: 0
+})
 
-const posts = ref<Post[]>([
-  {
-    id: 1,
-    username: '张玉梅',
-    avatar: '/images/zym.png',
-    time: '1小时前',
-    location: '济南',
-    content: '今天学习了新的广场舞动作，虽然还不熟练，但很开心！坚持打卡第15天~',
-    image: '/images/zym-2.png',
-    likes: 24,
-    comments: 8
-  },
-  {
-    id: 2,
-    username: '陈淑芬',
-    avatar: '/images/csf.png',
-    time: '2小时前',
-    location: '青岛',
-    content: '参加了社区的民族舞表演，虽然紧张但顺利完成，感谢平台的教学视频！',
-    image: '/images/csf-2.png',
-    likes: 36,
-    comments: 12
-  }
-])
-
-// 打卡挑战数据
-interface Challenge {
-  id: number
-  title: string
-  description: string
-  participants: number
-  timeLeft: string
-  progress: number
-  progressStatus?: string
-  myProgress: string
-  streakIcon: {
-    name: string
-    class: string
-  }
-  streakText: string
-  status: {
-    type: string
-    text: string
-  }
-  actionText: string
-}
-
-const challenges = ref<Challenge[]>([
-  {
-    id: 1,
-    title: '21天健身舞打卡',
-    description: '连续21天每天练习健身舞15分钟，养成运动好习惯',
-    participants: 1245,
-    timeLeft: '剩余: 12天',
-    progress: 45,
-    myProgress: '9/21天',
-    streakIcon: { name: 'Sunrise', class: 'text-danger' },
-    streakText: '连续7天',
-    status: { type: 'primary', text: '进行中' },
-    actionText: '今日打卡'
-  },
-  {
-    id: 2,
-    title: '民族舞学习月',
-    description: '学习4种民族舞基础动作，感受传统文化魅力',
-    participants: 892,
-    timeLeft: '剩余: 30天',
-    progress: 20,
-    myProgress: '1/4种',
-    streakIcon: { name: 'Star', class: 'text-warning' },
-    streakText: '新加入',
-    status: { type: 'success', text: '新挑战' },
-    actionText: '立即参加'
-  },
-  {
-    id: 3,
-    title: '7天广场舞入门',
-    description: '7天掌握广场舞基本步伐，适合零基础学员',
-    participants: 2156,
-    timeLeft: '状态: 已完成',
-    progress: 100,
-    myProgress: '成绩: 优秀',
-    streakIcon: { name: 'Trophy', class: 'text-warning' },
-    streakText: '已获奖章',
-    status: { type: 'info', text: '已完成' },
-    actionText: '查看证书'
-  },
-  {
-    id: 4,
-    title: '交谊舞双周计划',
-    description: '14天学会基础交谊舞，可与舞伴一起参加',
-    participants: 563,
-    timeLeft: '开始: 3天后',
-    progress: 0,
-    myProgress: '未开始',
-    streakIcon: { name: 'Clock', class: 'text-info' },
-    streakText: '即将开始',
-    status: { type: 'warning', text: '即将开始' },
-    actionText: '预约参加'
-  }
-])
+// 发布动态数据
+const newPost = ref({
+  content: '',
+  post_type: 'text' as 'text' | 'image' | 'video' | 'dance' | 'heritage',
+  media_url: '',
+  is_public: true
+})
+const showCreatePost = ref(false)
+const publishLoading = ref(false)
+const showFilters = ref(false)
 
 // 非遗传承数据
-interface HeritageDance {
-  id: number
-  title: string
-  description: string
-  image: string
-}
+const heritageProjects = ref<HeritageProject[]>([])
+const heritageInheritors = ref<HeritageInheritor[]>([])
+const heritageLoading = ref(false)
 
-const heritageDances = ref<HeritageDance[]>([
+// 挑战数据
+const challenges = ref([
   {
     id: 1,
-    title: '蒙古族安代舞',
-    description: '国家级非物质文化遗产',
-    image: '/images/安代舞图片.png'
+    title: '30天广场舞打卡挑战',
+    description: '连续30天打卡广场舞练习',
+    participants: 156,
+    days: 30,
+    currentDay: 15,
+    status: 'ongoing'
   },
   {
     id: 2,
-    title: '藏族锅庄舞',
-    description: '国家级非物质文化遗产',
-    image: '/images/藏族锅庄舞图片.png'
-  },
-  {
-    id: 3,
-    title: '傣族孔雀舞',
-    description: '国家级非物质文化遗产',
-    image: '/images/傣族孔雀舞图片.png'
+    title: '太极拳基础动作',
+    description: '学习太极拳24式基础动作',
+    participants: 89,
+    days: 21,
+    currentDay: 8,
+    status: 'ongoing'
   }
 ])
 
-interface HeritageTeacher {
-  id: number
-  name: string
-  title: string
-  avatar: string
-  description: string
-}
+// 过滤选项
+const feedFilters = ref({
+  post_type: '',
+  user_role: '',
+  is_featured: undefined as boolean | undefined
+})
 
-const heritageTeachers = ref<HeritageTeacher[]>([
-  {
-    id: 1,
-    name: '非遗传承人 - 张老师',
-    title: '蒙古族安代舞传承人',
-    avatar: '/images/非遗传承人1.png',
-    description: '安代舞是蒙古族传统舞蹈，希望通过这个平台让更多老年人了解和传承这一文化遗产。'
-  },
-  {
-    id: 2,
-    name: '非遗传承人 - 李老师',
-    title: '傣族孔雀舞传承人',
-    avatar: '/images/非遗传承人2.png',
-    description: '孔雀舞动作优美，适合老年人练习，既能锻炼身体又能感受傣族文化魅力。'
-  }
-])
-
-// 聊天数据
-interface Message {
-  id: number
-  content: string
-  time: string
-  isSender: boolean
-}
-
-interface Chat {
-  id: string
-  name: string
-  avatar: string
-  lastTime: string
-  messages: Message[]
-}
-
-const chatList = ref<Chat[]>([
-  {
-    id: '1',
-    name: '王德福',
-    avatar: '/images/wdf.png',
-    lastTime: '今天 15:28',
-    messages: [
-      {
-        id: 1,
-        content: '玉梅，您刚才的舞蹈视频我看了，跳得真好！',
-        time: '今天 15:23',
-        isSender: false
-      },
-      {
-        id: 2,
-        content: '谢谢夸奖！我跟着平台的课程练习了一个月了',
-        time: '今天 15:25',
-        isSender: true
-      },
-      {
-        id: 3,
-        content: '我也想学，能推荐一下适合初学者的课程吗？',
-        time: '今天 15:26',
-        isSender: false
-      },
-      {
-        id: 4,
-        content: '可以从"广场舞基础入门"开始，我当初就是学这个',
-        time: '今天 15:28',
-        isSender: true
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: '舞蹈学习小组',
-    avatar: '/images/hldg-group.png',
-    lastTime: '昨天 10:45',
-    messages: [
-      {
-        id: 1,
-        content: '各位舞友们，明天下午3点社区有广场舞展示活动，有兴趣的可以来参加！',
-        time: '昨天 10:45',
-        isSender: false
-      }
-    ]
-  },
-  {
-    id: '3',
-    name: '陈淑芬',
-    avatar: '/images/csf.png',
-    lastTime: '3月12日',
-    messages: [
-      {
-        id: 1,
-        content: '玉梅姐，我看到你在平台上分享的舞蹈视频了，动作很标准！',
-        time: '3月12日 09:30',
-        isSender: false
-      },
-      {
-        id: 2,
-        content: '谢谢！多练习就会进步的，你也很棒！',
-        time: '3月12日 10:15',
-        isSender: true
-      }
-    ]
-  }
-])
-
-const activeChat = ref('1')
-const currentChat = ref(chatList.value[0])
-const newMessage = ref('')
-
-// 方法
-const handleLike = (post: Post): void => {
-  post.likes++
-  ElMessage.success('点赞成功')
-}
-
-const handleComment = (post: Post): void => {
-  ElMessage.info('评论功能开发中')
-}
-
-const handleShare = (post: Post): void => {
-  ElMessage.info('分享功能开发中')
-}
-
-const selectChat = (chat: Chat): void => {
-  currentChat.value = chat
-  activeChat.value = chat.id
-}
-
-const sendMessage = (): void => {
-  if (!newMessage.value.trim()) return
-  
-  currentChat.value.messages.push({
-    id: Date.now(),
-    content: newMessage.value,
-    time: '刚刚',
-    isSender: true
+// 计算属性
+const filteredPosts = computed(() => {
+  return posts.value.filter(post => {
+    if (feedFilters.value.post_type && post.post_type !== feedFilters.value.post_type) {
+      return false
+    }
+    if (feedFilters.value.is_featured !== undefined && post.is_featured !== feedFilters.value.is_featured) {
+      return false
+    }
+    return true
   })
-  
-  newMessage.value = ''
+})
+
+// 生命周期
+onMounted(() => {
+  loadFeedData()
+  loadHeritageData()
+})
+
+// 加载动态数据
+const loadFeedData = async () => {
+  try {
+    postsLoading.value = true
+    const response = await postApi.getPosts({
+      page: postsPagination.value.page,
+      page_size: postsPagination.value.page_size,
+      ...feedFilters.value
+    })
+    
+    if (response.code === 200) {
+      posts.value = response.data.items || []
+      postsPagination.value.total = response.data.total || 0
+    }
+  } catch (error) {
+    console.error('Failed to load posts:', error)
+    ElMessage.error('加载动态失败')
+  } finally {
+    postsLoading.value = false
+  }
 }
+
+// 加载非遗数据
+const loadHeritageData = async () => {
+  try {
+    heritageLoading.value = true
+    
+    const [projectsResponse, inheritorsResponse] = await Promise.all([
+      heritageProjectApi.getProjects({ page: 1, page_size: 6 }),
+      heritageInheritorApi.getInheritors({ page: 1, page_size: 6 })
+    ])
+    
+    if (projectsResponse.code === 200) {
+      heritageProjects.value = projectsResponse.data.items || []
+    }
+    
+    if (inheritorsResponse.code === 200) {
+      heritageInheritors.value = inheritorsResponse.data.items || []
+    }
+  } catch (error) {
+    console.error('Failed to load heritage data:', error)
+    ElMessage.error('加载非遗数据失败')
+  } finally {
+    heritageLoading.value = false
+  }
+}
+
+// 发布动态
+const publishPost = async () => {
+  if (!newPost.value.content.trim()) {
+    ElMessage.warning('请输入动态内容')
+    return
+  }
+
+  try {
+    publishLoading.value = true
+    const response = await postApi.createPost({
+      content: newPost.value.content.trim(),
+      post_type: newPost.value.post_type,
+      media_url: newPost.value.media_url || undefined,
+      is_public: newPost.value.is_public
+    })
+
+    if (response.code === 200) {
+      ElMessage.success('发布成功')
+      showCreatePost.value = false
+      newPost.value = {
+        content: '',
+        post_type: 'text',
+        media_url: '',
+        is_public: true
+      }
+      loadFeedData() // 重新加载动态列表
+    } else {
+      ElMessage.error(response.message || '发布失败')
+    }
+  } catch (error) {
+    console.error('Failed to publish post:', error)
+    ElMessage.error('发布失败')
+  } finally {
+    publishLoading.value = false
+  }
+}
+
+// 点赞动态
+const likePost = async (post: Post) => {
+  try {
+    const response = await postApi.likePost(post.id)
+    if (response.code === 200) {
+      // 更新本地数据
+      const index = posts.value.findIndex(p => p.id === post.id)
+      if (index !== -1) {
+        posts.value[index].likes_count++
+      }
+    }
+  } catch (error) {
+    console.error('Failed to like post:', error)
+    ElMessage.error('点赞失败')
+  }
+}
+
+// 评论动态
+const commentPost = async (post: Post) => {
+  try {
+    const { value: comment } = await ElMessageBox.prompt('请输入评论内容', '添加评论', {
+      confirmButtonText: '发送',
+      cancelButtonText: '取消',
+      inputType: 'textarea',
+      inputPlaceholder: '说点什么...'
+    })
+
+    if (comment && comment.trim()) {
+      const response = await postApi.addComment(post.id, {
+        content: comment.trim()
+      })
+
+      if (response.code === 200) {
+        ElMessage.success('评论成功')
+        // 更新本地数据
+        const index = posts.value.findIndex(p => p.id === post.id)
+        if (index !== -1) {
+          posts.value[index].comments_count++
+        }
+      } else {
+        ElMessage.error(response.message || '评论失败')
+      }
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Failed to comment post:', error)
+      ElMessage.error('评论失败')
+    }
+  }
+}
+
+// 分享动态
+const sharePost = async (post: Post) => {
+  try {
+    // 创建分享链接
+    const shareUrl = `${window.location.origin}/social/post/${post.id}`
+    
+    // 尝试使用 Web Share API
+    if (navigator.share) {
+      await navigator.share({
+        title: '分享动态',
+        text: post.content,
+        url: shareUrl
+      })
+      ElMessage.success('分享成功')
+    } else {
+      // 如果不支持，则复制链接到剪贴板
+      await navigator.clipboard.writeText(shareUrl)
+      ElMessage.success('链接已复制到剪贴板')
+    }
+    
+    // 更新分享计数（这里应该调用真实的API）
+    const index = posts.value.findIndex(p => p.id === post.id)
+    if (index !== -1) {
+      posts.value[index].shares_count++
+    }
+  } catch (error) {
+    console.error('Failed to share post:', error)
+    ElMessage.error('分享失败')
+  }
+}
+
+// 跳转到聊天页面
+const goToChat = () => {
+  router.push('/chat')
+}
+
+// 跳转到挑战详情
+const goToChallengeDetail = (challengeId: number) => {
+  router.push(`/challenge/${challengeId}`)
+}
+
+// 应用过滤器
+const applyFilters = () => {
+  postsPagination.value.page = 1
+  loadFeedData()
+}
+
+// 重置过滤器
+const resetFilters = () => {
+  feedFilters.value = {
+    post_type: '',
+    user_role: '',
+    is_featured: undefined
+  }
+  applyFilters()
+}
+
+// 格式化时间
+const formatTime = (timestamp: string) => {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  
+  if (diffMins < 1) return '刚刚'
+  if (diffMins < 60) return `${diffMins}分钟前`
+  if (diffMins < 1440) return `${Math.floor(diffMins / 60)}小时前`
+  
+  return date.toLocaleDateString()
+}
+
+// 默认头像
+const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 </script>
 
 <template>
@@ -333,35 +344,44 @@ const sendMessage = (): void => {
         <div class="social-cards">
           <ElCard v-for="post in posts" :key="post.id" class="social-card">
             <div class="d-flex">
-              <ElAvatar :src="post.avatar" :size="50" class="me-3" />
+              <ElAvatar :src="post.avatar || defaultAvatar" :size="50" class="me-3" />
               <div>
                 <h5 class="mb-0">{{ post.username }}</h5>
-                <p class="text-muted mb-0">{{ post.time }} · {{ post.location }}</p>
+                <p class="text-muted mb-0">{{ formatTime(post.created_at) }} · {{ post.location }}</p>
               </div>
             </div>
             <div class="post-content">
               <p>{{ post.content }}</p>
-              <ElImage v-if="post.image" :src="post.image" class="post-image" fit="cover" />
+              <ElImage v-if="post.media_url" :src="post.media_url" class="post-image" fit="cover" />
             </div>
             <div class="post-actions">
-              <ElButton text @click="handleLike(post)">
-                <el-icon><StarFilled /></el-icon>
-                点赞 ({{ post.likes }})
+              <ElButton text @click="likePost(post)">
+                <el-icon><Like /></el-icon>
+                点赞 ({{ post.likes_count }})
               </ElButton>
-              <ElButton text @click="handleComment(post)">
+              <ElButton text @click="commentPost(post)">
                 <el-icon><ChatDotRound /></el-icon>
-                评论 ({{ post.comments }})
+                评论 ({{ post.comments_count }})
               </ElButton>
-              <ElButton text @click="handleShare(post)">
+              <ElButton text @click="sharePost(post)">
                 <el-icon><Share /></el-icon>
                 分享
               </ElButton>
             </div>
           </ElCard>
           <div class="text-center mt-4">
-            <ElButton type="primary" plain>加载更多</ElButton>
+            <ElButton type="primary" plain @click="showCreatePost = true">发布动态</ElButton>
           </div>
         </div>
+        <ElPagination
+          v-if="posts.length > 0"
+          v-model:current-page="postsPagination.page"
+          v-model:page-size="postsPagination.page_size"
+          :total="postsPagination.total"
+          @current-change="loadFeedData"
+          @size-change="loadFeedData"
+          class="mt-4"
+        />
       </div>
 
       <!-- 打卡挑战内容 -->
@@ -369,30 +389,21 @@ const sendMessage = (): void => {
         <ElRow :gutter="20">
           <ElCol :xs="24" :sm="12" :md="12" :lg="12" v-for="challenge in challenges" :key="challenge.id">
             <ElCard class="challenge-card">
-              <ElTag :type="challenge.status.type" class="challenge-badge">
-                {{ challenge.status.text }}
+              <ElTag :type="challenge.status === 'ongoing' ? 'primary' : 'info'" class="challenge-badge">
+                {{ challenge.status === 'ongoing' ? '进行中' : '已完成' }}
               </ElTag>
               <h3>{{ challenge.title }}</h3>
               <p>{{ challenge.description }}</p>
               <div class="d-flex justify-content-between">
                 <span>已参与: {{ challenge.participants }}人</span>
-                <span>{{ challenge.timeLeft }}</span>
+                <span>已打卡: {{ challenge.currentDay }}/{{ challenge.days }}天</span>
               </div>
               <ElProgress 
-                :percentage="challenge.progress" 
-                :status="challenge.progressStatus"
+                :percentage="challenge.currentDay / challenge.days * 100" 
+                :status="challenge.currentDay / challenge.days * 100 === 100 ? 'success' : undefined"
               />
-              <div class="d-flex justify-content-between">
-                <span>我的进度: {{ challenge.myProgress }}</span>
-                <span>
-                  <el-icon :class="challenge.streakIcon.class">
-                    <component :is="challenge.streakIcon.name" />
-                  </el-icon>
-                  {{ challenge.streakText }}
-                </span>
-              </div>
-              <ElButton type="primary" class="w-100 mt-3">
-                {{ challenge.actionText }}
+              <ElButton type="primary" class="w-100 mt-3" @click="goToChallengeDetail(challenge.id)">
+                查看详情
               </ElButton>
             </ElCard>
           </ElCol>
@@ -402,12 +413,12 @@ const sendMessage = (): void => {
       <!-- 非遗传承内容 -->
       <div v-show="activeTab === 'heritage'" class="tab-content">
         <ElRow :gutter="20">
-          <ElCol :xs="24" :sm="12" :md="8" :lg="8" v-for="dance in heritageDances" :key="dance.id">
+          <ElCol :xs="24" :sm="12" :md="8" :lg="8" v-for="project in heritageProjects" :key="project.id">
             <div class="heritage-card">
-              <ElImage :src="dance.image" fit="cover" class="heritage-image" />
+              <ElImage :src="project.image_url" fit="cover" class="heritage-image" />
               <div class="heritage-overlay">
-                <h4>{{ dance.title }}</h4>
-                <p>{{ dance.description }}</p>
+                <h4>{{ project.title }}</h4>
+                <p>{{ project.description }}</p>
               </div>
             </div>
           </ElCol>
@@ -417,86 +428,138 @@ const sendMessage = (): void => {
           <h3>非遗舞蹈学习社区</h3>
           <p>加入我们的非遗舞蹈学习小组，与传承人互动交流，学习传统舞蹈文化。</p>
           <ElRow :gutter="20" class="mt-4">
-            <ElCol :xs="24" :sm="24" :md="12" v-for="teacher in heritageTeachers" :key="teacher.id">
+            <ElCol :xs="24" :sm="24" :md="12" v-for="inheritor in heritageInheritors" :key="inheritor.id">
               <div class="d-flex align-items-center mb-3">
-                <ElAvatar :src="teacher.avatar" :size="60" class="me-3" />
+                <ElAvatar :src="inheritor.avatar_url" :size="60" class="me-3" />
                 <div>
-                  <h5 class="mb-0">{{ teacher.name }}</h5>
-                  <p class="text-muted mb-0">{{ teacher.title }}</p>
+                  <h5 class="mb-0">{{ inheritor.name }}</h5>
+                  <p class="text-muted mb-0">{{ inheritor.title }}</p>
                 </div>
               </div>
-              <p>{{ teacher.description }}</p>
+              <p>{{ inheritor.description }}</p>
               <ElButton type="primary">加入学习小组</ElButton>
             </ElCol>
           </ElRow>
         </ElCard>
       </div>
 
-      <!-- 私信聊天内容 -->
+      <!-- 私信聊天 -->
       <div v-show="activeTab === 'message'" class="tab-content">
-        <ElRow :gutter="20">
-          <ElCol :xs="24" :sm="24" :md="8">
-            <ElCard>
-              <template #header>
-                <div class="card-header">
-                  <span>我的消息</span>
-                </div>
-              </template>
-              <ElMenu :default-active="activeChat">
-                <ElMenuItem 
-                  v-for="chat in chatList" 
-                  :key="chat.id" 
-                  :index="String(chat.id)"
-                  @click="selectChat(chat)"
-                >
-                  <div class="d-flex align-items-center">
-                    <ElAvatar :src="chat.avatar" :size="50" class="me-3" />
-                    <div>
-                      <h6 class="mb-0">{{ chat.name }}</h6>
-                      <small>{{ chat.lastTime }}</small>
-                    </div>
-                  </div>
-                </ElMenuItem>
-              </ElMenu>
-            </ElCard>
-          </ElCol>
-          <ElCol :xs="24" :sm="24" :md="16">
-            <ElCard v-if="currentChat">
-              <template #header>
-                <div class="d-flex align-items-center">
-                  <ElAvatar :src="currentChat.avatar" :size="50" class="me-3" />
-                  <div>
-                    <h5 class="mb-0">与{{ currentChat.name }}的对话</h5>
-                  </div>
-                </div>
-              </template>
-              <div class="message-list">
-                <div 
-                  v-for="message in currentChat.messages" 
-                  :key="message.id"
-                  :class="['message-item', message.isSender ? 'message-sender' : 'message-receiver']"
-                >
-                  <p>{{ message.content }}</p>
-                  <small>{{ message.time }}</small>
-                </div>
-              </div>
-              <div class="mt-3">
-                <ElInput
-                  v-model="newMessage"
-                  placeholder="输入消息..."
-                  :suffix-icon="Promotion"
-                  @keyup.enter="sendMessage"
-                >
-                  <template #append>
-                    <ElButton @click="sendMessage">发送</ElButton>
-                  </template>
-                </ElInput>
-              </div>
-            </ElCard>
-          </ElCol>
-        </ElRow>
+        <div class="text-center py-5">
+          <el-icon size="64" color="#409eff"><ChatDotRound /></el-icon>
+          <h3 class="mt-3">开始聊天</h3>
+          <p class="text-muted mb-4">与舞友们实时交流，分享学习心得</p>
+          <el-button type="primary" size="large" @click="goToChat">
+            <el-icon><MessageBox /></el-icon>
+            进入聊天室
+          </el-button>
+        </div>
       </div>
     </div>
+
+    <!-- 发布动态对话框 -->
+    <el-dialog
+      v-model="showCreatePost"
+      title="发布动态"
+      width="500px"
+      :before-close="() => showCreatePost = false"
+    >
+      <el-form :model="newPost" label-width="80px">
+        <el-form-item label="动态类型">
+          <el-select v-model="newPost.post_type" placeholder="选择类型">
+            <el-option label="文字" value="text" />
+            <el-option label="图片" value="image" />
+            <el-option label="视频" value="video" />
+            <el-option label="舞蹈" value="dance" />
+            <el-option label="非遗" value="heritage" />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="内容">
+          <el-input
+            v-model="newPost.content"
+            type="textarea"
+            :rows="4"
+            placeholder="分享你的想法..."
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-form-item label="媒体链接" v-if="newPost.post_type !== 'text'">
+          <el-input
+            v-model="newPost.media_url"
+            placeholder="请输入图片或视频链接"
+          />
+        </el-form-item>
+        
+        <el-form-item label="可见性">
+          <el-switch
+            v-model="newPost.is_public"
+            active-text="公开"
+            inactive-text="私密"
+          />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showCreatePost = false">取消</el-button>
+          <el-button 
+            type="primary" 
+            @click="publishPost"
+            :loading="publishLoading"
+          >
+            发布
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 筛选器对话框 -->
+    <el-dialog
+      v-model="showFilters"
+      title="筛选动态"
+      width="400px"
+    >
+      <el-form :model="feedFilters" label-width="80px">
+        <el-form-item label="动态类型">
+          <el-select v-model="feedFilters.post_type" placeholder="全部类型" clearable>
+            <el-option label="文字" value="text" />
+            <el-option label="图片" value="image" />
+            <el-option label="视频" value="video" />
+            <el-option label="舞蹈" value="dance" />
+            <el-option label="非遗" value="heritage" />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="用户角色">
+          <el-select v-model="feedFilters.user_role" placeholder="全部角色" clearable>
+            <el-option label="老人" value="ELDERLY" />
+            <el-option label="儿童" value="CHILD" />
+            <el-option label="志愿者" value="VOLUNTEER" />
+            <el-option label="教师" value="TEACHER" />
+            <el-option label="医生" value="DOCTOR" />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="精选内容">
+          <el-select v-model="feedFilters.is_featured" placeholder="全部内容" clearable>
+            <el-option label="精选内容" :value="true" />
+            <el-option label="普通内容" :value="false" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetFilters">重置</el-button>
+          <el-button type="primary" @click="applyFilters(); showFilters = false">
+            应用筛选
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
