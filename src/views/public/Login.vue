@@ -95,7 +95,7 @@ const handleLogin = async () => {
 
 const demoLogin = () => {
   loginForm.username = 'admin'
-  loginForm.password = '123456'
+  loginForm.password = 'admin123'
   
   // 自动同意所有协议
   allAgreed.value = true
@@ -172,7 +172,7 @@ const demoLogin = () => {
         
         <div class="login-tips">
           <p>演示账号: admin</p>
-          <p>演示密码: 123456</p>
+          <p>演示密码: admin123</p>
         </div>
         
         <div class="demo-login">
