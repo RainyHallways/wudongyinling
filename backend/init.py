@@ -7,11 +7,13 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import AsyncSessionLocal, Base, engine, initialize_db
+from app.core.database import AsyncSessionLocal, Base, async_engine, initialize_db, close_db_connection
 from app.models import *
-from app.core.security import hash_password
+from app.models.user import UserRole
+from app.core.security import get_password_hash
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,7 +21,7 @@ logger = logging.getLogger(__name__)
 async def create_tables():
     """创建所有数据表"""
     logger.info("开始创建数据表...")
-    async with engine.begin() as conn:
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("数据表创建完成")
 
@@ -28,18 +30,18 @@ async def create_admin_user(db: AsyncSession):
     logger.info("检查管理员用户...")
     
     # 检查是否已存在管理员
-    from sqlalchemy import select
     result = await db.execute(select(User).where(User.username == "admin"))
-    admin = result.scalar_first()
+    admin = result.scalar_one_or_none()
     
     if not admin:
         admin_data = {
             "username": "admin",
             "email": "admin@example.com",
-            "password": hash_password("admin123"),
+            "hashed_password": get_password_hash("admin123"),
             "nickname": "管理员",
             "is_active": True,
-            "role": "ADMIN",
+            "is_admin": True,
+            "role": UserRole.ADMIN,
             "unique_id": "A000001"
         }
         
@@ -53,8 +55,6 @@ async def create_admin_user(db: AsyncSession):
 async def create_test_data(db: AsyncSession):
     """创建测试数据"""
     logger.info("检查测试数据...")
-    
-    from sqlalchemy import select
     
     # 检查是否已有用户数据
     result = await db.execute(select(User))
@@ -76,37 +76,37 @@ async def create_sample_users(db: AsyncSession):
         {
             "username": "zhang_yumei",
             "email": "zhang.yumei@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "张玉梅",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000001"
         },
         {
             "username": "wang_defu", 
             "email": "wang.defu@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "王德福",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000002"
         },
         {
             "username": "chen_shufen",
             "email": "chen.shufen@example.com", 
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "陈淑芬",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000003"
         },
         {
             "username": "li_minghua",
             "email": "li.minghua@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "李明华",
             "is_active": True,
-            "role": "TEACHER",
+            "role": UserRole.TEACHER,
             "unique_id": "T000001"
         }
     ]
@@ -120,8 +120,6 @@ async def create_sample_users(db: AsyncSession):
 
 async def create_sample_posts(db: AsyncSession):
     """创建示例动态"""
-    from sqlalchemy import select
-    
     # 获取用户
     users = await db.execute(select(User))
     users = users.scalars().all()
@@ -307,11 +305,9 @@ async def create_sample_challenges(db: AsyncSession):
 
 async def create_sample_courses(db: AsyncSession):
     """创建示例课程"""
-    from sqlalchemy import select
-    
     # 获取教师用户
-    teacher = await db.execute(select(User).where(User.role == "TEACHER"))
-    teacher = teacher.scalar_first()
+    teacher = await db.execute(select(User).where(User.role == UserRole.TEACHER))
+    teacher = teacher.scalar_one_or_none()
     
     if not teacher:
         logger.warning("没有找到教师用户，跳过课程创建")
@@ -391,6 +387,11 @@ async def main():
     except Exception as e:
         logger.error(f"数据库初始化失败: {e}")
         raise
+    finally:
+        try:
+            await close_db_connection()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     # 在WSL环境中运行

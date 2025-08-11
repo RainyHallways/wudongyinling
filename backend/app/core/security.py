@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Union, Dict, Any
 
 from ..core.database import get_async_db
-from ..models.user import User
+from ..models.user import User, UserRole
 from .config import settings
 from passlib.context import CryptContext
 
@@ -75,9 +75,9 @@ async def get_current_admin_user(
 async def get_current_teacher_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
-    if current_user.role not in ["admin", "teacher"]:
+    if current_user.role not in (UserRole.ADMIN, UserRole.TEACHER):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="权限不足"
         )
-    return current_user 
+    return current_user

@@ -7,11 +7,14 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import AsyncSessionLocal, Base, engine
+from app.core.database import AsyncSessionLocal, Base, async_engine, close_db_connection
 from app.models import *
-from app.core.security import hash_password
+from app.models.user import UserRole
+from app.models.course import DifficultyLevel
+from app.core.security import get_password_hash
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def create_tables():
     """创建所有数据表"""
     logger.info("开始创建数据表...")
-    async with engine.begin() as conn:
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     logger.info("数据表创建完成")
@@ -32,46 +35,47 @@ async def create_sample_users(db: AsyncSession):
         {
             "username": "zhang_yumei",
             "email": "zhang.yumei@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "张玉梅",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000001"
         },
         {
             "username": "wang_defu", 
             "email": "wang.defu@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "王德福",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000002"
         },
         {
             "username": "chen_shufen",
             "email": "chen.shufen@example.com", 
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "陈淑芬",
             "is_active": True,
-            "role": "ELDERLY",
+            "role": UserRole.ELDERLY,
             "unique_id": "E000003"
         },
         {
             "username": "li_minghua",
             "email": "li.minghua@example.com",
-            "password": hash_password("password123"),
+            "hashed_password": get_password_hash("password123"),
             "nickname": "李明华",
             "is_active": True,
-            "role": "TEACHER",
+            "role": UserRole.TEACHER,
             "unique_id": "T000001"
         },
         {
             "username": "admin",
             "email": "admin@example.com",
-            "password": hash_password("admin123"),
+            "hashed_password": get_password_hash("admin123"),
             "nickname": "管理员",
             "is_active": True,
-            "role": "ADMIN",
+            "is_admin": True,
+            "role": UserRole.ADMIN,
             "unique_id": "A000001"
         }
     ]
@@ -165,11 +169,10 @@ async def create_sample_heritage_data(db: AsyncSession):
             "level": "national",
             "description": "安代舞是蒙古族传统舞蹈，具有浓郁的民族特色",
             "history": "安代舞起源于明末清初，已有400多年历史",
-            "techniques": "以踏步、摆臂、转身等动作为主，节奏明快",
-            "current_status": "传承良好，在内蒙古地区广泛流传",
-            "protection_measures": "建立传承基地，培养传承人",
-            "image_url": "/images/安代舞图片.png",
-            "status": "active"
+            "characteristics": "以踏步、摆臂、转身等动作为主，节奏明快；传承状态：传承良好；保护措施：建立传承基地，培养传承人",
+            "origin_location": "内蒙古",
+            "cover_image": "/images/安代舞图片.png",
+            "is_active": True
         },
         {
             "name": "藏族锅庄舞",
@@ -177,11 +180,10 @@ async def create_sample_heritage_data(db: AsyncSession):
             "level": "national",
             "description": "锅庄舞是藏族传统集体舞蹈，寓意团结和谐",
             "history": "起源于古代祭祀活动，历史悠久",
-            "techniques": "围圈而舞，手拉手，动作整齐划一",
-            "current_status": "在藏区广泛传承，深受群众喜爱",
-            "protection_measures": "录制教学视频，建立数字档案",
-            "image_url": "/images/藏族锅庄舞图片.png",
-            "status": "active"
+            "characteristics": "围圈而舞，手拉手，动作整齐划一；传承状态：广泛传承；保护措施：录制教学视频，建立数字档案",
+            "origin_location": "西藏",
+            "cover_image": "/images/藏族锅庄舞图片.png",
+            "is_active": True
         },
         {
             "name": "傣族孔雀舞",
@@ -189,11 +191,10 @@ async def create_sample_heritage_data(db: AsyncSession):
             "level": "national", 
             "description": "孔雀舞是傣族具有代表性的传统舞蹈",
             "history": "模仿孔雀的优美姿态，表达对美好生活的向往",
-            "techniques": "手臂动作柔美，模仿孔雀开屏、觅食等动作",
-            "current_status": "传承活跃，有专业传承人",
-            "protection_measures": "设立传承点，开展教学活动",
-            "image_url": "/images/傣族孔雀舞图片.png",
-            "status": "active"
+            "characteristics": "手臂动作柔美，模仿孔雀开屏、觅食等动作；传承状态：活跃；保护措施：设立传承点，开展教学活动",
+            "origin_location": "云南",
+            "cover_image": "/images/傣族孔雀舞图片.png",
+            "is_active": True
         }
     ]
     
@@ -208,28 +209,24 @@ async def create_sample_heritage_data(db: AsyncSession):
             "gender": "male",
             "birth_year": 1955,
             "hometown": "内蒙古呼和浩特",
-            "bio": "蒙古族安代舞国家级传承人，从事安代舞表演和教学40余年",
+            "specialty": "安代舞",
+            "biography": "蒙古族安代舞国家级传承人，从事安代舞表演和教学40余年",
             "achievements": "获得国家级非遗传承人称号，培养学生200余人",
-            "inheritance_years": 40,
-            "teaching_experience": "在多所学校和社区开展安代舞教学",
-            "representative_works": "《草原安代》、《欢乐安代》等经典作品",
             "contact_info": "电话：138****1234",
-            "avatar_url": "/images/非遗传承人1.png",
-            "status": "active"
+            "avatar": "/images/非遗传承人1.png",
+            "is_active": True
         },
         {
             "name": "央金卓玛",
             "gender": "female", 
             "birth_year": 1960,
             "hometown": "西藏拉萨",
-            "bio": "藏族锅庄舞省级传承人，致力于锅庄舞的传承和推广",
+            "specialty": "锅庄舞",
+            "biography": "藏族锅庄舞省级传承人，致力于锅庄舞的传承和推广",
             "achievements": "省级非遗传承人，多次参加国际文化交流",
-            "inheritance_years": 35,
-            "teaching_experience": "在西藏多地开展锅庄舞培训",
-            "representative_works": "《雪域锅庄》、《高原之舞》",
             "contact_info": "电话：139****5678",
-            "avatar_url": "/images/非遗传承人2.png",
-            "status": "active"
+            "avatar": "/images/非遗传承人2.png",
+            "is_active": True
         }
     ]
     
@@ -244,26 +241,36 @@ async def create_sample_challenges(db: AsyncSession):
     """创建示例挑战"""
     logger.info("创建示例挑战...")
     
+    # 选择挑战创建者（优先教师，其次管理员）
+    creator = await db.execute(select(User).where(User.role == UserRole.TEACHER))
+    creator = creator.scalar_one_or_none()
+    if not creator:
+        creator = await db.execute(select(User).where(User.role == UserRole.ADMIN))
+        creator = creator.scalar_one_or_none()
+    if not creator:
+        logger.warning("没有找到挑战创建者用户，跳过挑战创建")
+        return
+
     challenges_data = [
         {
             "title": "30天广场舞打卡挑战",
             "description": "连续30天每天练习广场舞15分钟，养成运动好习惯",
             "start_date": datetime.now(),
             "end_date": datetime.now() + timedelta(days=30),
-            "target_days": 30,
             "reward_points": 300,
-            "status": "active",
-            "max_participants": 1000
+            "is_active": True,
+            "max_participants": 1000,
+            "creator_id": creator.id
         },
         {
             "title": "太极拳基础动作学习",
             "description": "21天学会太极拳24式基础动作",
             "start_date": datetime.now(),
             "end_date": datetime.now() + timedelta(days=21),
-            "target_days": 21,
             "reward_points": 210,
-            "status": "active",
-            "max_participants": 500
+            "is_active": True,
+            "max_participants": 500,
+            "creator_id": creator.id
         }
     ]
     
@@ -279,8 +286,8 @@ async def create_sample_courses(db: AsyncSession):
     logger.info("创建示例课程...")
     
     # 获取教师用户
-    teacher = await db.execute(select(User).where(User.role == "TEACHER"))
-    teacher = teacher.scalar_first()
+    teacher = await db.execute(select(User).where(User.role == UserRole.TEACHER))
+    teacher = teacher.scalar_one_or_none()
     
     if not teacher:
         logger.warning("没有找到教师用户，跳过课程创建")
@@ -291,36 +298,27 @@ async def create_sample_courses(db: AsyncSession):
             "title": "广场舞基础入门",
             "description": "适合初学者的广场舞课程，从基础动作开始学习",
             "instructor_id": teacher.id,
-            "category": "广场舞",
-            "difficulty": "初级",
-            "duration": 720,  # 12分钟
-            "price": 0.00,
-            "is_featured": True,
-            "cover_image": "/images/gcw.jpeg",
+            "difficulty": DifficultyLevel.BEGINNER,
+            "duration": 12,
+            "cover_url": "/images/gcw.jpeg",
             "video_url": "/videos/guangchangwu-basic.mp4"
         },
         {
             "title": "民族舞精选",
             "description": "学习多种民族舞蹈的经典动作和文化内涵",
             "instructor_id": teacher.id,
-            "category": "民族舞",
-            "difficulty": "中级",
-            "duration": 960,  # 16分钟
-            "price": 29.90,
-            "is_featured": True,
-            "cover_image": "/images/mzw.jpg",
+            "difficulty": DifficultyLevel.INTERMEDIATE,
+            "duration": 16,
+            "cover_url": "/images/mzw.jpg",
             "video_url": "/videos/minzuwu-collection.mp4"
         },
         {
             "title": "太极拳24式",
             "description": "传统太极拳24式完整教学，适合养生保健",
             "instructor_id": teacher.id,
-            "category": "太极拳",
-            "difficulty": "初级",
-            "duration": 1800,  # 30分钟
-            "price": 19.90,
-            "is_featured": False,
-            "cover_image": "/images/taiji.png",
+            "difficulty": DifficultyLevel.BEGINNER,
+            "duration": 30,
+            "cover_url": "/images/taiji.png",
             "video_url": "/videos/taiji-24.mp4"
         }
     ]
@@ -342,9 +340,6 @@ async def main():
         
         # 创建数据库会话
         async with AsyncSessionLocal() as db:
-            # 导入必要的查询函数
-            from sqlalchemy import select
-            
             # 创建示例数据
             await create_sample_users(db)
             await create_sample_posts(db)
@@ -361,6 +356,11 @@ async def main():
     except Exception as e:
         logger.error(f"数据库重置失败: {e}")
         raise
+    finally:
+        try:
+            await close_db_connection()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     # 在WSL环境中运行
