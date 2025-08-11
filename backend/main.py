@@ -98,3 +98,11 @@ app.include_router(websocket_api.router, prefix="/api/v1", tags=["WebSocket"])
 @app.get("/")
 async def root():
     return {"message": "欢迎使用AI舞蹈教练系统API"}
+
+if __name__ == "__main__":
+    import uvicorn
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    reload_flag = os.getenv("RELOAD", "true").lower() == "true"
+    # 使用字符串形式以支持 reload
+    uvicorn.run("main:app", host=host, port=port, reload=reload_flag)
