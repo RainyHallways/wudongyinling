@@ -39,7 +39,8 @@ class PostRepository(RepositoryBase[Post, PostCreate, PostUpdate]):
         if post_type:
             query = query.where(Post.post_type == post_type)
         if user_role:
-            query = query.join(User).where(User.role == user_role.upper())
+            # 角色以字符串存储（如 'admin','teacher','elderly'），保持前端传入的小写匹配
+            query = query.join(User).where(User.role == user_role)
         if is_public is not None:
             query = query.where(Post.is_public == is_public)
         if is_featured is not None:
@@ -130,7 +131,7 @@ class PostRepository(RepositoryBase[Post, PostCreate, PostUpdate]):
         if post_type:
             query = query.where(Post.post_type == post_type)
         if user_role:
-            query = query.join(User).where(User.role == user_role.upper())
+            query = query.join(User).where(User.role == user_role)
         if is_public is not None:
             query = query.where(Post.is_public == is_public)
         if is_featured is not None:
@@ -214,7 +215,12 @@ class PostLikeRepository(RepositoryBase[PostLike, PostLikeCreate, PostLikeUpdate
         post_id: int
     ) -> bool:
         """删除点赞记录"""
-        return False
+        like = await self.get_like_by_user_and_post(db, user_id, post_id)
+        if not like:
+            return False
+        await db.delete(like)
+        await db.commit()
+        return True
 
 
 class HeritageProjectRepository(RepositoryBase[HeritageProject, HeritageProjectCreate, HeritageProjectUpdate]):
@@ -231,10 +237,10 @@ class HeritageProjectRepository(RepositoryBase[HeritageProject, HeritageProjectC
         keyword: Optional[str] = None,
         category: Optional[str] = None,
         level: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> List[HeritageProject]:
         """获取非遗项目列表（带传承人）"""
-        query = select(self.model).options(selectinload(HeritageProject.inheritors))
+        query = select(self.model).options(selectinload(HeritageProject.inheritor))
         
         # 筛选条件
         if keyword:
@@ -248,8 +254,8 @@ class HeritageProjectRepository(RepositoryBase[HeritageProject, HeritageProjectC
             query = query.where(HeritageProject.category == category)
         if level:
             query = query.where(HeritageProject.level == level)
-        if status:
-            query = query.where(HeritageProject.status == status)
+        if is_active is not None:
+            query = query.where(HeritageProject.is_active == is_active)
         
         query = query.order_by(desc(HeritageProject.created_at))
         result = await db.execute(query.offset(skip).limit(limit))
@@ -261,7 +267,7 @@ class HeritageProjectRepository(RepositoryBase[HeritageProject, HeritageProjectC
         keyword: Optional[str] = None,
         category: Optional[str] = None,
         level: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> int:
         """获取符合条件的项目总数"""
         query = select(func.count(HeritageProject.id))
@@ -278,20 +284,50 @@ class HeritageProjectRepository(RepositoryBase[HeritageProject, HeritageProjectC
             query = query.where(HeritageProject.category == category)
         if level:
             query = query.where(HeritageProject.level == level)
-        if status:
-            query = query.where(HeritageProject.status == status)
+        if is_active is not None:
+            query = query.where(HeritageProject.is_active == is_active)
         
         result = await db.execute(query)
         return result.scalar() or 0
 
     async def toggle_project_status(self, db: AsyncSession, project_id: int) -> Optional[HeritageProject]:
-        """切换项目状态"""
+        """切换项目启用状态（兼容旧命名）"""
         project = await self.get(db, project_id)
         if project:
-            project.status = "inactive" if project.status == "active" else "active"
+            project.is_active = not bool(project.is_active)
             await db.commit()
             await db.refresh(project)
         return project
+
+    async def toggle_active_status(self, db: AsyncSession, project_id: int) -> Optional[HeritageProject]:
+        """切换项目启用状态"""
+        return await self.toggle_project_status(db, project_id)
+
+    async def get_projects_with_inheritor(
+        self,
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        category: Optional[str] = None,
+        level: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        keyword: Optional[str] = None
+    ) -> List[HeritageProject]:
+        """兼容服务层调用的参数顺序"""
+        return await self.get_projects_with_inheritors(
+            db=db,
+            skip=skip,
+            limit=limit,
+            keyword=keyword,
+            category=category,
+            level=level,
+            is_active=is_active
+        )
+
+    async def get_projects_by_inheritor(self, db: AsyncSession, inheritor_id: int) -> List[HeritageProject]:
+        query = select(self.model).where(HeritageProject.inheritor_id == inheritor_id)
+        result = await db.execute(query)
+        return result.scalars().all()
 
 
 class HeritageInheritorRepository(RepositoryBase[HeritageInheritor, HeritageInheritorCreate, HeritageInheritorUpdate]):
@@ -308,7 +344,7 @@ class HeritageInheritorRepository(RepositoryBase[HeritageInheritor, HeritageInhe
         keyword: Optional[str] = None,
         hometown: Optional[str] = None,
         gender: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> List[HeritageInheritor]:
         """获取传承人列表（带项目）"""
         query = select(self.model).options(selectinload(HeritageInheritor.projects))
@@ -318,15 +354,15 @@ class HeritageInheritorRepository(RepositoryBase[HeritageInheritor, HeritageInhe
             query = query.where(
                 or_(
                     HeritageInheritor.name.contains(keyword),
-                    HeritageInheritor.bio.contains(keyword)
+                    HeritageInheritor.biography.contains(keyword)
                 )
             )
         if hometown:
             query = query.where(HeritageInheritor.hometown.contains(hometown))
         if gender:
             query = query.where(HeritageInheritor.gender == gender)
-        if status:
-            query = query.where(HeritageInheritor.status == status)
+        if is_active is not None:
+            query = query.where(HeritageInheritor.is_active == is_active)
         
         query = query.order_by(desc(HeritageInheritor.created_at))
         result = await db.execute(query.offset(skip).limit(limit))
@@ -338,7 +374,7 @@ class HeritageInheritorRepository(RepositoryBase[HeritageInheritor, HeritageInhe
         keyword: Optional[str] = None,
         hometown: Optional[str] = None,
         gender: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> int:
         """获取符合条件的传承人总数"""
         query = select(func.count(HeritageInheritor.id))
@@ -348,24 +384,24 @@ class HeritageInheritorRepository(RepositoryBase[HeritageInheritor, HeritageInhe
             query = query.where(
                 or_(
                     HeritageInheritor.name.contains(keyword),
-                    HeritageInheritor.bio.contains(keyword)
+                    HeritageInheritor.biography.contains(keyword)
                 )
             )
         if hometown:
             query = query.where(HeritageInheritor.hometown.contains(hometown))
         if gender:
             query = query.where(HeritageInheritor.gender == gender)
-        if status:
-            query = query.where(HeritageInheritor.status == status)
+        if is_active is not None:
+            query = query.where(HeritageInheritor.is_active == is_active)
         
         result = await db.execute(query)
         return result.scalar() or 0
 
     async def toggle_inheritor_status(self, db: AsyncSession, inheritor_id: int) -> Optional[HeritageInheritor]:
-        """切换传承人状态"""
+        """切换传承人启用状态"""
         inheritor = await self.get(db, inheritor_id)
         if inheritor:
-            inheritor.status = "inactive" if inheritor.status == "active" else "active"
+            inheritor.is_active = not bool(inheritor.is_active)
             await db.commit()
             await db.refresh(inheritor)
-        return inheritor 
+        return inheritor

@@ -252,7 +252,7 @@ async def get_heritage_projects(
         db, skip, limit, category, level, is_active, keyword
     )
     total = await project_service.get_total_count(
-        db, category, level, is_active, keyword
+        db, keyword, category, level, is_active
     )
     
     return PaginatedResponse(
@@ -399,7 +399,7 @@ async def get_heritage_inheritors(
         db, skip, limit, gender, hometown, is_active, keyword
     )
     total = await inheritor_service.get_total_count(
-        db, gender, hometown, is_active, keyword
+        db, keyword, hometown, gender, is_active
     )
     
     return PaginatedResponse(

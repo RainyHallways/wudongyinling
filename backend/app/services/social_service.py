@@ -92,6 +92,7 @@ class PostService(BaseService[Post, PostCreate, PostUpdate]):
     
     async def get_total_count(
         self,
+        db: AsyncSession,
         post_type: Optional[str] = None,
         user_role: Optional[str] = None,
         is_public: Optional[bool] = None,
@@ -99,19 +100,14 @@ class PostService(BaseService[Post, PostCreate, PostUpdate]):
         user_id: Optional[int] = None
     ) -> int:
         """获取动态总数"""
-        async with AsyncSessionLocal() as db:
-            try:
-                return await self.repository.get_total_count(
-                    db=db,
-                    post_type=post_type,
-                    user_role=user_role,
-                    is_public=is_public,
-                    is_featured=is_featured,
-                    user_id=user_id
-                )
-            except Exception as e:
-                await db.rollback()
-                raise
+        return await self.repository.get_total_count(
+            db=db,
+            post_type=post_type,
+            user_role=user_role,
+            is_public=is_public,
+            is_featured=is_featured,
+            user_id=user_id
+        )
 
 
 class PostCommentService(BaseService[PostComment, PostCommentCreate, PostCommentUpdate]):
@@ -192,7 +188,13 @@ class HeritageProjectService(BaseService[HeritageProject, HeritageProjectCreate,
     ) -> List[HeritageProject]:
         """获取带传承人信息的项目列表"""
         return await self.repository.get_projects_with_inheritor(
-            db, skip, limit, category, level, is_active, keyword
+            db=db,
+            skip=skip,
+            limit=limit,
+            category=category,
+            level=level,
+            is_active=is_active,
+            keyword=keyword
         )
     
     async def get_projects_by_inheritor(
@@ -209,24 +211,20 @@ class HeritageProjectService(BaseService[HeritageProject, HeritageProjectCreate,
     
     async def get_total_count(
         self,
+        db: AsyncSession,
         keyword: Optional[str] = None,
         category: Optional[str] = None,
         level: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> int:
         """获取项目总数"""
-        async with AsyncSessionLocal() as db:
-            try:
-                return await self.repository.get_total_count(
-                    db=db,
-                    keyword=keyword,
-                    category=category,
-                    level=level,
-                    status=status
-                )
-            except Exception as e:
-                await db.rollback()
-                raise
+        return await self.repository.get_total_count(
+            db=db,
+            keyword=keyword,
+            category=category,
+            level=level,
+            is_active=is_active
+        )
 
     async def get_projects_with_inheritors(
         self,
@@ -281,7 +279,13 @@ class HeritageInheritorService(BaseService[HeritageInheritor, HeritageInheritorC
     ) -> List[HeritageInheritor]:
         """获取带项目信息的传承人列表"""
         return await self.repository.get_inheritors_with_projects(
-            db, skip, limit, gender, hometown, is_active, keyword
+            db=db,
+            skip=skip,
+            limit=limit,
+            keyword=keyword,
+            hometown=hometown,
+            gender=gender,
+            is_active=is_active
         )
     
     async def toggle_active_status(self, db: AsyncSession, inheritor_id: int) -> Optional[HeritageInheritor]:
@@ -290,24 +294,20 @@ class HeritageInheritorService(BaseService[HeritageInheritor, HeritageInheritorC
     
     async def get_total_count(
         self,
+        db: AsyncSession,
         keyword: Optional[str] = None,
         hometown: Optional[str] = None,
         gender: Optional[str] = None,
-        status: Optional[str] = None
+        is_active: Optional[bool] = None
     ) -> int:
         """获取传承人总数"""
-        async with AsyncSessionLocal() as db:
-            try:
-                return await self.repository.get_total_count(
-                    db=db,
-                    keyword=keyword,
-                    hometown=hometown,
-                    gender=gender,
-                    status=status
-                )
-            except Exception as e:
-                await db.rollback()
-                raise
+        return await self.repository.get_total_count(
+            db=db,
+            keyword=keyword,
+            hometown=hometown,
+            gender=gender,
+            is_active=is_active
+        )
 
     async def get_inheritors_with_projects(
         self,
