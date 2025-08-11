@@ -7,8 +7,8 @@
         <div class="chat-info">
           <h3>{{ currentChat?.name || '选择聊天对象' }}</h3>
           <p class="status" v-if="currentChat">
-            <el-icon v-if="isOnline(currentChat.id)" class="online"><Circle /></el-icon>
-            <el-icon v-else class="offline"><Circle /></el-icon>
+            <el-icon v-if="isOnline(currentChat.id)" class="online"><CircleCheckFilled /></el-icon>
+            <el-icon v-else class="offline"><CircleCloseFilled /></el-icon>
             {{ isOnline(currentChat.id) ? '在线' : '离线' }}
           </p>
         </div>
@@ -155,7 +155,8 @@
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
-  Circle, 
+  CircleCheckFilled,
+  CircleCloseFilled,
   User, 
   Close, 
   ChatDotRound, 
