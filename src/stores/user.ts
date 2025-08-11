@@ -55,7 +55,7 @@ export const useUserStore = defineStore('user', {
         this.error = null
         
         // 统一使用一个登录接口
-        const data = await request.post('/auth/login', {
+        const data = await request.post('/v1/auth/login', {
           username: credentials.username,
           password: credentials.password
         })
@@ -100,10 +100,7 @@ export const useUserStore = defineStore('user', {
         this.error = null
         
         // 判断是否是管理员
-        const isAdmin = this.roles.includes('admin')
-        const endpoint = isAdmin ? '/users/admin/me' : '/users/me'
-        
-        const data = await request.get(endpoint)
+        const data = await request.get('/v1/users/me')
         this.setUserInfo(data)
         
         // 更新角色信息
@@ -136,10 +133,7 @@ export const useUserStore = defineStore('user', {
      */
     async logout() {
       try {
-        const isAdmin = this.roles.includes('admin')
-        const endpoint = isAdmin ? '/auth/admin/logout' : '/auth/logout'
-        
-        await request.post(endpoint)
+        await request.post('/v1/auth/logout')
         ElMessage.success('已退出登录')
       } catch (error) {
         console.error('退出登录失败', error)
@@ -200,8 +194,7 @@ export const useUserStore = defineStore('user', {
         this.error = null
         
         const isAdmin = this.roles.includes('admin')
-        const endpoint = isAdmin ? `/users/admin/${this.userInfo.id}` : '/users/me'
-        
+        const endpoint = isAdmin ? `/v1/users/${this.userInfo.id}` : '/v1/users/me'
         const data = await request.put(endpoint, userData)
         this.setUserInfo({ ...this.userInfo, ...data })
         

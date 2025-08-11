@@ -82,6 +82,8 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 
 # 注册API路由
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["认证"])
+# 兼容旧路径（无 /v1 前缀）
+app.include_router(auth.router, prefix="/api/auth", tags=["认证(兼容)"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["用户"])
 app.include_router(courses.router, prefix="/api/v1/courses", tags=["课程"])
 app.include_router(health.router, prefix="/api/v1/health", tags=["健康"])

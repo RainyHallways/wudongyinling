@@ -56,7 +56,7 @@ export const userApi = {
    * @param data 登录参数
    */
   login(data: LoginParams) {
-    return request.post<{token: string, user: UserData}>('/auth/login', data)
+    return request.post<{token: string, user: UserData}>('/v1/auth/login', data)
   },
 
   /**
@@ -64,7 +64,7 @@ export const userApi = {
    * @param data 登录参数
    */
   adminLogin(data: LoginParams) {
-    return request.post<{token: string, user: UserData}>('/auth/admin/login', data)
+    return request.post<{token: string, user: UserData}>('/v1/auth/login', data)
   },
 
   /**
@@ -79,7 +79,7 @@ export const userApi = {
    * 退出登录
    */
   logout() {
-    return request.post('/auth/logout')
+    return request.post('/v1/auth/logout')
   },
 
   /**
