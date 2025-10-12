@@ -1,96 +1,92 @@
 <template>
   <!-- 桌面端导航栏 -->
   <header class="main-nav desktop-nav">
-    <div class="container">
-      <el-row class="nav-container">
-        <!-- 响应式logo区域 -->
-        <el-col :xs="8" :sm="5" :md="4" :lg="3" :xl="3" class="logo-container">
-          <router-link to="/" class="logo">
-            <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
-          </router-link>
-        </el-col>
+    <div class="nav-wrapper">
+      <!-- Logo区域 - 固定在左边 -->
+      <div class="logo-section">
+        <router-link to="/" class="logo">
+          <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
+        </router-link>
+      </div>
+      
+      <!-- 中间导航菜单 -->
+      <div class="menu-section">
+        <el-menu 
+          mode="horizontal" 
+          :router="true"
+          :ellipsis="false"
+          :default-active="$route.path"
+          class="main-menu"
+        >
+          <el-menu-item index="/">
+            <el-icon><HomeFilled /></el-icon>
+            <span class="menu-text">首页</span>
+          </el-menu-item>
+          
+          <el-menu-item index="/dance-courses">
+            <el-icon><VideoCameraFilled /></el-icon>
+            <span class="menu-text">舞蹈课程</span>
+          </el-menu-item>
+          
+          <el-menu-item index="/ai-coach">
+            <el-icon><Cpu /></el-icon>
+            <span class="menu-text">AI教练</span>
+          </el-menu-item>
+          
+          <el-menu-item index="/health-management">
+            <el-icon><FirstAidKit /></el-icon>
+            <span class="menu-text">健康管理</span>
+          </el-menu-item>
+          
+          <el-menu-item index="/social-platform">
+            <el-icon><ChatDotRound /></el-icon>
+            <span class="menu-text">社交平台</span>
+          </el-menu-item>
+          
+          <el-menu-item index="/about">
+            <el-icon><InfoFilled /></el-icon>
+            <span class="menu-text">关于我们</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+      
+      <!-- 用户操作区域 - 固定在右边 -->
+      <div class="user-section">
+        <el-button v-if="!userStore.isLoggedIn" type="primary" @click="router.push('/login')">
+          <el-icon><User /></el-icon>
+          <span>登录</span>
+        </el-button>
         
-        <!-- 响应式导航菜单 -->
-        <el-col :xs="10" :sm="13" :md="14" :lg="16" :xl="17" class="nav-links-desktop">
-          <el-menu 
-            mode="horizontal" 
-            :router="true"
-            :ellipsis="false"
-            :default-active="$route.path"
-            class="main-menu"
-          >
-            <el-menu-item index="/">
-              <el-icon><HomeFilled /></el-icon>
-              <span class="menu-text">首页</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/dance-courses">
-              <el-icon><VideoCameraFilled /></el-icon>
-              <span class="menu-text">舞蹈课程</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/ai-coach">
-              <el-icon><Cpu /></el-icon>
-              <span class="menu-text">AI教练</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/health-management">
-              <el-icon><FirstAidKit /></el-icon>
-              <span class="menu-text">健康管理</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/social-platform">
-              <el-icon><ChatDotRound /></el-icon>
-              <span class="menu-text">社交平台</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/about">
-              <el-icon><InfoFilled /></el-icon>
-              <span class="menu-text">关于我们</span>
-            </el-menu-item>
-          </el-menu>
-        </el-col>
-        
-        <!-- 响应式用户操作区域 -->
-        <el-col :xs="6" :sm="6" :md="6" :lg="5" :xl="4" class="nav-actions">
-          <div class="action-buttons">
-            <el-button v-if="!userStore.isLoggedIn" type="primary" @click="router.push('/login')">
-              <el-icon><User /></el-icon>
-              <span>登录</span>
-            </el-button>
-            
-            <el-dropdown v-else>
-              <div class="user-info">
-                <el-avatar 
-                  :size="40" 
-                  :src="userStore.userInfo.avatar || defaultAvatar"
-                />
-                <span class="username">{{ userStore.nickname }}</span>
-                <el-icon><ArrowDown /></el-icon>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="router.push('/user-profile')">
-                    <el-icon><User /></el-icon>个人中心
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="router.push('/user-profile?tab=password')">
-                    <el-icon><Lock /></el-icon>修改密码
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="router.push('/ai-coach')">
-                    <el-icon><Cpu /></el-icon>我的课程
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="router.push('/health-management')">
-                    <el-icon><FirstAidKit /></el-icon>健康档案
-                  </el-dropdown-item>
-                  <el-dropdown-item divided @click="handleLogout">
-                    <el-icon><SwitchButton /></el-icon>退出登录
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+        <el-dropdown v-else>
+          <div class="user-info">
+            <el-avatar 
+              :size="40" 
+              :src="userStore.userInfo.avatar || defaultAvatar"
+            />
+            <span class="username">{{ userStore.nickname }}</span>
+            <el-icon><ArrowDown /></el-icon>
           </div>
-        </el-col>
-      </el-row>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="router.push('/user-profile')">
+                <el-icon><User /></el-icon>个人中心
+              </el-dropdown-item>
+              <el-dropdown-item @click="router.push('/user-profile?tab=password')">
+                <el-icon><Lock /></el-icon>修改密码
+              </el-dropdown-item>
+              <el-dropdown-item @click="router.push('/ai-coach')">
+                <el-icon><Cpu /></el-icon>我的课程
+              </el-dropdown-item>
+              <el-dropdown-item @click="router.push('/health-management')">
+                <el-icon><FirstAidKit /></el-icon>健康档案
+              </el-dropdown-item>
+              <el-dropdown-item divided @click="handleLogout">
+                <el-icon><SwitchButton /></el-icon>退出登录
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </div>
   </header>
     
@@ -264,21 +260,39 @@ const handleLogout = async () => {
   }
 }
 
-.container {
-  @apply max-w-6xl mx-auto px-4;
-}
-
-.nav-container {
-  @apply h-16 flex items-center;
-}
-
-.logo-container {
-  height: 100%;
+/* 导航栏包装器 */
+.nav-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 64px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  overflow: hidden;
-  z-index: 1001;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+/* Logo区域 - 固定宽度，左对齐 */
+.logo-section {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* 菜单区域 - 自动宽度，居中 */
+.menu-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0; /* 防止溢出 */
+}
+
+/* 用户区域 - 固定宽度，右对齐 */
+.user-section {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .logo {
@@ -286,35 +300,38 @@ const handleLogout = async () => {
   align-items: center;
   text-decoration: none;
   white-space: nowrap;
-  z-index: 1001;
 }
 
 .logo-img {
-  height: 40px;
+  height: 45px;
   width: auto;
   flex-shrink: 0;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
   transition: all 0.3s ease;
-  z-index: 1001;
-  position: relative;
 }
 
-/* 响应式logo */
-@media (max-width: 1000px) and (min-width: 769px) {
-  .logo-img {
-    height: 38px;
+.logo-img:hover {
+  transform: scale(1.05);
+}
+
+/* 响应式布局调整 */
+@media (max-width: 1200px) {
+  .nav-wrapper {
+    gap: 15px;
   }
   
   .username {
     display: none;
   }
-  
-  .user-info {
-    gap: 4px;
+}
+
+@media (max-width: 1024px) {
+  .logo-img {
+    height: 40px;
   }
   
-  .nav-actions {
-    max-width: 90px;
+  .menu-section {
+    justify-content: flex-start;
   }
 }
 
@@ -322,60 +339,20 @@ const handleLogout = async () => {
   .logo-img {
     height: 36px;
   }
+  
+  .nav-wrapper {
+    gap: 10px;
+    padding: 0 15px;
+  }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 640px) {
+  .menu-section {
+    display: none; /* 小屏幕隐藏顶部菜单，使用底部导航 */
+  }
+  
   .logo-img {
     height: 32px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo-img {
-    height: 28px;
-  }
-}
-
-@media (max-width: 375px) {
-  .logo-img {
-    height: 24px;
-  }
-  
-  .user-label.hide-on-small {
-    display: none !important;
-  }
-  
-  .user-menu-item .el-avatar {
-    margin-bottom: 0 !important;
-  }
-  
-  /* 进一步减少用户操作区域的宽度 */
-  .nav-actions {
-    max-width: 60px;
-  }
-}
-
-.nav-links-desktop {
-  display: block;
-}
-
-/* 小屏幕上的导航菜单样式调整 */
-@media (max-width: 575px) {
-  .nav-links-desktop .main-menu {
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .nav-links-desktop .main-menu::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .nav-links-desktop .el-menu-item {
-    padding: 0 8px;
-    font-size: 12px;
-    white-space: nowrap;
   }
 }
 
@@ -420,59 +397,49 @@ const handleLogout = async () => {
 /* 响应式菜单文字 */
 @media (max-width: 1200px) {
   .menu-text {
+    font-size: 14px;
+  }
+  
+  .main-menu .el-menu-item {
+    padding: 0 10px;
+    margin: 0 2px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .menu-text {
     font-size: 13px;
   }
   
   .main-menu .el-menu-item {
     padding: 0 8px;
+    margin: 0 2px;
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .menu-text {
     font-size: 12px;
   }
   
   .main-menu .el-menu-item {
     padding: 0 6px;
-  }
-}
-
-@media (max-width: 768px) {
-  .menu-text {
-    display: none; /* 中等屏幕只显示图标 */
-  }
-  
-  .main-menu .el-menu-item {
-    padding: 0 4px;
+    margin: 0 1px;
   }
 }
 
 /* 用户操作区域 */
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 1000;
-  position: relative;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.action-buttons .el-button {
+.user-section .el-button {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   border-radius: 20px;
   font-weight: 500;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-.action-buttons .el-button:hover {
+.user-section .el-button:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
@@ -805,27 +772,6 @@ const handleLogout = async () => {
 /* 安全区域适配 */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* 响应式调整 */
-@media (max-width: 1024px) {
-  .nav-links-desktop {
-    @apply hidden;
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-container {
-    @apply justify-between;
-  }
-  
-  .logo-container {
-    @apply flex-grow;
-  }
-  
-  .action-buttons {
-    @apply hidden;
-  }
 }
 
 /* 关闭按钮样式 */

@@ -409,7 +409,7 @@ function scrollToSection(sectionId: string) {
     ),
     url('/background.png');
   background-size: cover;
-  background-position: center;
+  background-position: center 25%;
   background-attachment: fixed;
   background-blend-mode: multiply;
   display: flex;
