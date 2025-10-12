@@ -1,41 +1,31 @@
 <template>
   <footer class="app-footer">
     <div class="container">
-      <el-row :gutter="20">
+      <el-row :gutter="24">
         <el-col :xs="24" :sm="24" :md="8" :lg="8">
-          <h5 class="footer-title">舞动银龄</h5>
+          <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
           <p class="footer-desc">基于多模态AI的舞蹈教学与反馈系统，专为老年人设计的智能舞蹈学习平台。</p>
+          <div class="footer-links" style="display: flex; flex-direction: row; gap: 12px;">
+            <p class="link-list"><router-link to="/about"><el-icon><InfoFilled /></el-icon> <span>关于我们</span></router-link></p>
+            <p class="link-list"><router-link to="/faq"><el-icon><Help /></el-icon> <span>常见问题</span></router-link></p>
+          </div>
         </el-col>
         
-        <el-col :xs="12" :sm="8" :md="4" :lg="4">
-          <div class="footer-links">
+        <el-col :xs="24" :sm="24" :md="8" :lg="8">
+          <div class="footer-links" style="margin-left: 20px;">
+            <h4 class="footer-title link-list" style="margin-left: 10px;"><p style="font-size: medium;"><el-icon><List /></el-icon>服务条款</p></h4>
             <ul class="link-list">
-              <li><router-link to="/">首页</router-link></li>
-              <li><router-link to="/dance-courses">舞蹈课程</router-link></li>
-              <li><router-link to="/ai-coach">AI教练</router-link></li>
-              <li><router-link to="/health-management">健康管理</router-link></li>
-              <li><router-link to="/social-platform">社交平台</router-link></li>
-              <li><router-link to="/about">关于我们</router-link></li>
+              <span><router-link to="/policy/privacy-policy">隐私政策</router-link></span>
+              <span><router-link to="/policy/user-agreement">用户协议</router-link></span>
+              <span><router-link to="/policy/user-originality-guarantee">原创性保证</router-link></span>
+              <span><router-link to="/policy/original-license-agreement">原创授权协议</router-link></span>
             </ul>
           </div>
         </el-col>
         
-        <el-col :xs="12" :sm="8" :md="6" :lg="6">
-          <div class="footer-links">
-            <ul class="link-list">
-              <li><router-link to="/faq">常见问题</router-link></li>
-              <li><router-link to="/contact">联系我们</router-link></li>
-              <li><router-link to="/policy/privacy-policy">隐私政策</router-link></li>
-              <li><router-link to="/policy/user-agreement">用户协议</router-link></li>
-              <li><router-link to="/policy/user-originality-guarantee">原创性保证</router-link></li>
-              <li><router-link to="/policy/original-license-agreement">原创授权协议</router-link></li>
-            </ul>
-          </div>
-        </el-col>
-        
-        <el-col :xs="24" :sm="8" :md="6" :lg="6">
+        <el-col :xs="24" :sm="24" :md="8" :lg="8">
           <div class="footer-contact">
-            <h5 class="footer-title">联系我们</h5>
+            <h4 class="footer-title link-list"><router-link to="/contact"><el-icon><Promotion /></el-icon><span>联系我们</span></router-link></h4>
             <ul class="contact-list">
               <li>
                 <el-icon><Message /></el-icon>
@@ -70,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-plus/icons-vue'
+import { Message, Location, ElementPlus, Share, ChatDotRound, InfoFilled, Help, Promotion, List } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
@@ -79,6 +69,14 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
   color: var(--text-primary);
   padding: 48px 0 24px;
   border-top: 1px solid var(--border-color);
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  display: block;
 }
 
 .container {
@@ -93,6 +91,7 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
 .footer-desc {
   color: var(--text-secondary);
   font-size: var(--font-size-large);
+  margin-top: 12px;
 }
 
 .link-list {
@@ -108,10 +107,34 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
   text-decoration: none;
   font-size: var(--font-size-large);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-list p {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-large);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .link-list a:hover {
   color: var(--primary-color);
+  background-color: unset !important;
+}
+
+.link-list span:hover{
+  transform: scale(1.05);
+}
+
+.link-list .el-icon {
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
 
 .contact-list {
@@ -174,4 +197,4 @@ import { Message, Location, ElementPlus, Share, ChatDotRound } from '@element-pl
     @apply mt-6;
   }
 }
-</style> 
+</style>
