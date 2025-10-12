@@ -8,6 +8,7 @@ from ...core.security import get_current_active_user
 from ...schemas.base import DataResponse
 from ...services.ai_service import AIService
 from ...models.user import User
+from ...core.exceptions import BusinessException, ForbiddenException, NotFoundException, ValidationException
 
 router = APIRouter()
 
@@ -44,7 +45,7 @@ async def get_feedback(
         result = await ai_service.get_dance_feedback(db, video_id=video_id)
         return DataResponse(data=result)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise NotFoundException(str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -64,7 +65,7 @@ async def compare_videos(
     将用户视频与标准动作视频进行对比
     """
     if not standard_video_id and not standard_video:
-        raise HTTPException(status_code=400, detail="必须提供标准视频ID或上传标准视频")
+        raise ValidationException("必须提供标准视频ID或上传标准视频")
     
     try:
         user_contents = await user_video.read()
@@ -84,7 +85,7 @@ async def compare_videos(
         
         return DataResponse(data=result)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise NotFoundException(str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -104,7 +105,7 @@ async def analyze_health_data(
     """
     # 检查权限（只能查看自己的数据或管理员可以查看所有人）
     if current_user.id != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="权限不足")
+        raise ForbiddenException("权限不足")
     
     result = await ai_service.analyze_health_data(db, user_id=user_id, days=days)
     return DataResponse(data=result)
@@ -209,9 +210,9 @@ async def get_analysis_details(
     analysis = await ai_service.get_analysis_by_id(db, analysis_id)
     
     if not analysis:
-        raise HTTPException(status_code=404, detail="分析记录不存在")
+        raise NotFoundException("分析记录不存在")
     
     if analysis.user_id != current_user.id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="权限不足")
+        raise ForbiddenException("权限不足")
     
     return DataResponse(data=analysis) 

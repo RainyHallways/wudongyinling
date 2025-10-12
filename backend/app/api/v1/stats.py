@@ -12,6 +12,7 @@ from ...services.challenge_service import ChallengeService
 from ...services.health_service import HealthService
 from ...services.social_service import SocialService
 from ...models.user import User
+from ...core.exceptions import ForbiddenException, NotFoundException
 
 router = APIRouter()
 
@@ -64,7 +65,7 @@ async def get_user_stats(
     """
     # 权限检查：只有用户本人或管理员可以查看用户统计
     if current_user.id != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="没有权限访问该用户的统计数据")
+        raise ForbiddenException("没有权限访问该用户的统计数据")
     
     # 获取健康记录统计
     health_stats = await health_service.get_statistics(db, user_id=user_id, days=30)
@@ -193,7 +194,7 @@ async def get_user_activity_statistics(
     """
     # 权限检查
     if current_user.id != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="没有权限访问该用户的活动统计")
+        raise ForbiddenException("没有权限访问该用户的活动统计")
     
     # 获取用户课程参与统计
     user_course_activity = await course_service.get_user_course_activity(db, user_id, start_date, end_date)

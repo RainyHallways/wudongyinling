@@ -8,6 +8,7 @@ from ...schemas.health import HealthRecordCreate, HealthRecordUpdate, HealthReco
 from ...schemas.base import DataResponse, PaginatedResponse
 from ...services.health_service import HealthService
 from ...core.security import get_current_active_user
+from ...core.exceptions import BusinessException, NotFoundException, ValidationException
 import asyncio
 import random
 
@@ -27,7 +28,7 @@ async def get_health_records(
     获取健康记录列表
     """
     if not user_id:
-        raise HTTPException(status_code=400, detail="必须提供用户ID")
+        raise ValidationException("必须提供用户ID")
     
     if start_date and end_date:
         # 按日期范围查询
@@ -82,7 +83,7 @@ async def get_health_record(
     """
     record = await health_service.get(db, record_id)
     if not record:
-        raise HTTPException(status_code=404, detail="记录不存在")
+        raise NotFoundException("记录不存在")
     
     return DataResponse(data=record)
 
@@ -103,7 +104,7 @@ async def update_health_record(
     )
     
     if not updated_record:
-        raise HTTPException(status_code=404, detail="记录不存在")
+        raise NotFoundException("记录不存在")
     
     return DataResponse(data=updated_record, message="记录更新成功")
 
@@ -118,7 +119,7 @@ async def delete_health_record(
     """
     record = await health_service.delete(db, id=record_id)
     if not record:
-        raise HTTPException(status_code=404, detail="记录不存在")
+        raise NotFoundException("记录不存在")
     
     return DataResponse(message="记录已删除")
 
