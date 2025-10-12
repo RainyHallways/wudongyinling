@@ -172,4 +172,46 @@ async def realtime_analysis(
     except WebSocketDisconnect:
         pass
     except Exception as e:
-        await websocket.close() 
+        await websocket.close()
+
+# AI分析历史记录接口
+@router.get("/analysis-history", response_model=DataResponse[Dict[str, Any]])
+async def get_analysis_history(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_async_db),
+    ai_service: AIService = Depends(),
+    skip: int = 0,
+    limit: int = 20
+):
+    """
+    获取用户的AI分析历史记录
+    """
+    history = await ai_service.get_analysis_history(
+        db, 
+        user_id=current_user.id, 
+        skip=skip, 
+        limit=limit
+    )
+    
+    return DataResponse(data=history)
+
+@router.get("/analysis/{analysis_id}", response_model=DataResponse[Dict[str, Any]])
+async def get_analysis_details(
+    analysis_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_async_db),
+    ai_service: AIService = Depends()
+):
+    """
+    获取特定分析记录的详细信息
+    """
+    # 检查权限（只能查看自己的记录或管理员可以查看所有人）
+    analysis = await ai_service.get_analysis_by_id(db, analysis_id)
+    
+    if not analysis:
+        raise HTTPException(status_code=404, detail="分析记录不存在")
+    
+    if analysis.user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="权限不足")
+    
+    return DataResponse(data=analysis) 

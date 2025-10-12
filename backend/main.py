@@ -11,7 +11,7 @@ from app.core.exceptions import register_exception_handlers
 from app.api.v1 import (
     courses, auth, stats, users, 
     health, prescriptions, challenges, 
-    chat, ai_analysis, social
+    chat, ai_analysis, social, about, home, admin
 )
 from app.api.v1 import websocket as websocket_api
 
@@ -93,6 +93,9 @@ app.include_router(stats.router, prefix="/api/v1/stats", tags=["统计"])
 app.include_router(ai_analysis.router, prefix="/api/v1/ai-analysis", tags=["AI分析"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["聊天"])
 app.include_router(social.router, prefix="/api/v1/social", tags=["社交"])
+app.include_router(about.router, prefix="/api/v1/about", tags=["关于"])
+app.include_router(home.router, prefix="/api/v1/home", tags=["首页"])
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["管理员"])
 
 # WebSocket路由
 app.include_router(websocket_api.router, prefix="/api/v1", tags=["WebSocket"])

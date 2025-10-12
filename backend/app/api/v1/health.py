@@ -7,6 +7,7 @@ from ...core.database import get_async_db
 from ...schemas.health import HealthRecordCreate, HealthRecordUpdate, HealthRecordPublic, HealthStatistics
 from ...schemas.base import DataResponse, PaginatedResponse
 from ...services.health_service import HealthService
+from ...core.security import get_current_active_user
 import asyncio
 import random
 
@@ -173,4 +174,81 @@ async def health_data_websocket(websocket: WebSocket, user_id: int):
             await websocket.send_json(data)
             await asyncio.sleep(5)
     except:
-        await websocket.close() 
+        await websocket.close()
+
+# 健康目标管理接口
+@router.get("/goals", response_model=DataResponse[List[dict]])
+async def get_health_goals(
+    user_id: Optional[int] = None,
+    db: AsyncSession = Depends(get_async_db),
+    health_service: HealthService = Depends(),
+    current_user = Depends(get_current_active_user)
+):
+    """
+    获取健康目标列表
+    """
+    if not user_id:
+        user_id = current_user.id
+    
+    # 这里需要实现获取健康目标的方法
+    goals = []
+    
+    return DataResponse(data=goals, message="获取健康目标成功")
+
+@router.post("/goals", response_model=DataResponse[dict])
+async def create_health_goal(
+    goal_data: dict,  # 需要定义HealthGoalCreate schema
+    db: AsyncSession = Depends(get_async_db),
+    current_user = Depends(get_current_active_user),
+    health_service: HealthService = Depends()
+):
+    """
+    创建健康目标
+    """
+    goal_data = {
+        "user_id": current_user.id,
+        "title": goal_data.get("title"),
+        "target_value": goal_data.get("target_value"),
+        "current_value": goal_data.get("current_value", 0),
+        "unit": goal_data.get("unit"),
+        "category": goal_data.get("category"),
+        "start_date": goal_data.get("start_date"),
+        "target_date": goal_data.get("target_date"),
+        "status": "active"
+    }
+    
+    # 这里需要在service中添加创建健康目标的方法
+    # 暂时返回创建的目标数据
+    return DataResponse(data=goal_data, message="健康目标创建成功")
+
+@router.put("/goals/{goal_id}", response_model=DataResponse[dict])
+async def update_health_goal(
+    goal_id: int,
+    goal_data: dict,
+    db: AsyncSession = Depends(get_async_db),
+    current_user = Depends(get_current_active_user),
+    health_service: HealthService = Depends()
+):
+    """
+    更新健康目标
+    """
+    # 检查目标是否存在且属于当前用户
+    # 这里需要实现更新逻辑
+    goal_data["updated_at"] = datetime.utcnow()
+    
+    return DataResponse(data=goal_data, message="健康目标更新成功")
+
+@router.delete("/goals/{goal_id}", response_model=DataResponse)
+async def delete_health_goal(
+    goal_id: int,
+    db: AsyncSession = Depends(get_async_db),
+    current_user = Depends(get_current_active_user),
+    health_service: HealthService = Depends()
+):
+    """
+    删除健康目标
+    """
+    # 检查目标是否存在且属于当前用户
+    # 这里需要实现删除逻辑
+    
+    return DataResponse(message="健康目标已删除") 

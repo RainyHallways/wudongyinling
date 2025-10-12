@@ -38,14 +38,17 @@
             </ul>
             
             <div class="social-links">
-              <a href="#" aria-label="微信" class="social-link">
+              <a href="javascript:void(0)" @click="handleSocialClick('wechat')" aria-label="微信" class="social-link">
                 <el-icon><ChatDotRound /></el-icon>
               </a>
-              <a href="#" aria-label="微博" class="social-link">
+              <a href="javascript:void(0)" @click="handleSocialClick('weibo')" aria-label="微博" class="social-link">
                 <el-icon><Share /></el-icon>
               </a>
-              <a href="#" aria-label="其他社交平台" class="social-link">
-                <el-icon><ElementPlus /></el-icon>
+              <a href="javascript:void(0)" @click="handleSocialClick('douyin')" aria-label="抖音" class="social-link">
+                <el-icon><VideoPlay /></el-icon>
+              </a>
+              <a href="javascript:void(0)" @click="handleSocialClick('xiaohongshu')" aria-label="小红书" class="social-link">
+                <el-icon><EditPen /></el-icon>
               </a>
             </div>
           </div>
@@ -60,7 +63,48 @@
 </template>
 
 <script lang="ts" setup>
-import { Message, Location, ElementPlus, Share, ChatDotRound, InfoFilled, Help, Promotion, List } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Message, Location, Share, ChatDotRound, InfoFilled, Help, Promotion, List, VideoPlay, EditPen } from '@element-plus/icons-vue'
+
+// 社交媒体点击处理
+const handleSocialClick = (platform: string) => {
+  const socialLinks = {
+    wechat: {
+      title: '微信公众号',
+      content: '请打开微信扫描二维码关注我们的公众号：舞动银龄',
+      action: 'copy'
+    },
+    weibo: {
+      title: '微博',
+      url: 'https://weibo.com/danceplatform',
+      content: '@舞动银龄官方微博'
+    },
+    douyin: {
+      title: '抖音',
+      content: '请打开抖音搜索用户：舞动银龄',
+      action: 'copy'
+    },
+    xiaohongshu: {
+      title: '小红书',
+      content: '请打开小红书搜索用户：舞动银龄',
+      action: 'copy'
+    }
+  }
+
+  const social = socialLinks[platform as keyof typeof socialLinks]
+  if (!social) return
+
+  if (social.url) {
+    window.open(social.url, '_blank')
+  } else {
+    // 复制到剪贴板
+    navigator.clipboard.writeText(social.content).then(() => {
+      ElMessage.success(`${social.title}账号已复制到剪贴板`)
+    }).catch(() => {
+      ElMessage.info(social.content)
+    })
+  }
+}
 </script>
 
 <style scoped>

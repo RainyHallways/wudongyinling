@@ -186,4 +186,94 @@ class CourseService(BaseService[Course, CourseCreate, CourseUpdate]):
             f.write(file_content)
         
         # 返回文件URL
-        return f"/uploads/{file_type}/{new_filename}" 
+        return f"/uploads/{file_type}/{new_filename}"
+
+  
+    async def get_participation_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取课程参与统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            课程参与统计信息
+        """
+        return await self.repository.get_participation_stats(db)
+
+    async def get_category_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取课程分类统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            课程分类统计信息
+        """
+        return await self.repository.get_category_stats(db)
+
+    async def get_creation_trend(self, db: AsyncSession, start_date) -> Dict[str, Any]:
+        """
+        获取课程创建趋势
+        
+        Args:
+            db: 数据库会话
+            start_date: 开始日期
+            
+        Returns:
+            课程创建趋势数据
+        """
+        return await self.repository.get_creation_trend(db, start_date)
+
+    async def get_user_course_activity(
+        self,
+        db: AsyncSession,
+        user_id: int,
+        start_date,
+        end_date
+    ) -> Dict[str, Any]:
+        """
+        获取用户课程活动统计
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            start_date: 开始日期
+            end_date: 结束日期
+            
+        Returns:
+            用户课程活动统计信息
+        """
+        return await self.repository.get_user_course_activity(db, user_id, start_date, end_date)
+
+    async def update_cover(self, db: AsyncSession, course_id: int, cover_url: str) -> Course:
+        """
+        更新课程封面
+        
+        Args:
+            db: 数据库会话
+            course_id: 课程ID
+            cover_url: 封面URL
+            
+        Returns:
+            更新后的课程
+        """
+        course = await self.get(db, course_id)
+        if not course:
+            raise ValueError("课程不存在")
+        
+        return await self.update(db, course, {"cover_url": cover_url})
+
+    async def get_popular_courses(self, db: AsyncSession, limit: int = 10) -> List[Course]:
+        """
+        获取热门课程
+        
+        Args:
+            db: 数据库会话
+            limit: 返回数量
+            
+        Returns:
+            热门课程列表
+        """
+        return await self.repository.get_popular_courses(db, limit) 
