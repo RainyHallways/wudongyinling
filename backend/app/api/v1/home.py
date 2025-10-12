@@ -11,7 +11,10 @@ from ...models.user import User
 router = APIRouter()
 
 @router.get("/", response_model=DataResponse[Dict[str, Any]])
-async def get_home_data(db: AsyncSession = Depends(get_async_db)):
+async def get_home_data(
+    db: AsyncSession = Depends(get_async_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取首页数据
     """
@@ -100,7 +103,9 @@ async def get_home_data(db: AsyncSession = Depends(get_async_db)):
     return DataResponse(data=home_data, message="获取首页数据成功")
 
 @router.get("/banners", response_model=DataResponse[List[Dict[str, Any]]])
-async def get_home_banners():
+async def get_home_banners(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取首页轮播图
     """
@@ -134,7 +139,10 @@ async def get_home_banners():
     return DataResponse(data=banners, message="获取轮播图成功")
 
 @router.get("/stats", response_model=DataResponse[Dict[str, Any]])
-async def get_home_stats(db: AsyncSession = Depends(get_async_db)):
+async def get_home_stats(
+    db: AsyncSession = Depends(get_async_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取首页统计数据
     """
@@ -162,7 +170,8 @@ async def get_home_stats(db: AsyncSession = Depends(get_async_db)):
 @router.get("/news/latest", response_model=DataResponse[List[Dict[str, Any]]])
 async def get_latest_news(
     limit: int = Query(5, ge=1, le=20),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_async_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     获取最新新闻列表

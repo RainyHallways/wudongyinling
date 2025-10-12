@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
 
 from .base_service import BaseService
 from ..repositories.social import (
@@ -341,4 +342,59 @@ class HeritageInheritorService(BaseService[HeritageInheritor, HeritageInheritorC
                 return await self.repository.toggle_inheritor_status(db=db, inheritor_id=inheritor_id)
             except Exception as e:
                 await db.rollback()
-                raise 
+                raise
+
+
+class SocialService:
+    """
+    社交服务主类，包装所有社交相关服务
+    """
+    
+    def __init__(self):
+        self.post_service = PostService()
+        self.comment_service = PostCommentService()
+        self.like_service = PostLikeService()
+        self.heritage_project_service = HeritageProjectService()
+        self.heritage_inheritor_service = HeritageInheritorService()
+        self.repository = self.post_service.repository  # 为了兼容性
+
+    async def get_user_activity_stats(
+        self,
+        db: AsyncSession,
+        user_id: int,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None
+    ) -> Dict[str, Any]:
+        """
+        获取用户社交活动统计
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            start_date: 开始日期
+            end_date: 结束日期
+            
+        Returns:
+            用户社交活动统计信息
+        """
+        # 获取用户的动态统计
+        user_posts = await self.post_service.repository.get_by_user_id(db, user_id)
+        user_comments = await self.comment_service.repository.get_by_user_id(db, user_id)
+        user_likes = await self.like_service.repository.get_by_user_id(db, user_id)
+        
+        # 按日期范围过滤
+        if start_date and end_date:
+            user_posts = [p for p in user_posts if start_date <= p.created_at.date() <= end_date]
+            user_comments = [c for c in user_comments if start_date <= c.created_at.date() <= end_date]
+            user_likes = [l for l in user_likes if start_date <= l.created_at.date() <= end_date]
+        
+        return {
+            "totalPosts": len(user_posts),
+            "totalComments": len(user_comments),
+            "totalLikes": len(user_likes),
+            "receivedLikes": sum([p.like_count or 0 for p in user_posts]),
+            "period": {
+                "startDate": start_date.isoformat() if start_date else None,
+                "endDate": end_date.isoformat() if end_date else None
+            }
+        } 

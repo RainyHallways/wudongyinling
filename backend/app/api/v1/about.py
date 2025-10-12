@@ -10,7 +10,9 @@ from ...models.user import User
 router = APIRouter()
 
 @router.get("/", response_model=DataResponse[Dict[str, Any]])
-async def get_about_info():
+async def get_about_info(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取关于页面基本信息
     """
@@ -29,7 +31,9 @@ async def get_about_info():
     return DataResponse(data=about_info, message="获取关于信息成功")
 
 @router.get("/team", response_model=DataResponse[List[Dict[str, Any]]])
-async def get_team_info():
+async def get_team_info(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取团队成员信息
     """
@@ -63,7 +67,9 @@ async def get_team_info():
     return DataResponse(data=team_members, message="获取团队成员信息成功")
 
 @router.get("/partners", response_model=DataResponse[List[Dict[str, Any]]])
-async def get_partners_info():
+async def get_partners_info(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取合作伙伴信息
     """
@@ -97,7 +103,9 @@ async def get_partners_info():
     return DataResponse(data=partners, message="获取合作伙伴信息成功")
 
 @router.get("/awards", response_model=DataResponse[List[Dict[str, Any]]])
-async def get_awards_info():
+async def get_awards_info(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取获奖信息
     """
@@ -128,7 +136,9 @@ async def get_awards_info():
     return DataResponse(data=awards, message="获取获奖信息成功")
 
 @router.get("/milestones", response_model=DataResponse[List[Dict[str, Any]]])
-async def get_milestones_info():
+async def get_milestones_info(
+    current_user: User = Depends(get_current_active_user)
+):
     """
     获取发展里程碑
     """

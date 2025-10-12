@@ -269,4 +269,59 @@ class HealthService(BaseService[HealthRecord, HealthRecordCreate, HealthRecordUp
             "change_percent": round(change_percent, 2),
             "first_value": first,
             "last_value": last
+        }
+
+    async def get_user_activity_stats(
+        self,
+        db: AsyncSession,
+        user_id: int,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None
+    ) -> Dict[str, Any]:
+        """
+        获取用户健康活动统计
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            start_date: 开始日期
+            end_date: 结束日期
+            
+        Returns:
+            用户健康活动统计信息
+        """
+        # 获取指定时间范围内的健康记录
+        if start_date and end_date:
+            records = await self.get_by_date_range(db, user_id=user_id, start_date=start_date, end_date=end_date)
+        else:
+            # 默认获取最近30天的记录
+            end_date = date.today()
+            start_date = end_date - timedelta(days=30)
+            records = await self.get_by_date_range(db, user_id=user_id, start_date=start_date, end_date=end_date)
+        
+        # 统计各类健康记录数量
+        total_records = len(records)
+        records_with_exercise = len([r for r in records if r.exercise_duration and r.exercise_duration > 0])
+        records_with_weight = len([r for r in records if r.weight])
+        records_with_heart_rate = len([r for r in records if r.heart_rate])
+        records_with_blood_pressure = len([r for r in records if r.systolic_pressure and r.diastolic_pressure])
+        
+        # 计算平均值
+        avg_weight = sum([r.weight for r in records if r.weight]) / records_with_weight if records_with_weight > 0 else 0
+        avg_heart_rate = sum([r.heart_rate for r in records if r.heart_rate]) / records_with_heart_rate if records_with_heart_rate > 0 else 0
+        avg_exercise_duration = sum([r.exercise_duration for r in records if r.exercise_duration]) / records_with_exercise if records_with_exercise > 0 else 0
+        
+        return {
+            "totalRecords": total_records,
+            "exerciseRecords": records_with_exercise,
+            "weightRecords": records_with_weight,
+            "heartRateRecords": records_with_heart_rate,
+            "bloodPressureRecords": records_with_blood_pressure,
+            "averageWeight": round(avg_weight, 1),
+            "averageHeartRate": round(avg_heart_rate, 1),
+            "averageExerciseDuration": round(avg_exercise_duration, 1),
+            "period": {
+                "startDate": start_date.isoformat() if start_date else None,
+                "endDate": end_date.isoformat() if end_date else None
+            }
         } 

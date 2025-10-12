@@ -9,6 +9,7 @@ from ...schemas.course import CourseCreate, CourseUpdate, CoursePublic
 from ...schemas.base import DataResponse, ListResponse, PaginatedResponse
 from ...services.course_service import CourseService
 from ...services.user_service import UserService
+from ...core.exceptions import BusinessException, NotFoundException, ValidationException
 
 router = APIRouter()
 
@@ -79,7 +80,7 @@ async def create_course(
     # 检查课程名是否已存在
     existing_course = await course_service.get_by_title(db, title=course.title)
     if existing_course:
-        raise HTTPException(status_code=400, detail="课程标题已存在")
+        raise BusinessException("课程标题已存在")
     
     db_course = await course_service.create(db, obj_in=course)
     return DataResponse(data=db_course, message="课程创建成功")
@@ -133,7 +134,7 @@ async def get_course(
     """
     course = await course_service.get(db, course_id)
     if course is None:
-        raise HTTPException(status_code=404, detail="课程不存在")
+        raise NotFoundException("课程不存在")
     
     return DataResponse(data=course)
 
@@ -150,13 +151,13 @@ async def update_course(
     """
     db_course = await course_service.get(db, course_id)
     if db_course is None:
-        raise HTTPException(status_code=404, detail="课程不存在")
+        raise NotFoundException("课程不存在")
     
     # 如果修改了标题，检查新标题是否已被使用
     if course.title and course.title != db_course.title:
         existing_course = await course_service.get_by_title(db, title=course.title)
         if existing_course and existing_course.id != course_id:
-            raise HTTPException(status_code=400, detail="课程标题已存在")
+            raise BusinessException("课程标题已存在")
     
     updated_course = await course_service.update(db, db_obj=db_course, obj_in=course)
     return DataResponse(data=updated_course, message="课程更新成功")
@@ -172,7 +173,7 @@ async def delete_course(
     """
     db_course = await course_service.delete(db, id=course_id)
     if db_course is None:
-        raise HTTPException(status_code=404, detail="课程不存在")
+        raise NotFoundException("课程不存在")
     
     return DataResponse(message="课程已删除")
 
@@ -194,7 +195,7 @@ async def upload_file(
         )
         return DataResponse(data={"url": url}, message="文件上传成功")
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise ValidationException(str(e))
 
 # 课程评论相关接口
 @router.get("/{course_id}/comments", response_model=DataResponse[List[dict]])
@@ -379,4 +380,4 @@ async def update_course_cover(
         
         return DataResponse(data={"cover_url": url}, message="封面更新成功")
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise ValidationException(str(e)) 

@@ -334,4 +334,109 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         timestamp = str(int(time.time()))[-6:]  # 取时间戳后6位
         random_num = str(random.randint(100, 999))  # 3位随机数
         
-        return f"{prefix}{timestamp}{random_num}" 
+        return f"{prefix}{timestamp}{random_num}"
+
+    async def get_active_users(self, db: AsyncSession, since_date) -> List[User]:
+        """
+        获取指定日期以来的活跃用户
+        
+        Args:
+            db: 数据库会话
+            since_date: 起始日期
+            
+        Returns:
+            活跃用户列表
+        """
+        return await self.repository.get_active_users_since(db, since_date)
+
+    async def get_registration_trend(self, db: AsyncSession, start_date) -> List[Dict[str, Any]]:
+        """
+        获取用户注册趋势
+        
+        Args:
+            db: 数据库会话
+            start_date: 开始日期
+            
+        Returns:
+            用户注册趋势数据
+        """
+        return await self.repository.get_registration_trend(db, start_date)
+
+    async def get_user_activity_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取用户活跃度统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            用户活跃度统计信息
+        """
+        return await self.repository.get_user_activity_stats(db)
+
+    async def get_role_distribution(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取用户角色分布统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            用户角色分布统计
+        """
+        return await self.repository.get_role_distribution(db)
+
+    async def get_by_date_range(
+        self,
+        db: AsyncSession,
+        start_date: date,
+        end_date: date,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[User]:
+        """
+        获取指定日期范围内注册的用户
+        
+        Args:
+            db: 数据库会话
+            start_date: 开始日期
+            end_date: 结束日期
+            skip: 跳过的记录数
+            limit: 返回的最大记录数
+            
+        Returns:
+            用户列表
+        """
+        return await self.repository.get_by_date_range(db, start_date, end_date, skip, limit)
+
+    async def reset_user_password(
+        self,
+        db: AsyncSession,
+        *,
+        user_id: int,
+        password: str
+    ) -> bool:
+        """
+        重置用户密码（管理员操作）
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            password: 新密码
+            
+        Returns:
+            重置是否成功
+        """
+        user = await self.repository.get(db, user_id)
+        if not user:
+            return False
+        
+        # 生成新密码哈希
+        from ..core.security import get_password_hash
+        new_hashed_password = get_password_hash(password)
+        
+        # 更新用户密码
+        update_data = {"hashed_password": new_hashed_password}
+        await self.repository.update(db, db_obj=user, obj_in=update_data)
+        
+        return True 

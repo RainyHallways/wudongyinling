@@ -498,4 +498,83 @@ class ChallengeService(BaseService[Challenge, ChallengeCreate, ChallengeUpdate])
             db, 
             challenge_id=challenge_id,
             limit=limit
-        ) 
+        )
+
+    async def get_participation_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取挑战参与统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            挑战参与统计信息
+        """
+        return await self.repository.get_participation_stats(db)
+
+    async def get_completion_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取挑战完成情况统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            挑战完成情况统计
+        """
+        return await self.repository.get_completion_stats(db)
+
+    async def get_type_distribution(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        获取挑战类型分布统计
+        
+        Args:
+            db: 数据库会话
+            
+        Returns:
+            挑战类型分布统计
+        """
+        return await self.repository.get_type_distribution(db)
+
+    async def get_user_activity_stats(
+        self,
+        db: AsyncSession,
+        user_id: int,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None
+    ) -> Dict[str, Any]:
+        """
+        获取用户挑战活动统计
+        
+        Args:
+            db: 数据库会话
+            user_id: 用户ID
+            start_date: 开始日期
+            end_date: 结束日期
+            
+        Returns:
+            用户挑战活动统计信息
+        """
+        # 获取用户参与的挑战
+        user_participations = await self.participant_repository.get_by_user_id(db, user_id)
+        user_records = await self.record_repository.get_by_user_id(db, user_id)
+        
+        # 按日期范围过滤
+        if start_date and end_date:
+            user_participations = [p for p in user_participations if start_date <= p.joined_at.date() <= end_date]
+            user_records = [r for r in user_records if start_date <= r.completed_at.date() <= end_date if r.completed_at]
+        
+        # 统计数据
+        completed_challenges = len([r for r in user_records if r.is_completed])
+        total_challenges = len(user_participations)
+        
+        return {
+            "totalParticipations": total_challenges,
+            "completedChallenges": completed_challenges,
+            "completionRate": round((completed_challenges / total_challenges * 100), 1) if total_challenges > 0 else 0,
+            "totalRecords": len(user_records),
+            "period": {
+                "startDate": start_date.isoformat() if start_date else None,
+                "endDate": end_date.isoformat() if end_date else None
+            }
+        } 
