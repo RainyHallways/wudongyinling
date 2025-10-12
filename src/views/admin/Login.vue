@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
+import { User, Lock,Key } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
@@ -10,17 +10,6 @@ const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
-
-// 同意协议复选框
-const agreements = reactive({
-  userAgreement: false,
-  privacyPolicy: false,
-  originalLicenseAgreement: false,
-  userOriginalityGuarantee: false
-})
-
-// 全选复选框
-const allAgreed = ref(false)
 
 interface LoginForm {
   username: string
@@ -41,27 +30,8 @@ const rules = ref<FormRules>({
   ]
 })
 
-// 处理全选复选框变化
-const handleAllAgreementsChange = (val: boolean) => {
-  agreements.userAgreement = val
-  agreements.privacyPolicy = val
-  agreements.originalLicenseAgreement = val
-  agreements.userOriginalityGuarantee = val
-}
-
-// 监听单个协议复选框变化更新全选状态
-const updateAllAgreed = () => {
-  allAgreed.value = Object.values(agreements).every(val => val === true)
-}
-
 const handleLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  
-  // 检查是否同意所有协议
-  if (!Object.values(agreements).every(val => val === true)) {
-    ElMessage.warning('请阅读并同意所有用户协议')
-    return
-  }
   
   await formEl.validate(async (valid) => {
     if (valid) {
@@ -86,12 +56,13 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 <template>
   <div class="login-container">
     <ElCard class="login-card">
-      <h2>登录到舞动银龄管理系统</h2>
+      <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
+      <h2>登录到管理系统</h2>
       <ElForm
         ref="formRef"
         :model="form"
         :rules="rules"
-        label-width="0"
+        label-width="auto"
       >
         <ElFormItem prop="username">
           <ElInput
@@ -110,32 +81,6 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
           />
         </ElFormItem>
         
-        <ElDivider>用户协议</ElDivider>
-        
-        <div class="agreements-section">
-          <ElCheckbox v-model="allAgreed" @change="handleAllAgreementsChange">
-            全选
-          </ElCheckbox>
-          
-          <div class="agreements-list">
-            <ElCheckbox v-model="agreements.userAgreement" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/user-agreement" target="_blank">《网站协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.privacyPolicy" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/privacy-policy" target="_blank">《隐私保护协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.originalLicenseAgreement" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/original-license-agreement" target="_blank">《原创作品授权协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.userOriginalityGuarantee" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/user-originality-guarantee" target="_blank">《原创性保证书》</ElLink>
-            </ElCheckbox>
-          </div>
-        </div>
-        
         <ElFormItem>
           <ElButton
             type="primary"
@@ -143,7 +88,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
             class="login-button"
             @click="handleLogin(formRef)"
           >
-            登录
+            <Key style="width: 1em; height: 1em; margin-right: 8px" /> 登录
           </ElButton>
         </ElFormItem>
       </ElForm>
@@ -157,32 +102,94 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--el-fill-color-light);
 }
 
 .login-card {
   width: 400px;
-  padding: 20px;
+  padding: 10px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
 }
 
 .login-card h2 {
   text-align: center;
   margin-bottom: 30px;
   color: var(--el-text-color-primary);
+  font-size: 23px;
 }
 
 .login-button {
   width: 100%;
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  border: none;
 }
 
-.agreements-section {
-  margin-bottom: 20px;
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.agreements-list {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.login-button:active {
+  transform: translateY(0);
 }
-</style> 
+
+.el-form-item {
+  margin-bottom: 24px;
+}
+
+.el-input {
+  border-radius: 22px;
+  height: 44px;
+  transition: all 0.3s ease;
+}
+
+.el-input__wrapper {
+  border-radius: 22px;
+  height: 44px;
+  border: 1px solid #e0e6ed;
+}
+
+.el-input__prefix {
+  left: 15px;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto 20px auto; /* 居中显示，并添加底部间距 */
+}
+
+.el-input__inner {
+  height: 44px;
+  padding-left: 45px;
+  border-radius: 22px;
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    width: 95%;
+    max-width: 400px;
+    padding: 30px 25px;
+  }
+  
+  .login-card h2 {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+}
+</style>
