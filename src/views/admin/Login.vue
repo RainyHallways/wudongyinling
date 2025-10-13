@@ -55,6 +55,10 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 
 <template>
   <div class="login-container">
+    <!-- 背景光球 -->
+    <div class="background-orb orb1"></div>
+    <div class="background-orb orb2"></div>
+    
     <ElCard class="login-card">
       <img src="/fonticon.png" alt="舞动银龄" class="logo-img" />
       <h2>登录到管理系统</h2>
@@ -102,28 +106,85 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* 温暖的金色渐变背景 */
+  background: linear-gradient(45deg, #f7d060 0%, #a57c00 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+/* 背景光球效果 */
+.background-orb {
+  position: absolute;
+  border-radius: 50%;
+  /* 强模糊是制造柔和背景的关键 */
+  filter: blur(120px);
+  z-index: 0;
+}
+
+/* 第一个光球，模拟主要的光源 */
+.orb1 {
+  width: 400px;
+  height: 400px;
+  background-color: rgba(255, 230, 150, 0.7);
+  top: 5%;
+  left: 10%;
+  animation: moveOrb1 20s infinite alternate;
+}
+
+/* 第二个光球，模拟环境反射光 */
+.orb2 {
+  width: 450px;
+  height: 450px;
+  background-color: rgba(255, 190, 80, 0.5);
+  bottom: 10%;
+  right: 15%;
+  animation: moveOrb2 25s infinite alternate-reverse;
+}
+
+/* 光球动画 */
+@keyframes moveOrb1 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(100px, -120px) scale(1.1);
+  }
+}
+
+@keyframes moveOrb2 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(-80px, 90px) scale(0.9);
+  }
 }
 
 .login-card {
   width: 400px;
   padding: 10px;
   border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  /* 液态玻璃效果 */
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  position: relative;
+  z-index: 1;
   transition: all 0.3s ease;
 }
 
 .login-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.3);
 }
 
 .login-card h2 {
   text-align: center;
   margin-bottom: 30px;
-  color: var(--el-text-color-primary);
+  color: #5a4620;
   font-size: 23px;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
 }
 
 .login-button {
