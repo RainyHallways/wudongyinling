@@ -13,15 +13,7 @@ const userStore = useUserStore()
 const loading = ref(false)
 const loginFormRef = ref<FormInstance>()
 
-// 同意协议复选框
-const agreements = reactive({
-  userAgreement: false,
-  privacyPolicy: false,
-  originalLicenseAgreement: false,
-  userOriginalityGuarantee: false
-})
-
-// 全选复选框
+// 将多个协议状态合并为一个
 const allAgreed = ref(false)
 
 interface LoginForm {
@@ -46,25 +38,12 @@ const rules = reactive<FormRules>({
   ]
 })
 
-// 处理全选复选框变化
-const handleAllAgreementsChange = (val: boolean) => {
-  agreements.userAgreement = val
-  agreements.privacyPolicy = val
-  agreements.originalLicenseAgreement = val
-  agreements.userOriginalityGuarantee = val
-}
-
-// 监听单个协议复选框变化更新全选状态
-const updateAllAgreed = () => {
-  allAgreed.value = Object.values(agreements).every(val => val === true)
-}
-
 const handleLogin = async () => {
   if (!loginFormRef.value) return
 
   // 检查是否同意所有协议
-  if (!Object.values(agreements).every(val => val === true)) {
-    ElMessage.warning('请阅读并同意所有用户协议')
+  if (!allAgreed.value) {
+    ElMessage.warning('请阅读并同意所有用户协议后登录')
     return
   }
   
@@ -99,20 +78,18 @@ const demoLogin = () => {
   
   // 自动同意所有协议
   allAgreed.value = true
-  handleAllAgreementsChange(true)
   
   handleLogin()
 }
 </script>
 
 <template>
-  <div class="login-container page-with-nav">
+  <div class="login-container">
+    <div class="background-orb orb1"></div>
+    <div class="background-orb orb2"></div>
+    
     <ElCard class="login-card">
-      <template #header>
-        <div class="card-header">
-          <h2>舞动银龄 - 用户登录</h2>
-        </div>
-      </template>
+      <h2 class="login-title">舞动银龄 - 用户登录</h2>
       
       <ElForm
         ref="loginFormRef"
@@ -138,30 +115,16 @@ const demoLogin = () => {
           <ElCheckbox v-model="loginForm.remember">记住我</ElCheckbox>
         </ElFormItem>
         
-        <ElDivider>用户协议</ElDivider>
-        
-        <div class="agreements-section">
-          <ElCheckbox v-model="allAgreed" @change="handleAllAgreementsChange">
-            全选
+        <div class="agreements-section-integrated">
+          <ElCheckbox v-model="allAgreed">
+            <span class="agreement-text">
+              我已阅读并同意
+              <ElLink type="primary" @click.stop href="/policy/user-agreement" target="_blank">《网站协议》</ElLink>
+              <ElLink type="primary" @click.stop href="/policy/privacy-policy" target="_blank">《隐私保护协议》</ElLink>
+              <ElLink type="primary" @click.stop href="/policy/original-license-agreement" target="_blank">《原创作品授权协议》</ElLink>
+              <ElLink type="primary" @click.stop href="/policy/user-originality-guarantee" target="_blank">《原创性保证书》</ElLink>
+            </span>
           </ElCheckbox>
-          
-          <div class="agreements-list">
-            <ElCheckbox v-model="agreements.userAgreement" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/user-agreement" target="_blank">《网站协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.privacyPolicy" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/privacy-policy" target="_blank">《隐私保护协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.originalLicenseAgreement" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/original-license-agreement" target="_blank">《原创作品授权协议》</ElLink>
-            </ElCheckbox>
-            
-            <ElCheckbox v-model="agreements.userOriginalityGuarantee" @change="updateAllAgreed">
-              同意 <ElLink type="primary" @click.stop href="/policy/user-originality-guarantee" target="_blank">《原创性保证书》</ElLink>
-            </ElCheckbox>
-          </div>
         </div>
         
         <ElFormItem>
@@ -169,11 +132,6 @@ const demoLogin = () => {
             登录
           </ElButton>
         </ElFormItem>
-        
-        <div class="login-tips">
-          <p>演示账号: admin</p>
-          <p>演示密码: admin123</p>
-        </div>
         
         <div class="demo-login">
           <ElButton type="success" @click="demoLogin" :loading="loading">
@@ -191,54 +149,119 @@ const demoLogin = () => {
 
 <style scoped>
 .login-container {
-  height: 100vh;
+  position: relative;
+  min-height: 100vh;
+  padding-top: 64px;
+  padding-bottom: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--el-fill-color-light);
+  background: linear-gradient(45deg, #f7d060 0%, #a57c00 100%);
+  overflow: hidden;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .login-container {
+    padding-top: 20px;
+    padding-bottom: 80px;
+  }
+}
+
+.background-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+}
+
+.orb1 {
+  width: 400px;
+  height: 400px;
+  background-color: rgba(255, 230, 150, 0.7);
+  top: 5%;
+  left: 10%;
+  animation: moveOrb1 20s infinite alternate;
+}
+
+.orb2 {
+  width: 450px;
+  height: 450px;
+  background-color: rgba(255, 190, 80, 0.5);
+  bottom: 10%;
+  right: 15%;
+  animation: moveOrb2 25s infinite alternate-reverse;
+}
+
+@keyframes moveOrb1 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(100px, -120px) scale(1.1); }
+}
+
+@keyframes moveOrb2 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-80px, 90px) scale(0.9); }
 }
 
 .login-card {
   width: 400px;
   max-width: 90%;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  border-radius: 20px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+  margin: 20px 0;
 }
 
-.card-header {
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.3);
+}
+
+.login-title {
   text-align: center;
-}
-
-.card-header h2 {
-  margin: 0;
+  margin: 0 0 30px 0;
   font-size: 24px;
-  color: var(--el-color-primary);
+  color: #5a4620;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+  font-weight: 600;
 }
 
 .login-button {
   width: 100%;
 }
 
-.agreements-section {
-  margin-bottom: 20px;
+.agreements-section-integrated {
+  margin-bottom: 22px;
 }
 
-.agreements-list {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* --- 修改开始 --- */
+.agreements-section-integrated :deep(.el-checkbox) {
+  /* 确保复选框容器不会限制内部文本的换行 */
+  height: auto;
+  /* 关键：让复选框的方块与多行文本的顶部对齐 */
+  align-items: flex-start;
 }
 
-.login-tips {
-  margin-top: 20px;
-  background-color: var(--el-fill-color);
-  padding: 10px;
-  border-radius: 4px;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
+.agreements-section-integrated :deep(.el-checkbox__label) {
+  /* 关键：允许文本换行 */
+  white-space: normal;
 }
 
-.login-tips p {
-  margin: 5px 0;
+.agreements-section-integrated .agreement-text {
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.6; /* 调整行高，让换行后更美观 */
+}
+/* --- 修改结束 --- */
+
+
+.agreements-section-integrated :deep(.el-link) {
+  vertical-align: baseline;
 }
 
 .demo-login {
@@ -256,4 +279,4 @@ const demoLogin = () => {
     width: 320px;
   }
 }
-</style> 
+</style>

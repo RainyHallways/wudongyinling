@@ -52,10 +52,16 @@
       
       <!-- 用户操作区域 - 固定在右边 -->
       <div class="user-section">
-        <el-button v-if="!userStore.isLoggedIn" type="primary" @click="router.push('/login')">
-          <el-icon><User /></el-icon>
-          <span>登录</span>
-        </el-button>
+        <div v-if="!userStore.isLoggedIn" class="auth-buttons">
+          <el-button type="primary" @click="router.push('/login')" class="login-btn">
+            <el-icon><User /></el-icon>
+            <span>登录</span>
+          </el-button>
+          <el-button type="default" @click="router.push('/register')" class="register-btn">
+            <el-icon><UserFilled /></el-icon>
+            <span>注册</span>
+          </el-button>
+        </div>
         
         <el-dropdown v-else>
           <div class="user-info">
@@ -205,6 +211,7 @@ import {
   ChatDotRound, 
   InfoFilled,
   User,
+  UserFilled,
   ArrowDown,
   SwitchButton,
   Lock
@@ -429,6 +436,12 @@ const handleLogout = async () => {
 }
 
 /* 用户操作区域 */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .user-section .el-button {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -437,12 +450,35 @@ const handleLogout = async () => {
   font-weight: 500;
   transition: all 0.3s ease;
   white-space: nowrap;
+  padding: 8px 20px;
 }
 
 .user-section .el-button:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+}
+
+/* 注册按钮特殊样式 */
+.user-section .register-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.user-section .register-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* 登录按钮特殊样式 */
+.user-section .login-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.user-section .login-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .user-info {
