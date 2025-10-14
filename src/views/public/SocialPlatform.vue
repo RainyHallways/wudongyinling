@@ -114,7 +114,7 @@ const filteredPosts = computed(() => {
   })
 })
 
-// 生命周期
+// 页面加载时尝试获取API数据（演示账号会自动静默失败并使用本地数据）
 onMounted(() => {
   loadFeedData()
   loadHeritageData()
@@ -135,8 +135,7 @@ const loadFeedData = async () => {
       postsPagination.value.total = response.data.total || 0
     }
   } catch (error) {
-    console.error('Failed to load posts:', error)
-    ElMessage.error('加载动态失败，使用模拟数据')
+    // 静默处理错误（演示账号会自动使用本地数据）
     
     // 使用模拟数据
     posts.value = [
@@ -199,8 +198,7 @@ const loadHeritageData = async () => {
     heritageProjects.value = projectsRes.data || []
     heritageInheritors.value = inheritorsRes.data || []
   } catch (error) {
-    console.error('Failed to load heritage data:', error)
-    ElMessage.error('加载非遗数据失败，使用模拟数据')
+    // 静默处理错误（演示账号会自动使用本地数据）
     
     // 使用模拟数据
     heritageProjects.value = [

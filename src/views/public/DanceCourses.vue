@@ -215,7 +215,7 @@ const sendChatMessage = () => {
   chatMessage.value = ''
 }
 
-// 集成API获取课程数据 (未实际使用，仅作为示例)
+// 集成API获取课程数据（可选，失败时使用本地数据）
 const fetchCategories = async () => {
   loading.value.categories = true
   try {
@@ -223,38 +223,39 @@ const fetchCategories = async () => {
     // 如果需要，可以在这里更新categories
     console.log("API 分类数据:", data)
   } catch (error) {
-    console.error('获取课程分类失败:', error)
+    // 静默处理错误，使用本地默认数据
   } finally {
     loading.value.categories = false
   }
 }
 
-// 获取课程难度
+// 获取课程难度（可选，失败时使用本地数据）
 const getCourseDifficulties = async () => {
   loading.value.difficulties = true;
   try {
     const { data } = await courseApi.getCourseDifficulties();
     console.log("API 难度数据:", data);
   } catch (error) {
-    console.error('获取课程难度失败:', error);
+    // 静默处理错误，使用本地默认数据
   } finally {
     loading.value.difficulties = false;
   }
 };
 
-// 获取课程时长
+// 获取课程时长（可选，失败时使用本地数据）
 const getCourseDurations = async () => {
   loading.value.durations = true;
   try {
     const { data } = await courseApi.getCourseDurations();
     console.log("API 时长数据:", data);
   } catch (error) {
-    console.error('获取课程时长失败:', error);
+    // 静默处理错误，使用本地默认数据
   } finally {
     loading.value.durations = false;
   }
 };
 
+// 页面加载时尝试获取API数据（演示账号会自动静默失败并使用本地数据）
 onMounted(() => {
   fetchCategories();
   getCourseDifficulties();

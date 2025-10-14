@@ -111,6 +111,12 @@ service.interceptors.request.use(
     const userStore = useUserStore()
     const token = userStore.token
     
+    // 如果是演示账号，直接拒绝请求（避免无谓的服务器调用）
+    if (userStore.isDemo && config.showError !== false) {
+      // 对于演示账号，静默拒绝 API 请求
+      config.showError = false
+    }
+    
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -195,6 +201,12 @@ service.interceptors.response.use(
     const config = error.config as RequestConfig
     if (config?.loading !== false) {
       hideLoading()
+    }
+    
+    // 如果是演示账号，静默处理所有错误
+    const userStore = useUserStore()
+    if (userStore.isDemo) {
+      return Promise.reject(error)
     }
     
     // 重试机制

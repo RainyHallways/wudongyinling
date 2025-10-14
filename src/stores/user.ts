@@ -20,6 +20,7 @@ interface UserState {
   roles: string[]
   loading: boolean
   error: string | null
+  isDemo: boolean  // 标记是否为演示账号
 }
 
 interface LoginCredentials {
@@ -34,7 +35,8 @@ export const useUserStore = defineStore('user', {
     userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}'),
     roles: JSON.parse(localStorage.getItem('roles') || '[]'),
     loading: false,
-    error: null
+    error: null,
+    isDemo: localStorage.getItem('isDemo') === 'true'
   }),
   
   getters: {
@@ -67,6 +69,10 @@ export const useUserStore = defineStore('user', {
         // 根据用户的is_admin属性设置角色
         const roles = data.user.is_admin ? ['admin'] : ['user']
         this.setRoles(roles)
+        
+        // 真实账号登录，清除演示标记
+        this.isDemo = false
+        localStorage.removeItem('isDemo')
         
         ElMessage.success('登录成功')
         
@@ -129,11 +135,50 @@ export const useUserStore = defineStore('user', {
     },
     
     /**
+     * 演示账号登录（前端模拟，不调用服务器）
+     */
+    demoLogin() {
+      try {
+        // 生成模拟的 token
+        const mockToken = 'demo_token_' + Date.now()
+        
+        // 创建模拟用户信息
+        const mockUser: UserInfo = {
+          id: 999,
+          username: 'demo_user',
+          nickname: '演示用户',
+          avatar: '/images/default-avatar.png',
+          email: 'demo@example.com',
+          phone: '13800138000'
+        }
+        
+        // 设置登录状态
+        this.setToken(mockToken)
+        this.setUserInfo(mockUser)
+        this.setRoles(['user'])
+        
+        // 标记为演示账号
+        this.isDemo = true
+        localStorage.setItem('isDemo', 'true')
+        
+        ElMessage.success('演示账号登录成功（仅前端模拟，部分功能可能不可用）')
+        return true
+      } catch (error: any) {
+        ElMessage.error('演示登录失败')
+        console.error(error)
+        return false
+      }
+    },
+    
+    /**
      * 退出登录
      */
     async logout() {
       try {
-        await request.post('/v1/auth/logout')
+        // 演示账号直接退出，不调用服务器
+        if (!this.isDemo) {
+          await request.post('/v1/auth/logout')
+        }
         ElMessage.success('已退出登录')
       } catch (error) {
         console.error('退出登录失败', error)
@@ -156,9 +201,11 @@ export const useUserStore = defineStore('user', {
       this.token = ''
       this.userInfo = {} as UserInfo
       this.roles = []
+      this.isDemo = false
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
       localStorage.removeItem('roles')
+      localStorage.removeItem('isDemo')
     },
     
     /**
