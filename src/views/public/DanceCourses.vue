@@ -264,90 +264,102 @@ onMounted(() => {
 
 <template>
   <div class="dance-courses-page page-with-nav">
-    <h1 class="page-title">舞蹈课程</h1>
-    <p class="section-subtitle">探索多样化舞蹈课程，享受舞动乐趣</p>
+    <div class="page-container">
+      <h1 class="page-title">舞蹈课程</h1>
+      <p class="section-subtitle">探索多样化舞蹈课程，享受舞动乐趣</p>
 
-    <!-- 搜索栏 -->
-    <div class="search-bar">
-      <el-input 
-        v-model="searchQuery" 
-        placeholder="搜索舞蹈课程..." 
-        class="search-input"
-        :prefix-icon="Search"
-      >
-        <template #append>
-          <el-button @click="handleSearch">搜索</el-button>
-        </template>
-      </el-input>
-    </div>
-
-    <!-- 分类筛选 -->
-    <div class="course-tabs">
-      <div class="tabs-container">
-        <div 
-          v-for="(category, index) in categories" 
-          :key="index"
-          :class="['tab-button', activeCategory === category.value ? 'active' : '']"
-          @click="activeCategory = category.value"
+      <!-- 搜索栏 -->
+      <div class="search-bar">
+        <el-input 
+          v-model="searchQuery" 
+          placeholder="搜索舞蹈课程..." 
+          class="search-input"
+          :prefix-icon="Search"
         >
-          {{ category.label }}
+          <template #append>
+            <el-button @click="handleSearch">搜索</el-button>
+          </template>
+        </el-input>
+      </div>
+
+      <!-- 分类筛选 -->
+      <div class="course-tabs">
+        <div class="tabs-container">
+          <div 
+            v-for="(category, index) in categories" 
+            :key="index"
+            :class="['tab-button', activeCategory === category.value ? 'active' : '']"
+            @click="activeCategory = category.value"
+          >
+            {{ category.label }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 课程列表 -->
-    <div class="courses-container" v-show="!showVideoPlayer">
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="course in filteredCourses" :key="course.id">
-          <el-card class="course-card" shadow="hover" @click="showCourseDetails(course)">
-            <el-image :src="course.thumbnail" fit="cover" class="course-thumbnail" />
-            <div class="course-info">
-              <h3 class="course-title">{{ course.title }}</h3>
-              <div class="course-meta">
-                <span>
-                  {{ course.rating }} <el-icon><Star /></el-icon>
-                </span>
-                <span>{{ course.duration }}</span>
+      <!-- 课程列表 -->
+      <div class="courses-container" v-show="!showVideoPlayer">
+        <!-- 空状态提示 -->
+        <div v-if="filteredCourses.length === 0" class="empty-state">
+          <el-empty description="目前舞蹈还没上架，看看别的吧">
+            <el-button type="primary" @click="activeCategory = 'all'; searchQuery = ''">
+              查看全部课程
+            </el-button>
+          </el-empty>
+        </div>
+        
+        <!-- 课程卡片列表 -->
+        <el-row :gutter="24" v-else>
+          <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="6" v-for="course in filteredCourses" :key="course.id">
+            <el-card class="course-card" shadow="hover" @click="showCourseDetails(course)">
+              <el-image :src="course.thumbnail" fit="cover" class="course-thumbnail" />
+              <div class="course-info">
+                <h3 class="course-title">{{ course.title }}</h3>
+                <div class="course-meta">
+                  <span>
+                    {{ course.rating }} <el-icon><Star /></el-icon>
+                  </span>
+                  <span>{{ course.duration }}</span>
+                </div>
+                <el-tag 
+                  :type="getDifficultyType(course.difficulty)" 
+                  size="small" 
+                  class="difficulty-tag"
+                >
+                  {{ course.difficulty }}
+                </el-tag>
               </div>
-              <el-tag 
-                :type="getDifficultyType(course.difficulty)" 
-                size="small" 
-                class="difficulty-tag"
-              >
-                {{ course.difficulty }}
-              </el-tag>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
-
-    <!-- 视频播放区域 -->
-    <div v-show="showVideoPlayer" class="video-player-section">
-      <el-card>
-        <el-row :gutter="20">
-          <el-col :xs="24" :sm="24" :md="16">
-            <div class="video-player">
-              <el-image v-if="currentCourse" :src="currentCourse.videoSrc" fit="cover" class="player-image" />
-            </div>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="8">
-            <div class="video-details">
-              <h2>{{ currentCourse?.title }}</h2>
-              <p>难度：<el-tag :type="getDifficultyType(currentCourse?.difficulty)">{{ currentCourse?.difficulty }}</el-tag></p>
-              <p>时长：{{ currentCourse?.duration }}</p>
-              <el-divider />
-              <p>{{ currentCourse?.description }}</p>
-              
-              <div class="video-actions">
-                <el-button :icon="Star" text>收藏</el-button>
-                <el-button :icon="Share" text>分享</el-button>
-                <el-button :icon="Back" text @click="goBackToList">返回列表</el-button>
-              </div>
-            </div>
+            </el-card>
           </el-col>
         </el-row>
-      </el-card>
+      </div>
+
+      <!-- 视频播放区域 -->
+      <div v-show="showVideoPlayer" class="video-player-section">
+        <el-card>
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="24" :md="16">
+              <div class="video-player">
+                <el-image v-if="currentCourse" :src="currentCourse.videoSrc" fit="cover" class="player-image" />
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="24" :md="8">
+              <div class="video-details">
+                <h2>{{ currentCourse?.title }}</h2>
+                <p>难度：<el-tag :type="getDifficultyType(currentCourse?.difficulty)">{{ currentCourse?.difficulty }}</el-tag></p>
+                <p>时长：{{ currentCourse?.duration }}</p>
+                <el-divider />
+                <p>{{ currentCourse?.description }}</p>
+                
+                <div class="video-actions">
+                  <el-button :icon="Star" text>收藏</el-button>
+                  <el-button :icon="Share" text>分享</el-button>
+                  <el-button :icon="Back" text @click="goBackToList">返回列表</el-button>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+      </div>
     </div>
 
     <!-- 聊天助手按钮 -->
@@ -400,27 +412,36 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.dance-courses {
+.dance-courses-page {
   padding: 20px;
   position: relative;
+  width: 100%;
+}
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .page-title {
   font-size: 32px;
   text-align: center;
-  margin: 40px 0;
+  margin: 60px 0 20px;
+  padding-top: 20px;
   color: var(--el-color-primary);
 }
 
 .section-subtitle {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   color: #666;
+  font-size: 16px;
 }
 
 .search-bar {
   max-width: 600px;
-  margin: 0 auto 30px;
+  margin: 0 auto 40px;
 }
 
 .course-tabs {
@@ -456,6 +477,20 @@ onMounted(() => {
 .tab-button.active {
   background-color: var(--el-color-primary);
   color: white;
+}
+
+.empty-state {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.empty-state :deep(.el-empty__description) {
+  font-size: 18px;
+  color: #666;
+  margin-top: 20px;
 }
 
 .course-card {
@@ -587,9 +622,30 @@ onMounted(() => {
   padding-top: 0;
 }
 
+@media (max-width: 1200px) {
+  .page-container {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+}
+
 @media (max-width: 768px) {
+  .dance-courses-page {
+    padding: 15px 10px;
+  }
+
+  .page-container {
+    padding: 0 10px;
+  }
+
   .page-title {
     font-size: 28px;
+    margin: 30px 0 15px;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
   }
   
   .course-tabs {
@@ -636,6 +692,8 @@ onMounted(() => {
   
   .tab-button {
     flex: 0 0 auto;
+    padding: 10px 20px;
+    font-size: 16px;
   }
 }
 </style> 
