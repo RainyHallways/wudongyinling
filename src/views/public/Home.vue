@@ -1,11 +1,35 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const activeStep = ref(0)
 // 标记是否已经执行过数字动画
 const animationExecuted = ref(false)
+
+// 处理"立即开始"按钮点击
+const handleQuickStart = () => {
+  if (userStore.isLoggedIn) {
+    // 已登录，跳转到舞蹈课程页面
+    router.push('/dance-courses')
+  } else {
+    // 未登录，跳转到登录页面
+    router.push('/login')
+  }
+}
+
+// 处理"立即注册"按钮点击
+const handleRegister = () => {
+  if (userStore.isLoggedIn) {
+    // 已登录，跳转到舞蹈课程页面
+    router.push('/dance-courses')
+  } else {
+    // 未登录，跳转到注册页面
+    router.push('/register')
+  }
+}
 
 // 页面加载动画
 onMounted(() => {
@@ -135,7 +159,7 @@ function scrollToSection(sectionId: string) {
           <el-button 
             type="primary" 
             size="large" 
-            @click="$router.push('/courses')"
+            @click="$router.push('/dance-courses')"
             class="hero-btn primary-btn"
             :hover-effect="true"
           >
@@ -286,7 +310,7 @@ function scrollToSection(sectionId: string) {
         <el-button 
           type="primary" 
           size="large" 
-          @click="$router.push('/register')"
+          @click="handleQuickStart"
           class="start-btn"
           :hover-effect="true"
         >
@@ -363,15 +387,15 @@ function scrollToSection(sectionId: string) {
           <el-button 
             type="primary" 
             size="large" 
-            @click="$router.push('/register')"
+            @click="handleRegister"
             class="cta-btn primary-btn"
             :hover-effect="true"
           >
-            立即注册
+            {{ userStore.isLoggedIn ? '开始学习' : '立即注册' }}
           </el-button>
           <el-button 
             size="large" 
-            @click="$router.push('/courses')"
+            @click="$router.push('/dance-courses')"
             class="cta-btn secondary-btn"
             :hover-effect="true"
           >

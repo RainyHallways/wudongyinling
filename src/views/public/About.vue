@@ -93,14 +93,14 @@ const fetchTeamMembers = async () => {
       teamMembers.value = defaultTeamMembers
     }
   } catch (error) {
-    console.error('获取团队成员数据失败:', error)
+    // 静默处理错误，使用本地默认数据
     teamMembers.value = defaultTeamMembers
   } finally {
     loading.value.team = false
   }
 }
 
-// 获取合作伙伴数据
+// 获取合作伙伴数据（可选，失败时使用本地数据）
 const fetchPartners = async () => {
   loading.value.partners = true
   try {
@@ -111,14 +111,14 @@ const fetchPartners = async () => {
       partners.value = defaultPartners
     }
   } catch (error) {
-    console.error('获取合作伙伴数据失败:', error)
+    // 静默处理错误，使用本地默认数据
     partners.value = defaultPartners
   } finally {
     loading.value.partners = false
   }
 }
 
-// 页面加载时获取所有数据
+// 页面加载时尝试获取API数据（演示账号会自动静默失败并使用本地数据）
 onMounted(() => {
   fetchTeamMembers()
   fetchPartners()
