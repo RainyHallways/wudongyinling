@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElCard, ElEmpty, ElButton, ElImage, ElProgress, ElTag, ElIcon, ElRow, ElCol } from 'element-plus'
-import { Play, Clock, Trophy } from '@element-plus/icons-vue'
+import { VideoPlay, Clock, Trophy } from '@element-plus/icons-vue'
 import { courseApi } from '@/api/course'
 import type { Course } from '@/api/course'
 
@@ -84,7 +84,7 @@ onMounted(() => {
               <div class="course-overlay">
                 <ElButton 
                   type="primary" 
-                  :icon="Play"
+                  :icon="VideoPlay"
                   circle
                   size="large"
                   @click="continueLearning(course)"
