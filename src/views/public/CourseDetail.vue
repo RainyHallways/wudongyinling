@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElButton, ElCard, ElTag, ElIcon, ElImage, ElDivider, ElRow, ElCol, ElRate, ElCommentCard } from 'element-plus'
-import { Play, Star, StarFilled, Clock, User, Trophy } from '@element-plus/icons-vue'
+import { ElMessage, ElButton, ElCard, ElTag, ElIcon, ElImage, ElDivider, ElRow, ElCol, ElRate } from 'element-plus'
+import { VideoPlay, Star, StarFilled, Clock, User, Trophy } from '@element-plus/icons-vue'
 import { courseApi } from '@/api/course'
 import type { Course } from '@/api/course'
 import { useUserStore } from '@/stores/user'
@@ -111,7 +111,7 @@ onMounted(() => {
               />
               <div class="play-overlay" v-if="course.video_url" @click="$router.push(`/course/${course.id}/video`)">
                 <ElIcon size="48" color="white">
-                  <Play />
+                  <VideoPlay />
                 </ElIcon>
               </div>
             </div>

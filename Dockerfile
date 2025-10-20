@@ -1,9 +1,17 @@
 # 前端构建阶段
-FROM node:18 AS frontend-build
+FROM node:18-alpine AS frontend-build
 WORKDIR /app
-COPY package*.json ./
+
+# 1. 先只复制 package.json 和 lock 文件
+COPY package.json package-lock.json ./
+
+# 2. 现在再安装依赖，这样能正确安装
 RUN npm install
+
+# 3. 最后复制你所有的源代码
 COPY . .
+
+# 4. 现在运行构建，此时 node_modules 已经准备好了
 RUN npm run build
 
 # Python后端构建阶段
