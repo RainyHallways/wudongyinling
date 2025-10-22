@@ -148,40 +148,40 @@
           <div class="user-info-text">
             <h3 v-if="userStore.isLoggedIn">{{ userStore.nickname }}</h3>
             <p v-if="userStore.isLoggedIn">{{ userStore.userInfo.email }}</p>
-            <el-button v-else type="primary" @click="router.push('/login')">立即登录</el-button>
+            <el-button v-else type="primary" @click="navigateAndClose('/login')">立即登录</el-button>
           </div>
         </div>
       </template>
       
       <div class="menu-content">
         <template v-if="userStore.isLoggedIn">
-          <el-row :gutter="16" class="menu-grid">
+          <el-row :gutter="16" class="menu-grid" justify="center" align="top">
             <el-col :span="12">
-              <div class="menu-card" @click="router.push('/user-profile')">
+              <div class="menu-card" @click="navigateAndClose('/user-profile')">
                 <el-icon><User /></el-icon>
                 <span>个人中心</span>
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="menu-card" @click="router.push('/user-profile?tab=password')">
+              <div class="menu-card" @click="navigateAndClose('/user-profile?tab=password')">
                 <el-icon><Lock /></el-icon>
                 <span>修改密码</span>
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="menu-card" @click="router.push('/ai-coach')">
+              <div class="menu-card" @click="navigateAndClose('/ai-coach')">
           <el-icon><Cpu /></el-icon>
                 <span>我的课程</span>
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="menu-card" @click="router.push('/health-management')">
+              <div class="menu-card" @click="navigateAndClose('/health-management')">
                 <el-icon><FirstAidKit /></el-icon>
                 <span>健康档案</span>
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="menu-card" @click="router.push('/about')">
+              <div class="menu-card" @click="navigateAndClose('/about')">
           <el-icon><InfoFilled /></el-icon>
           <span>关于我们</span>
               </div>
@@ -229,6 +229,12 @@ const mobileNavItems = [
   { path: '/health-management', label: '健康', icon: FirstAidKit },
   { path: '/social-platform', label: '社交', icon: ChatDotRound }
 ]
+
+// 页面跳转并关闭抽屉
+const navigateAndClose = (path: string) => {
+  router.push(path)
+  showUserMenu.value = false
+}
 
 // 退出登录
 const handleLogout = async () => {
@@ -668,6 +674,7 @@ const handleLogout = async () => {
   :deep(.user-menu-drawer .el-drawer) {
     z-index: 9999 !important;
     position: fixed !important;
+    border-radius: 16px 16px 0 0 !important;
   }
   
   :deep(.user-menu-drawer .el-drawer__wrapper) {
@@ -678,12 +685,60 @@ const handleLogout = async () => {
     z-index: 9998 !important;
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
+
+  /* 居中头部与网格 */
+  .drawer-header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .user-info-text {
+    @apply ml-0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .menu-grid {
+    margin: 0 auto;
+    justify-content: center;
+  }
+
+  /* 卡片与排版精简 */
+  .menu-card {
+    padding: 16px;
+    min-height: 100px;
+    gap: 8px;
+  }
+
+  .menu-card .el-icon {
+    font-size: 28px;
+  }
+
+  .menu-card span {
+    font-size: 14px;
+    line-height: 1.2;
+  }
 }
 
+/* 让抽屉关闭按钮位于右上角且不遮挡标题 */
+:deep(.user-menu-drawer .el-drawer__header) {
+  position: relative;
+  padding-right: 56px; /* 给右上角关闭按钮留空间 */
+}
+
+:deep(.user-menu-drawer .el-drawer__close-btn) {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+}
+
+/* 用户卡片头部横向铺满背景色 */
 .drawer-header {
   background: var(--gradient-primary);
   @apply flex items-center p-4;
   @apply text-white;
+  width: 100%;
 }
 
 .user-info-text {
@@ -702,6 +757,8 @@ const handleLogout = async () => {
 .menu-content {
   @apply p-4;
   background: var(--bg-primary);
+  max-width: 520px;
+  margin: 0 auto;
 }
 
 .menu-grid {
