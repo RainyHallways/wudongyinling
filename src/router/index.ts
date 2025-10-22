@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { useUserStore } from '../stores/user'
 import { ElMessage } from 'element-plus'
 import publicRoutes from './routes-public'
 import adminRoutes from './routes-admin'
@@ -31,9 +30,9 @@ router.beforeEach((to, from, next) => {
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 舞蹈艺术平台` : '舞蹈艺术平台'
   
-  // 获取用户信息
-  const userStore = useUserStore()
-  const { token, roles } = userStore
+  // 从本地存储获取认证信息，避免在路由中引入状态库造成循环依赖
+  const token = localStorage.getItem('token') || ''
+  const roles: string[] = JSON.parse(localStorage.getItem('roles') || '[]')
   
   // 判断是否需要登录权限
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)

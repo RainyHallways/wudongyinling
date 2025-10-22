@@ -1,11 +1,7 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError, CancelToken } from 'axios'
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { ElMessage, ElLoading } from 'element-plus'
 
-// 定义环境变量接口
-interface ViteEnv {
-  VITE_API_BASE_URL?: string
-  [key: string]: any
-}
+// 定义环境变量接口（可选）已移除未使用声明
 
 // 定义响应数据接口
 interface ApiResponse<T = any> {
@@ -33,9 +29,19 @@ const RETRY_CONFIG = {
   retryCodes: [408, 429, 500, 502, 503, 504]
 }
 
+// API 前缀统一为 /api/v1（与后端保持一致）
+const API_PREFIX = '/api/v1'
+const envBase: string | undefined = (import.meta.env as any).VITE_API_BASE_URL
+// 如果设置了绝对地址，则确保包含 /api/v1；否则使用相对的 /api/v1 通过本地代理
+const computedBaseURL = envBase
+  ? (envBase.replace(/\/$/, '').endsWith(API_PREFIX)
+      ? envBase.replace(/\/$/, '')
+      : `${envBase.replace(/\/$/, '')}${API_PREFIX}`)
+  : API_PREFIX
+
 // 创建axios实例
 const service: AxiosInstance = axios.create({
-  baseURL: (import.meta.env as any).VITE_API_BASE_URL || '/api',
+  baseURL: computedBaseURL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
@@ -105,14 +111,17 @@ service.interceptors.request.use(
       showLoading(config.headers?.['X-Loading-Text'] as string)
     }
     
-    // 添加认证token
-    const { useUserStore } = await import('../stores/user')
-    const userStore = useUserStore()
-    const token = userStore.token
+    // 确保 headers 存在
+    if (!config.headers) {
+      config.headers = {} as any
+    }
+
+    // 添加认证token（避免引入 store 造成循环，直接读取本地存储）
+    const token = localStorage.getItem('token') || ''
+    const isDemo = localStorage.getItem('isDemo') === 'true'
     
-    // 如果是演示账号，直接拒绝请求（避免无谓的服务器调用）
-    if (userStore.isDemo && config.showError !== false) {
-      // 对于演示账号，静默拒绝 API 请求
+    // 如果是演示账号，静默错误提示
+    if (isDemo && config.showError !== false) {
       config.showError = false
     }
     
@@ -121,7 +130,7 @@ service.interceptors.request.use(
     }
     
     // 添加请求ID用于追踪
-    config.headers['X-Request-ID'] = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    ;(config.headers as any)['X-Request-ID'] = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     
     // 添加时间戳防止缓存
     if (config.method?.toLowerCase() === 'get') {
@@ -151,14 +160,14 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(
-  async (response: AxiosResponse<ApiResponse>): Promise<any> => {
+  async (response: AxiosResponse<ApiResponse | any>): Promise<any> => {
     // 隐藏Loading
     const config = response.config as RequestConfig
     if (config.loading !== false) {
       hideLoading()
     }
     
-    const res = response.data
+    const res: any = response.data as any
     const requestConfig = response.config as RequestConfig
     
     // 业务逻辑错误处理
@@ -176,23 +185,26 @@ service.interceptors.response.use(
       
       // 401: Token失效，需要重新登录
       if (res.code === 401) {
-        const { useUserStore } = await import('../stores/user')
-        const userStore = useUserStore()
-        userStore.resetState()
-        
-        // 判断当前路由是否需要登录权限
-        const { default: router } = await import('../router')
-        if (router.currentRoute.value.meta.requiresAuth) router.push('/login')
+        // 清理本地认证并重定向（不引入路由以避免循环）
+        try {
+          localStorage.removeItem('token')
+          localStorage.removeItem('userInfo')
+          localStorage.removeItem('roles')
+          localStorage.removeItem('isDemo')
+        } catch {}
+        const path = window.location.pathname
+        if (path.startsWith('/admin')) window.location.href = '/admin/login'
+        else window.location.href = '/login'
       }
       
       return Promise.reject(new Error(res.message || '未知错误'))
     } else {
       // 如果响应包含分页信息，返回完整响应对象
-      if (res.hasOwnProperty('total') || res.hasOwnProperty('page')) {
+      if ((res as any).hasOwnProperty('total') || (res as any).hasOwnProperty('page')) {
         return res
       }
       // 否则只返回data部分（保持向后兼容）
-      return res.data
+      return (res as any).data
     }
   },
   async (error: AxiosError) => {
@@ -202,10 +214,8 @@ service.interceptors.response.use(
       hideLoading()
     }
     
-    // 如果是演示账号，静默处理所有错误
-    const { useUserStore } = await import('../stores/user')
-    const userStore = useUserStore()
-    if (userStore.isDemo) {
+    // 如果是演示账号，静默处理所有错误（避免引入 store，读取本地存储）
+    if (localStorage.getItem('isDemo') === 'true') {
       return Promise.reject(error)
     }
     
@@ -227,13 +237,18 @@ service.interceptors.response.use(
       switch (response.status) {
         case 401:
           message = '未授权，请登录'
-          const userStore401 = useUserStore()
-          userStore401.resetState()
-          
-          // 判断当前路由是否是管理员路由
-          const { default: router } = await import('../router')
-          if (router.currentRoute.value.path.startsWith('/admin')) router.push('/admin/login')
-          else if (router.currentRoute.value.meta.requiresAuth) router.push('/login')
+          try {
+            localStorage.removeItem('token')
+            localStorage.removeItem('userInfo')
+            localStorage.removeItem('roles')
+            localStorage.removeItem('isDemo')
+          } catch {}
+          // 直接根据路径判断跳转目标，避免引入路由
+          if (window.location.pathname.startsWith('/admin')) {
+            window.location.href = '/admin/login'
+          } else {
+            window.location.href = '/login'
+          }
           break
         case 403:
           message = '拒绝访问，权限不足'
@@ -247,8 +262,11 @@ service.interceptors.response.use(
         case 422:
           message = '请求参数错误'
           // 尝试从响应中获取详细错误信息
-          if (response.data?.message) {
-            message = response.data.message
+          {
+            const data: any = (response as any).data
+            if (data?.message) {
+              message = data.message
+            }
           }
           break
         case 429:
@@ -352,12 +370,7 @@ export const request = {
     })
   },
   
-  // 取消请求
-  cancel(message?: string) {
-    return new CancelToken((cancel) => {
-      cancel(message || '请求已取消')
-    })
-  }
+  // 取消请求（留空实现，避免类型错误；如需使用请改为 AbortController）
 }
 
 // 导出axios实例和配置

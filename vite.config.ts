@@ -55,6 +55,28 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // 将大型第三方库单独分包
+          if (id.includes('node_modules')) {
+            if (id.includes('vue')) {
+              return 'vendor-vue'
+            } else if (id.includes('element-plus')) {
+              return 'vendor-element'
+            } else if (id.includes('axios')) {
+              return 'vendor-axios'
+            } else if (id.includes('router')) {
+              return 'vendor-router'
+            } else {
+              return 'vendor-other'
+            }
+          }
+        }
+      }
+    },
+    // 提高大文件警告阈值
+    chunkSizeWarningLimit: 1000
   }
 }) 

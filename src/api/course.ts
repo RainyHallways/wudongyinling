@@ -188,20 +188,35 @@ export const courseApi = {
    * 获取课程分类列表
    */
   getCourseCategories() {
-    return request.get<CourseCategory[]>('/courses/categories')
+    return request.get<CourseCategory[]>('/courses/categories', undefined, {
+      showError: false,
+      retry: false,
+      loading: false,
+      headers: {}
+    })
   },
 
   /**
    * 获取课程难度列表
    */
   getCourseDifficulties() {
-    return request.get<CourseDifficulty[]>('/courses/difficulties')
+    return request.get<CourseDifficulty[]>('/courses/difficulties', undefined, {
+      showError: false,
+      retry: false,
+      loading: false,
+      headers: {}
+    })
   },
 
   /**
    * 获取课程时长范围列表
    */
   getCourseDurations() {
-    return request.get<CourseDuration[]>('/courses/durations')
+    return request.get<CourseDuration[]>('/courses/durations', undefined, {
+      showError: false,
+      retry: false,
+      loading: false,
+      headers: {}
+    })
   }
 } 

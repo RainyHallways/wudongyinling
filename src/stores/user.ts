@@ -1,18 +1,6 @@
 import { defineStore } from 'pinia'
-// 动态引入以避免循环依赖
-let request: typeof import('../utils/request').request | null = null
-async function getRequest() {
-  if (!request) {
-    const mod = await import('../utils/request')
-    request = mod.request
-  }
-  return request
-}
-// 动态引入路由，避免循环依赖
-async function getRouter() {
-  const { default: router } = await import('../router')
-  return router
-}
+import { request } from '../utils/request'
+import router from '../router'
 import { ElMessage } from 'element-plus'
 
 // 定义接口
@@ -69,8 +57,7 @@ export const useUserStore = defineStore('user', {
         this.error = null
         
         // 统一使用一个登录接口
-        const req = await getRequest()
-        const data = await req.post('/v1/auth/login', {
+        const data = await request.post('/v1/auth/login', {
           username: credentials.username,
           password: credentials.password
         })
@@ -90,7 +77,6 @@ export const useUserStore = defineStore('user', {
         ElMessage.success('登录成功')
         
         // 根据用户类型和登录意图进行跳转
-        const router = await getRouter()
         if (credentials.isAdmin && data.user.is_admin) {
           router.push('/admin')
         } else if (credentials.isAdmin && !data.user.is_admin) {
@@ -120,8 +106,7 @@ export const useUserStore = defineStore('user', {
         this.error = null
         
         // 判断是否是管理员
-        const req = await getRequest()
-        const data = await req.get('/v1/users/me')
+        const data = await request.get('/v1/users/me')
         this.setUserInfo(data)
         
         // 更新角色信息
@@ -192,8 +177,7 @@ export const useUserStore = defineStore('user', {
       try {
         // 演示账号直接退出，不调用服务器
         if (!this.isDemo) {
-          const req = await getRequest()
-          await req.post('/v1/auth/logout')
+          await request.post('/v1/auth/logout')
         }
         ElMessage.success('已退出登录')
       } catch (error) {
@@ -202,7 +186,6 @@ export const useUserStore = defineStore('user', {
         this.resetState()
         
         // 根据当前路径判断跳转目标
-        const router = await getRouter()
         if (router.currentRoute.value.path.startsWith('/admin')) {
           router.push('/admin/login')
         } else {
@@ -259,8 +242,7 @@ export const useUserStore = defineStore('user', {
         
         const isAdmin = this.roles.includes('admin')
         const endpoint = isAdmin ? `/v1/users/${this.userInfo.id}` : '/v1/users/me'
-        const req = await getRequest()
-        const data = await req.put(endpoint, userData)
+        const data = await request.put(endpoint, userData)
         this.setUserInfo({ ...this.userInfo, ...data })
         
         ElMessage.success('用户信息更新成功')
