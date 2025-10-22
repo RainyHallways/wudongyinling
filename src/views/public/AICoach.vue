@@ -3,15 +3,21 @@ import { ref, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VideoCameraFilled, VideoCamera, Check } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
+import { Pose, POSE_CONNECTIONS } from '@mediapipe/pose'
+import { Camera } from '@mediapipe/camera_utils'
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 
 // 状态管理
 const isCameraActive = ref(false)
 const videoStream = ref<MediaStream | null>(null)
 const videoElementRef = ref<HTMLVideoElement | null>(null)
+const canvasElementRef = ref<HTMLCanvasElement | null>(null)
 const totalScore = ref(0)
 const coordinationScore = ref(0)
 const rhythmScore = ref(0)
 let scoreUpdateInterval: number | null = null
+let pose: Pose | null = null
+let camera: Camera | null = null
 
 // 动作要点
 interface KeyPoint {
@@ -146,6 +152,76 @@ const stopScoreUpdates = (): void => {
   }
 }
 
+// 初始化 MediaPipe Pose
+const initPose = async (): Promise<void> => {
+  pose = new Pose({
+    locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    }
+  })
+  
+  pose.setOptions({
+    modelComplexity: 1,
+    smoothLandmarks: true,
+    enableSegmentation: false,
+    smoothSegmentation: false,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  })
+  
+  pose.onResults(onPoseResults)
+}
+
+// 处理姿态检测结果
+const onPoseResults = (results: any): void => {
+  if (!canvasElementRef.value) return
+  
+  const canvasCtx = canvasElementRef.value.getContext('2d')
+  if (!canvasCtx) return
+  
+  // 清空画布
+  canvasCtx.save()
+  canvasCtx.clearRect(0, 0, canvasElementRef.value.width, canvasElementRef.value.height)
+  
+  // 绘制视频帧（镜像翻转）
+  if (videoElementRef.value) {
+    canvasCtx.translate(canvasElementRef.value.width, 0)
+    canvasCtx.scale(-1, 1)
+    canvasCtx.drawImage(
+      videoElementRef.value, 
+      0, 
+      0, 
+      canvasElementRef.value.width, 
+      canvasElementRef.value.height
+    )
+    canvasCtx.setTransform(1, 0, 0, 1, 0, 0)
+  }
+  
+  // 绘制骨骼
+  if (results.poseLandmarks) {
+    // 由于画面已经镜像翻转，我们需要翻转坐标
+    const flippedLandmarks = results.poseLandmarks.map((landmark: any) => ({
+      ...landmark,
+      x: 1 - landmark.x
+    }))
+    
+    // 绘制连接线（红色）
+    drawConnectors(canvasCtx, flippedLandmarks, POSE_CONNECTIONS, {
+      color: '#FF0000',
+      lineWidth: 2
+    })
+    
+    // 绘制关键点（绿色）
+    drawLandmarks(canvasCtx, flippedLandmarks, {
+      color: '#00FF00',
+      lineWidth: 2,
+      radius: 4
+    })
+  }
+  
+  canvasCtx.restore()
+}
+
 // 启动摄像头和录制
 const startRecording = async (): Promise<void> => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -153,16 +229,55 @@ const startRecording = async (): Promise<void> => {
     return
   }
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        width: 1280, 
+        height: 720 
+      }, 
+      audio: false 
+    })
     videoStream.value = stream
     isCameraActive.value = true
-    // 使用 nextTick 确保 video 元素已渲染
+    
+    // 使用 nextTick 确保 video 和 canvas 元素已渲染
     await nextTick()
-    if (videoElementRef.value) {
+    
+    if (videoElementRef.value && canvasElementRef.value) {
       videoElementRef.value.srcObject = stream
+      
+      // 等待视频元数据加载完成
+      await new Promise((resolve) => {
+        if (videoElementRef.value) {
+          videoElementRef.value.onloadedmetadata = resolve
+        }
+      })
+      
+      // 设置 canvas 尺寸与视频一致
+      if (canvasElementRef.value && videoElementRef.value) {
+        canvasElementRef.value.width = videoElementRef.value.videoWidth
+        canvasElementRef.value.height = videoElementRef.value.videoHeight
+      }
+      
+      // 初始化 MediaPipe Pose
+      await initPose()
+      
+      // 启动相机处理
+      if (pose && videoElementRef.value) {
+        camera = new Camera(videoElementRef.value, {
+          onFrame: async () => {
+            if (videoElementRef.value && pose) {
+              await pose.send({ image: videoElementRef.value })
+            }
+          },
+          width: 1280,
+          height: 720
+        })
+        camera.start()
+      }
     }
+    
     startScoreUpdates() // 开始更新分数
-    ElMessage.success('摄像头已启动')
+    ElMessage.success('摄像头已启动，骨骼追踪已开启')
   } catch (err: any) {
     console.error('无法访问摄像头:', err)
     let message = '无法访问摄像头，请检查权限或设备连接。'
@@ -185,6 +300,19 @@ const startRecording = async (): Promise<void> => {
 // 停止摄像头和录制
 const stopRecording = (): void => {
   stopScoreUpdates() // 停止更新分数，数值固定
+  
+  // 停止相机
+  if (camera) {
+    camera.stop()
+    camera = null
+  }
+  
+  // 关闭 pose
+  if (pose) {
+    pose.close()
+    pose = null
+  }
+  
   if (videoStream.value) {
     videoStream.value.getTracks().forEach(track => track.stop())
     videoStream.value = null
@@ -192,6 +320,15 @@ const stopRecording = (): void => {
   if (videoElementRef.value) {
     videoElementRef.value.srcObject = null
   }
+  
+  // 清空 canvas
+  if (canvasElementRef.value) {
+    const canvasCtx = canvasElementRef.value.getContext('2d')
+    if (canvasCtx) {
+      canvasCtx.clearRect(0, 0, canvasElementRef.value.width, canvasElementRef.value.height)
+    }
+  }
+  
   isCameraActive.value = false
   ElMessage.info('录制已停止')
 }
@@ -226,9 +363,12 @@ updateScores()
             <div v-if="!isCameraActive" class="video-placeholder">
               <el-icon :size="50"><VideoCameraFilled /></el-icon>
               <h3>准备开始练习</h3>
-              <p>请启动摄像头，选择一种舞蹈开始练习</p>
+              <p>请启动摄像头，AI将实时追踪您的动作</p>
             </div>
-            <video v-else ref="videoElementRef" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div v-else class="video-canvas-wrapper">
+              <video ref="videoElementRef" autoplay playsinline style="display: none;"></video>
+              <canvas ref="canvasElementRef" class="pose-canvas"></canvas>
+            </div>
           </div>
           <div class="video-controls">
             <ElButton :type="isCameraActive ? 'danger' : 'primary'" size="large" @click="toggleCamera">
@@ -454,5 +594,21 @@ updateScores()
 
 .video-container video {
   display: block; /* 防止video底部出现小间隙 */
+}
+
+.video-canvas-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pose-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block;
 }
 </style> 
