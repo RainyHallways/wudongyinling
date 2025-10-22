@@ -358,6 +358,10 @@ const handleLogout = async () => {
     display: none; /* 小屏幕隐藏顶部菜单，使用底部导航 */
   }
   
+  .user-section {
+    display: none;
+  }
+
   .logo-img {
     height: 32px;
   }
@@ -524,8 +528,6 @@ const handleLogout = async () => {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 18px 0;
-  padding-bottom: calc(env(safe-area-inset-bottom, 18px) + 6px);
   min-height: 90px;
 }
 

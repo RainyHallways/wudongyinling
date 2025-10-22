@@ -150,7 +150,8 @@ function scrollToSection(sectionId: string) {
       <div class="hero-decor"></div>
       
       <div class="hero-content">
-        <h1 class="hero-title" style="color: azure;">舞动银龄</h1>
+        <img src="/fonticon_light.png" alt="舞动银龄" class="logo-img" />
+        <!--h1 class="hero-title" style="color: azure;">舞动银龄</h1-->
         <p class="hero-subtitle" style="color: azure;">
           专为银发族打造的智能舞蹈学习平台<br>
           让舞蹈成为健康生活的美好伴侣
@@ -434,7 +435,6 @@ function scrollToSection(sectionId: string) {
     url('/background.png');
   background-size: cover;
   background-position: center 25%;
-  background-attachment: fixed;
   background-blend-mode: multiply;
   display: flex;
   align-items: center;
@@ -442,6 +442,42 @@ function scrollToSection(sectionId: string) {
   text-align: center;
   color: white;
   overflow: hidden;
+}
+
+.logo-img {
+  height: 80px;
+  width: auto;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto 20px auto; /* 居中显示，并添加底部间距 */
+}
+
+/* 添加一个新的伪元素来处理背景 */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(135deg, 
+      rgba(212, 175, 55, 0.4) 0%, 
+      rgba(205, 133, 63, 0.3) 50%,
+      rgba(218, 165, 32, 0.4) 100% 
+    ),
+    url('/background.png');
+  background-size: cover;
+  background-position: center 25%;
+  background-attachment: fixed; /* 保留在伪元素上 */
+  background-blend-mode: multiply;
+  z-index: -1;
+}
+
+/* 为内容添加相对定位 */
+.hero-section {
+  position: relative;
 }
 
 /* 装饰元素 */
