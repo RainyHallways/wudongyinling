@@ -1,89 +1,149 @@
 <template>
-  <div class="users-container">
-    <ElCard>
-      <template #header>
-        <div class="card-header">
-          <span>用户管理</span>
-          <ElButton type="primary" @click="handleAdd">添加用户</ElButton>
-        </div>
-      </template>
+  <div class="users-container admin-responsive">
+    <!-- 搜索和筛选栏 -->
+    <div class="search-filter-bar">
+      <div class="search-filter-item search-input">
+        <el-input 
+          v-model="searchKeyword" 
+          placeholder="搜索用户名、邮箱、昵称"
+          clearable
+          @clear="handleSearch"
+          @keyup.enter="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+      </div>
+      <div class="search-filter-item">
+        <el-select v-model="roleFilter" placeholder="角色筛选" clearable @change="handleSearch">
+          <el-option label="全部" value="" />
+          <el-option label="管理员" value="admin" />
+          <el-option label="老年人" value="elderly" />
+          <el-option label="子女" value="child" />
+          <el-option label="志愿者" value="volunteer" />
+          <el-option label="教师" value="teacher" />
+          <el-option label="医生" value="doctor" />
+        </el-select>
+      </div>
+      <div class="search-filter-item">
+        <el-select v-model="statusFilter" placeholder="状态筛选" clearable @change="handleSearch">
+          <el-option label="全部" value="" />
+          <el-option label="正常" :value="true" />
+          <el-option label="禁用" :value="false" />
+        </el-select>
+      </div>
+      <div class="search-filter-actions">
+        <el-button type="primary" @click="handleSearch" class="touch-friendly">搜索</el-button>
+        <el-button @click="handleReset" class="touch-friendly">重置</el-button>
+        <el-button type="success" @click="handleAdd" class="touch-friendly desktop-only">添加用户</el-button>
+      </div>
+    </div>
 
-      <ElTable :data="users" v-loading="loading">
-        <ElTableColumn prop="id" label="ID" width="80" />
-        <ElTableColumn label="基本信息" width="200">
-          <template #default="{ row }">
-            <div class="user-info">
-              <el-avatar :src="row.avatar" :size="40">
-                {{ row.nickname?.[0] || row.username?.[0] }}
-              </el-avatar>
-              <div class="user-details">
-                <div class="username">{{ row.username }}</div>
-                <div class="nickname">{{ row.nickname || '未设置' }}</div>
-                <div class="unique-id">ID: {{ row.unique_id }}</div>
+    <!-- 浮动添加按钮（移动端） -->
+    <div class="floating-action-button mobile-only">
+      <el-button type="success" circle size="large" @click="handleAdd">
+        <el-icon><Plus /></el-icon>
+      </el-button>
+    </div>
+
+    <!-- 桌面端表格 -->
+    <ElCard class="desktop-table">
+      <div class="table-container">
+        <ElTable :data="users" v-loading="loading" class="admin-responsive">
+          <ElTableColumn prop="id" label="ID" width="80" />
+          <ElTableColumn label="基本信息" width="200">
+            <template #default="{ row }">
+              <div class="user-info">
+                <el-avatar :src="row.avatar" :size="40">
+                  {{ row.nickname?.[0] || row.username?.[0] }}
+                </el-avatar>
+                <div class="user-details">
+                  <div class="username">{{ row.username }}</div>
+                  <div class="nickname">{{ row.nickname || '未设置' }}</div>
+                  <div class="unique-id">ID: {{ row.unique_id }}</div>
+                </div>
               </div>
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="联系信息" width="200">
-          <template #default="{ row }">
-            <div class="contact-info">
-              <div>📧 {{ row.email }}</div>
-              <div v-if="row.phone">📱 {{ row.phone }}</div>
-              <div v-else class="text-gray-400">📱 未设置</div>
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="个人信息" width="150">
-          <template #default="{ row }">
-            <div class="personal-info">
-              <div v-if="row.gender">{{ getGenderText(row.gender) }}</div>
-              <div v-if="row.birthdate">{{ formatAge(row.birthdate) }}岁</div>
-              <div v-if="!row.gender && !row.birthdate" class="text-gray-400">未完善</div>
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="role" label="角色" width="100">
-          <template #default="{ row }">
-            <ElTag :type="getRoleType(row.role || (row.is_admin ? 'ADMIN' : 'USER'))">
-              {{ getRoleText(row.role || (row.is_admin ? 'ADMIN' : 'USER')) }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="健康信息" width="120" v-if="showHealthInfo">
-          <template #default="{ row }">
-            <div v-if="row.role === 'elderly' || row.role === 'ELDERLY'">
-              <div v-if="row.medical_history" class="text-orange-600">有病史</div>
-              <div v-if="row.chronic_diseases" class="text-red-600">有慢性病</div>
-              <div v-if="!row.medical_history && !row.chronic_diseases" class="text-green-600">无记录</div>
-            </div>
-            <div v-else class="text-gray-400">-</div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="is_active" label="状态" width="80">
-          <template #default="{ row }">
-            <ElTag :type="row.is_active ? 'success' : 'danger'">
-              {{ row.is_active ? '正常' : '禁用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="created_at" label="创建时间" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.created_at) }}
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="280" fixed="right">
-          <template #default="{ row }">
-            <ElButtonGroup>
-              <ElButton type="info" size="small" @click="handleView(row)">详情</ElButton>
-              <ElButton type="primary" size="small" @click="handleEdit(row)">编辑</ElButton>
-              <ElButton type="warning" size="small" @click="handleResetPassword(row)">重置密码</ElButton>
-              <ElButton type="danger" size="small" @click="handleDelete(row)">删除</ElButton>
-            </ElButtonGroup>
-          </template>
-        </ElTableColumn>
-      </ElTable>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="联系信息" width="200">
+            <template #default="{ row }">
+              <div class="contact-info">
+                <div class="mobile-wrap">📧 {{ row.email }}</div>
+                <div v-if="row.phone">📱 {{ row.phone }}</div>
+                <div v-else class="text-gray-400">📱 未设置</div>
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="个人信息" width="150">
+            <template #default="{ row }">
+              <div class="personal-info">
+                <div v-if="row.gender">{{ getGenderText(row.gender) }}</div>
+                <div v-if="row.birthdate">{{ formatAge(row.birthdate) }}岁</div>
+                <div v-if="!row.gender && !row.birthdate" class="text-gray-400">未完善</div>
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="role" label="角色" width="100">
+            <template #default="{ row }">
+              <ElTag :type="getRoleType(row.role || (row.is_admin ? 'ADMIN' : 'USER'))">
+                {{ getRoleText(row.role || (row.is_admin ? 'ADMIN' : 'USER')) }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="健康信息" width="120" v-if="showHealthInfo">
+            <template #default="{ row }">
+              <div v-if="row.role === 'elderly' || row.role === 'ELDERLY'">
+                <div v-if="row.medical_history" class="text-orange-600">有病史</div>
+                <div v-if="row.chronic_diseases" class="text-red-600">有慢性病</div>
+                <div v-if="!row.medical_history && !row.chronic_diseases" class="text-green-600">无记录</div>
+              </div>
+              <div v-else class="text-gray-400">-</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="is_active" label="状态" width="80">
+            <template #default="{ row }">
+              <ElTag :type="row.is_active ? 'success' : 'danger'">
+                {{ row.is_active ? '正常' : '禁用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="created_at" label="创建时间" width="120">
+            <template #default="{ row }">
+              {{ formatDate(row.created_at) }}
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="280" fixed="right">
+            <template #default="{ row }">
+              <div class="table-actions">
+                <el-dropdown trigger="click" class="dropdown-responsive">
+                  <el-button type="primary" size="small">
+                    操作 <el-icon><ArrowDown /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item @click="handleView(row)">
+                        <el-icon><View /></el-icon> 详情
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="handleEdit(row)">
+                        <el-icon><Edit /></el-icon> 编辑
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="handleResetPassword(row)">
+                        <el-icon><RefreshLeft /></el-icon> 重置密码
+                      </el-dropdown-item>
+                      <el-dropdown-item divided @click="handleDelete(row)" class="text-danger">
+                        <el-icon><Delete /></el-icon> 删除
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
 
-      <div class="pagination">
+      <div class="pagination-container">
         <ElPagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
@@ -96,11 +156,79 @@
       </div>
     </ElCard>
 
+    <!-- 移动端卡片列表 -->
+    <div class="mobile-table-cards">
+      <div v-for="user in users" :key="user.id" class="mobile-card-item" v-loading="loading">
+        <div class="mobile-card-header">
+          <div class="mobile-card-title">
+            <el-avatar :src="user.avatar" :size="32" class="mobile-avatar">
+              {{ user.nickname?.[0] || user.username?.[0] }}
+            </el-avatar>
+            <span>{{ user.username }}</span>
+          </div>
+          <div class="mobile-card-status">
+            <ElTag :type="user.is_active ? 'success' : 'danger'">
+              {{ user.is_active ? '正常' : '禁用' }}
+            </ElTag>
+            <ElTag :type="getRoleType(user.role || (user.is_admin ? 'ADMIN' : 'USER'))">
+              {{ getRoleText(user.role || (user.is_admin ? 'ADMIN' : 'USER')) }}
+            </ElTag>
+          </div>
+        </div>
+        
+        <div class="mobile-card-content">
+          <div class="mobile-card-field" v-if="user.email">
+            <span class="mobile-card-label">邮箱：</span>
+            <span class="mobile-card-value mobile-wrap">{{ user.email }}</span>
+          </div>
+          <div class="mobile-card-field" v-if="user.phone">
+            <span class="mobile-card-label">手机：</span>
+            <span class="mobile-card-value">{{ user.phone }}</span>
+          </div>
+          <div class="mobile-card-field" v-if="user.nickname">
+            <span class="mobile-card-label">昵称：</span>
+            <span class="mobile-card-value">{{ user.nickname }}</span>
+          </div>
+          <div class="mobile-card-field" v-if="user.gender || user.birthdate">
+            <span class="mobile-card-label">个人信息：</span>
+            <span class="mobile-card-value">
+              <span v-if="user.gender">{{ getGenderText(user.gender) }}</span>
+              <span v-if="user.birthdate"> {{ formatAge(user.birthdate) }}岁</span>
+            </span>
+          </div>
+          <div class="mobile-card-field" v-if="user.unique_id">
+            <span class="mobile-card-label">用户ID：</span>
+            <span class="mobile-card-value">{{ user.unique_id }}</span>
+          </div>
+          <div class="mobile-card-field">
+            <span class="mobile-card-label">创建时间：</span>
+            <span class="mobile-card-value">{{ formatDate(user.created_at) }}</span>
+          </div>
+        </div>
+        
+        <div class="mobile-card-actions">
+          <el-button type="info" size="small" @click="handleView(user)" class="touch-friendly">
+            <el-icon><View /></el-icon> 详情
+          </el-button>
+          <el-button type="primary" size="small" @click="handleEdit(user)" class="touch-friendly">
+            <el-icon><Edit /></el-icon> 编辑
+          </el-button>
+          <el-button type="warning" size="small" @click="handleResetPassword(user)" class="touch-friendly">
+            <el-icon><RefreshLeft /></el-icon> 重置
+          </el-button>
+          <el-button type="danger" size="small" @click="handleDelete(user)" class="touch-friendly">
+            <el-icon><Delete /></el-icon> 删除
+          </el-button>
+        </div>
+      </div>
+    </div>
+
     <!-- 添加/编辑用户对话框 -->
     <ElDialog
       v-model="dialogVisible"
       :title="dialogType === 'add' ? '添加用户' : '编辑用户'"
-      width="500px"
+      :width="dialogWidth"
+      class="dialog-responsive"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-tabs v-model="activeTab">
@@ -198,7 +326,8 @@
     <ElDialog
       v-model="passwordDialogVisible"
       title="重置密码"
-      width="400px"
+      :width="passwordDialogWidth"
+      class="dialog-responsive"
     >
       <ElForm ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="100px">
         <ElFormItem label="新密码" prop="password">
@@ -233,7 +362,8 @@
     <ElDialog
       v-model="viewDialogVisible"
       title="用户详情"
-      width="600px"
+      :width="viewDialogWidth"
+      class="dialog-responsive"
     >
       <div class="user-detail">
         <div class="detail-section">
@@ -336,9 +466,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 import { request } from '@/utils/request'
+import { 
+  Search, 
+  Plus, 
+  ArrowDown, 
+  View, 
+  Edit, 
+  Delete, 
+  RefreshLeft 
+} from '@element-plus/icons-vue'
 
 // 用户数据接口
 interface User {
@@ -379,6 +518,32 @@ const passwordFormRef = ref<FormInstance>()
 const showHealthInfo = ref(true)
 const activeTab = ref('basic')
 
+// 搜索和筛选
+const searchKeyword = ref('')
+const roleFilter = ref('')
+const statusFilter = ref('')
+
+// 响应式相关
+const isMobile = ref(false)
+
+// 计算对话框宽度
+const dialogWidth = computed(() => {
+  return isMobile.value ? '95vw' : '600px'
+})
+
+const passwordDialogWidth = computed(() => {
+  return isMobile.value ? '90vw' : '400px'
+})
+
+const viewDialogWidth = computed(() => {
+  return isMobile.value ? '95vw' : '600px'
+})
+
+// 检测移动端
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
 // 性别文本转换
 const getGenderText = (gender: string) => {
   return gender === 'male' ? '男' : gender === 'female' ? '女' : '未设置'
@@ -396,6 +561,20 @@ const formatAge = (birthdate: string) => {
     return age - 1
   }
   return age
+}
+
+// 搜索处理
+const handleSearch = async () => {
+  currentPage.value = 1
+  await fetchUsers()
+}
+
+// 重置搜索
+const handleReset = () => {
+  searchKeyword.value = ''
+  roleFilter.value = ''
+  statusFilter.value = ''
+  handleSearch()
 }
 
 // 查看用户详情
@@ -522,10 +701,23 @@ const formatDate = (dateString?: string) => {
 const fetchUsers = async () => {
   loading.value = true
   try {
-    const response = await request.get('/users/', {
+    const params: any = {
       skip: (currentPage.value - 1) * pageSize.value,
       limit: pageSize.value
-    })
+    }
+    
+    // 添加搜索和筛选参数
+    if (searchKeyword.value.trim()) {
+      params.search = searchKeyword.value.trim()
+    }
+    if (roleFilter.value) {
+      params.role = roleFilter.value
+    }
+    if (statusFilter.value !== '') {
+      params.is_active = statusFilter.value
+    }
+    
+    const response = await request.get('/users/', params)
     
     // 检查响应格式
     console.log('用户列表响应:', response)
@@ -706,25 +898,84 @@ const handleCurrentChange = (val: number) => {
 
 onMounted(() => {
   fetchUsers()
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
 })
 </script>
 
 <style scoped>
 .users-container {
-  padding: 20px;
+  padding: 16px;
+  min-height: 100vh;
 }
 
-.card-header {
+/* 搜索和筛选栏 */
+.search-filter-bar {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.search-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.search-filter-item.search-input {
+  min-width: 250px;
+  flex: 2;
+}
+
+.search-filter-actions {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
-.pagination {
-  margin-top: 20px;
-  text-align: center;
+/* 表格容器 */
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
 }
 
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-actions .el-button {
+  margin: 0;
+  min-width: 80px;
+}
+
+/* 分页容器 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* 用户信息样式 */
 .user-info {
   display: flex;
   align-items: center;
@@ -738,20 +989,20 @@ onMounted(() => {
 
 .username {
   font-weight: 500;
-  font-size: 13px;
-  color: #333;
+  font-size: 14px;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .nickname {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 2px;
 }
 
 .unique-id {
   font-size: 11px;
-  color: #999;
+  color: var(--text-light);
 }
 
 .contact-info {
@@ -764,25 +1015,42 @@ onMounted(() => {
   line-height: 1.5;
 }
 
+.personal-info {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* 文本颜色工具类 */
 .text-gray-400 {
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
 .text-orange-600 {
-  color: #ea580c;
+  color: var(--warning-color);
 }
 
 .text-red-600 {
-  color: #dc2626;
+  color: var(--error-color);
 }
 
 .text-green-600 {
-  color: #16a34a;
+  color: var(--success-color);
 }
 
+.text-danger {
+  color: var(--error-color) !important;
+}
+
+/* 移动端头像 */
+.mobile-avatar {
+  margin-right: 8px;
+}
+
+/* 详情对话框样式 */
 .user-detail {
   max-height: 500px;
   overflow-y: auto;
+  padding: 16px;
 }
 
 .detail-section {
@@ -793,8 +1061,8 @@ onMounted(() => {
   margin: 0 0 16px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
 }
 
@@ -807,31 +1075,129 @@ onMounted(() => {
 .detail-item {
   display: flex;
   align-items: center;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .detail-item.full-width {
   grid-column: 1 / -1;
   align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .detail-item label {
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary);
   margin-right: 8px;
   min-width: 100px;
+  flex-shrink: 0;
 }
 
 .detail-item span {
-  color: #6b7280;
+  color: var(--text-primary);
   word-break: break-all;
 }
 
 .dialog-footer {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px 0;
 }
 
-.dialog-footer .el-button {
-  margin-left: 10px;
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .users-container {
+    padding: 12px;
+  }
+  
+  .search-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .search-filter-item {
+    width: 100%;
+    min-width: auto;
+    flex: none;
+  }
+  
+  .search-filter-item.search-input {
+    order: -1;
+  }
+  
+  .search-filter-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .search-filter-actions .el-button {
+    flex: 1;
+    min-height: var(--mobile-button-height);
+    font-size: 16px;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .detail-item label {
+    min-width: auto;
+    margin-right: 0;
+    font-size: 15px;
+  }
+  
+  .detail-item span {
+    font-size: 15px;
+  }
+  
+  .user-detail {
+    max-height: 70vh;
+    padding: 12px;
+  }
+  
+  .dialog-footer {
+    flex-direction: column;
+    padding: 12px 16px 0;
+  }
+  
+  .dialog-footer .el-button {
+    width: 100%;
+    min-height: var(--mobile-button-height);
+    font-size: 16px;
+  }
 }
+
+@media (max-width: 480px) {
+  .users-container {
+    padding: 8px;
+  }
+  
+  .search-filter-bar {
+    padding: 10px;
+  }
+  
+  .detail-section {
+    margin-bottom: 16px;
+  }
+  
+  .detail-section h3 {
+    font-size: 15px;
+  }
+  
+  .dialog-footer {
+    gap: 6px;
+  }
+}
+
 </style> 

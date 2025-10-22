@@ -54,7 +54,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 </script>
 
 <template>
-  <div class="login-container">
+  <div class="login-container admin-responsive">
     <!-- 背景光球 -->
     <div class="background-orb orb1"></div>
     <div class="background-orb orb2"></div>
@@ -67,32 +67,45 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
         :model="form"
         :rules="rules"
         label-width="auto"
+        class="login-form"
       >
         <ElFormItem prop="username">
           <ElInput
             v-model="form.username"
-            placeholder="用户名"
-            :prefix-icon="User"
-          />
+            placeholder="请输入用户名"
+            size="large"
+            class="form-input"
+          >
+            <template #prefix>
+              <el-icon class="input-icon"><User /></el-icon>
+            </template>
+          </ElInput>
         </ElFormItem>
         <ElFormItem prop="password">
           <ElInput
             v-model="form.password"
             type="password"
-            placeholder="密码"
-            :prefix-icon="Lock"
+            placeholder="请输入密码"
+            size="large"
             show-password
-          />
+            class="form-input"
+          >
+            <template #prefix>
+              <el-icon class="input-icon"><Lock /></el-icon>
+            </template>
+          </ElInput>
         </ElFormItem>
         
-        <ElFormItem>
+        <ElFormItem class="login-button-item">
           <ElButton
             type="primary"
             :loading="loading"
-            class="login-button"
+            class="login-button touch-friendly"
             @click="handleLogin(formRef)"
+            size="large"
           >
-            <Key style="width: 1em; height: 1em; margin-right: 8px" /> 登录
+            <el-icon><Key /></el-icon>
+            <span>登录</span>
           </ElButton>
         </ElFormItem>
       </ElForm>
@@ -161,8 +174,8 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 }
 
 .login-card {
-  width: 400px;
-  padding: 10px;
+  width: min(400px, 90vw);
+  padding: 20px;
   border-radius: 20px;
   /* 液态玻璃效果 */
   background: rgba(255, 255, 255, 0.25);
@@ -241,16 +254,80 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   border-radius: 22px;
 }
 
+/* 响应式设计 */
 @media (max-width: 768px) {
+  .login-container {
+    padding: 16px;
+  }
+  
   .login-card {
-    width: 95%;
-    max-width: 400px;
-    padding: 30px 25px;
+    width: 100%;
+    padding: 24px 20px;
+    margin: 0;
   }
   
   .login-card h2 {
     font-size: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
+  
+  .logo-img {
+    height: 40px;
+    margin-bottom: 20px;
+  }
+  
+  .form-input .el-input__inner {
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+  
+  .login-button {
+    min-height: var(--mobile-button-height);
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 12px;
+  }
+  
+  .login-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  
+  .login-form {
+    padding: 0;
+  }
+  
+  .logo-img {
+    height: 35px;
+    margin-bottom: 16px;
+  }
+  
+  .login-card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .form-input {
+    margin-bottom: 16px;
+  }
+}
+
+/* 焦点状态优化 */
+.form-input .el-input__wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* 错误状态优化 */
+.form-input.is-error .el-input__wrapper {
+  border-color: var(--error-color);
+}
+
+.form-input.is-error .el-input__wrapper:focus-within {
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.2);
 }
 </style>

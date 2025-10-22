@@ -1,0 +1,620 @@
+/* 管理员页面响应式优化样式 */
+
+/* ==================== 基础响应式变量 ==================== */
+:root {
+  --mobile-breakpoint: 768px;
+  --tablet-breakpoint: 1024px;
+  --small-mobile-breakpoint: 480px;
+  
+  /* 移动端尺寸 */
+  --mobile-padding: 12px;
+  --mobile-card-margin: 8px;
+  --mobile-button-height: 44px;
+  --mobile-input-height: 44px;
+  --mobile-touch-target: 44px;
+  
+  /* 表格响应式断点 */
+  --table-breakpoint: 1200px;
+  --card-breakpoint: 768px;
+}
+
+/* ==================== 移动端字体防止缩放 ==================== */
+.admin-responsive input,
+.admin-responsive select,
+.admin-responsive textarea {
+  font-size: 16px !important;
+  /* iOS Safari 防止页面缩放 */
+}
+
+/* ==================== 表格响应式处理 ==================== */
+
+/* 桌面端表格容器 */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+/* 表格基础样式 */
+.admin-responsive .el-table {
+  font-size: 14px;
+  min-width: 800px; /* 确保表格有最小宽度 */
+}
+
+.admin-responsive .el-table th.el-table__cell {
+  background: linear-gradient(135deg, #e6f4ff 0%, #bae7ff 100%);
+  color: #1890ff;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 12px 8px;
+}
+
+.admin-responsive .el-table td.el-table__cell {
+  padding: 12px 8px;
+  word-break: break-word;
+}
+
+/* 操作按钮响应式 */
+.admin-responsive .el-table .el-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.admin-responsive .el-table .el-button {
+  margin: 0;
+  min-width: auto;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+/* 移动端卡片式表格 */
+@media (max-width: 768px) {
+  .mobile-table-cards {
+    display: none;
+  }
+  
+  .desktop-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 在移动端隐藏桌面表格，显示卡片 */
+  .table-responsive {
+    position: relative;
+  }
+  
+  .table-responsive .desktop-table {
+    display: none;
+  }
+  
+  .table-responsive .mobile-table-cards {
+    display: block;
+  }
+  
+  /* 卡片式表格项 */
+  .mobile-card-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  
+  .mobile-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .mobile-card-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+  }
+  
+  .mobile-card-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .mobile-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .mobile-card-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--bg-hover);
+  }
+  
+  .mobile-card-field:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-card-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+  
+  .mobile-card-value {
+    color: var(--text-primary);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+  }
+  
+  /* 移动端操作按钮 */
+  .mobile-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+  
+  .mobile-card-actions .el-button {
+    flex: 1;
+    min-width: 80px;
+    min-height: var(--mobile-button-height);
+    font-size: 14px;
+  }
+}
+
+/* ==================== 搜索和筛选栏响应式 ==================== */
+.search-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.search-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.search-filter-item.search-input {
+  min-width: 250px;
+  flex: 2;
+}
+
+.search-filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .search-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .search-filter-item {
+    width: 100%;
+    min-width: auto;
+    flex: none;
+  }
+  
+  .search-filter-item.search-input {
+    order: -1; /* 搜索框在最前面 */
+  }
+  
+  .search-filter-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .search-filter-actions .el-button {
+    flex: 1;
+    min-height: var(--mobile-button-height);
+  }
+}
+
+/* ==================== 分页组件响应式 ==================== */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .pagination-container .el-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .pagination-container .el-pagination .el-pagination__sizes {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  
+  .pagination-container .el-pagination .el-pager {
+    order: 1;
+  }
+  
+  .pagination-container .el-pagination button {
+    min-width: var(--mobile-touch-target) !important;
+    min-height: var(--mobile-touch-target) !important;
+  }
+  
+  .pagination-container .el-pagination .el-pager li {
+    min-width: var(--mobile-touch-target) !important;
+    min-height: var(--mobile-touch-target) !important;
+  }
+}
+
+/* ==================== 表单响应式 ==================== */
+.form-responsive {
+  padding: 16px;
+}
+
+.form-responsive .el-form-item {
+  margin-bottom: 20px;
+}
+
+.form-responsive .el-form-item__label {
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.form-responsive .el-input,
+.form-responsive .el-select,
+.form-responsive .el-date-picker {
+  width: 100%;
+}
+
+.form-responsive .el-input__wrapper,
+.form-responsive .el-select .el-input__wrapper {
+  min-height: var(--mobile-input-height);
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .form-responsive {
+    padding: 12px;
+  }
+  
+  .form-responsive .el-form-item {
+    margin-bottom: 16px;
+  }
+  
+  /* 移动端标签和输入框垂直布局 */
+  .form-responsive .el-form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-responsive .el-form-item__label {
+    width: 100% !important;
+    text-align: left;
+    margin-bottom: 4px;
+    font-size: 16px !important; /* 防止iOS缩放 */
+  }
+  
+  .form-responsive .el-form-item__content {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  /* 单选框和复选框组 */
+  .form-responsive .el-radio-group,
+  .form-responsive .el-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-responsive .el-radio,
+  .form-responsive .el-checkbox {
+    margin-right: 0;
+    margin-bottom: 8px;
+    min-height: var(--mobile-touch-target);
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ==================== 对话框响应式 ==================== */
+.dialog-responsive .el-dialog {
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  width: 90vw !important;
+  height: 90vh;
+  border-radius: 12px;
+}
+
+.dialog-responsive .el-dialog__body {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.dialog-responsive .el-dialog__footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-accent);
+}
+
+@media (max-width: 768px) {
+  .dialog-responsive .el-dialog {
+    width: 95vw !important;
+    height: 85vh;
+  }
+  
+  .dialog-responsive .el-dialog__header {
+    padding: 16px;
+  }
+  
+  .dialog-responsive .el-dialog__body {
+    padding: 12px;
+    max-height: calc(85vh - 100px);
+  }
+  
+  .dialog-responsive .el-dialog__footer .el-button {
+    flex: 1;
+    min-height: var(--mobile-button-height);
+  }
+  
+  .dialog-responsive .el-dialog__footer {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+/* ==================== 仪表盘卡片响应式 ==================== */
+.dashboard-stats {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card-responsive {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.stat-card-responsive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.stat-card-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-card-icon {
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+.stat-card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .stat-card-responsive {
+    padding: 16px;
+  }
+  
+  .stat-card-value {
+    font-size: 24px;
+  }
+  
+  .stat-card-icon {
+    font-size: 20px;
+  }
+}
+
+/* ==================== 侧边栏移动端优化 ==================== */
+@media (max-width: 768px) {
+  /* 移动端侧边栏遮罩 */
+  .admin-layout .sidebar-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+  
+  /* 移动端菜单项优化 */
+  .admin-layout .el-menu-item {
+    min-height: 56px !important;
+    line-height: 56px !important;
+    padding: 0 16px !important;
+    margin: 4px 8px;
+    border-radius: 8px;
+  }
+  
+  .admin-layout .el-menu-item .el-icon {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 18px !important;
+    margin-right: 12px !important;
+  }
+  
+  .admin-layout .el-menu-item span {
+    font-size: 15px !important;
+  }
+}
+
+/* ==================== 浮动操作按钮 ==================== */
+.floating-action-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .floating-action-button {
+    display: flex;
+  }
+  
+  .floating-action-button .el-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: var(--shadow-heavy);
+    font-size: 20px;
+  }
+}
+
+/* ==================== 下拉菜单响应式 ==================== */
+.dropdown-responsive .el-dropdown-menu__item {
+  font-size: 14px;
+  padding: 12px 16px;
+  min-height: 44px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .dropdown-responsive .el-dropdown-menu {
+    max-width: 200px;
+  }
+  
+  .dropdown-responsive .el-dropdown-menu__item {
+    font-size: 15px;
+    padding: 14px 16px;
+  }
+}
+
+/* ==================== 工具类 ==================== */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .small-mobile-only {
+    display: block;
+  }
+}
+
+/* 触摸友好的按钮 */
+.touch-friendly {
+  min-height: var(--mobile-touch-target);
+  min-width: var(--mobile-touch-target);
+  padding: 8px 16px;
+}
+
+/* 滚动优化 */
+.scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: var(--bg-hover);
+  border-radius: 3px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+/* 防止文本截断 */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 移动端文本换行 */
+.mobile-wrap {
+  word-break: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+}

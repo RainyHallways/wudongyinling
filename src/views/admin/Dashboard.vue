@@ -1,81 +1,58 @@
 <template>
-  <div class="dashboard-container">
-    <el-card shadow="hover" class="header-card">
-      <template #header>
-        <div class="card-header">
-          <h2>仪表盘</h2>
-          <el-button type="primary" @click="refreshStats">刷新数据</el-button>
+  <div class="dashboard-container admin-responsive">
+    <!-- 统计卡片 -->
+    <div class="dashboard-stats">
+      <div class="stat-card-responsive">
+        <div class="stat-card-header">
+          <span class="stat-card-title">总课程数</span>
+          <el-icon class="stat-card-icon"><VideoCamera /></el-icon>
         </div>
-      </template>
+        <div class="stat-card-value">{{ stats.totalCourses || 0 }}</div>
+      </div>
       
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <template #header>
-              <div class="card-header">
-                <span>总课程数</span>
-                <el-icon><VideoCamera /></el-icon>
-              </div>
-            </template>
-            <div class="card-content">
-              <h3>{{ stats.totalCourses || 0 }}</h3>
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <template #header>
-              <div class="card-header">
-                <span>总用户数</span>
-                <el-icon><User /></el-icon>
-              </div>
-            </template>
-            <div class="card-content">
-              <h3>{{ stats.totalUsers || 0 }}</h3>
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <template #header>
-              <div class="card-header">
-                <span>活跃用户</span>
-                <el-icon><UserFilled /></el-icon>
-              </div>
-            </template>
-            <div class="card-content">
-              <h3>{{ stats.activeUsers || 0 }}</h3>
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <template #header>
-              <div class="card-header">
-                <span>总挑战数</span>
-                <el-icon><Trophy /></el-icon>
-              </div>
-            </template>
-            <div class="card-content">
-              <h3>{{ stats.totalChallenges || 0 }}</h3>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-card>
+      <div class="stat-card-responsive">
+        <div class="stat-card-header">
+          <span class="stat-card-title">总用户数</span>
+          <el-icon class="stat-card-icon"><User /></el-icon>
+        </div>
+        <div class="stat-card-value">{{ stats.totalUsers || 0 }}</div>
+      </div>
+      
+      <div class="stat-card-responsive">
+        <div class="stat-card-header">
+          <span class="stat-card-title">活跃用户</span>
+          <el-icon class="stat-card-icon"><UserFilled /></el-icon>
+        </div>
+        <div class="stat-card-value">{{ stats.activeUsers || 0 }}</div>
+      </div>
+      
+      <div class="stat-card-responsive">
+        <div class="stat-card-header">
+          <span class="stat-card-title">总挑战数</span>
+          <el-icon class="stat-card-icon"><Trophy /></el-icon>
+        </div>
+        <div class="stat-card-value">{{ stats.totalChallenges || 0 }}</div>
+      </div>
+    </div>
+    
+    <!-- 页面标题和刷新按钮 -->
+    <div class="page-header">
+      <h1 class="page-title">仪表盘</h1>
+      <el-button type="primary" @click="refreshStats" class="touch-friendly">
+        <el-icon><Refresh /></el-icon>
+        <span class="mobile-hide">刷新数据</span>
+      </el-button>
+    </div>
     
     <!-- 系统状态卡片 -->
-    <el-card shadow="hover" class="system-card mt-20">
+    <el-card shadow="hover" class="system-card">
       <template #header>
         <div class="card-header">
           <h3>系统状态</h3>
         </div>
       </template>
       
-      <el-descriptions :column="2" border>
+      <el-descriptions :column="desktopColumns" border>
         <el-descriptions-item label="系统版本">1.0.0</el-descriptions-item>
         <el-descriptions-item label="Node版本">16.x</el-descriptions-item>
         <el-descriptions-item label="服务器状态">
@@ -96,24 +73,44 @@
       </template>
       
       <div class="quick-actions-content">
-        <el-button type="primary" @click="$router.push('/admin/users')">
+        <el-button type="primary" @click="$router.push('/admin/users')" class="quick-action-btn">
           <el-icon><User /></el-icon>
           <span>用户管理</span>
         </el-button>
         
-        <el-button type="success" @click="$router.push('/admin/courses')">
+        <el-button type="success" @click="$router.push('/admin/courses')" class="quick-action-btn">
           <el-icon><VideoCamera /></el-icon>
           <span>课程管理</span>
         </el-button>
         
-        <el-button type="warning" @click="$router.push('/admin/challenges')">
+        <el-button type="warning" @click="$router.push('/admin/challenges')" class="quick-action-btn">
           <el-icon><Trophy /></el-icon>
           <span>挑战活动</span>
         </el-button>
         
-        <el-button type="info" @click="$router.push('/admin/health-records')">
+        <el-button type="info" @click="$router.push('/admin/health-records')" class="quick-action-btn">
           <el-icon><Suitcase /></el-icon>
           <span>健康记录</span>
+        </el-button>
+        
+        <el-button type="primary" plain @click="$router.push('/admin/prescriptions')" class="quick-action-btn">
+          <el-icon><Document /></el-icon>
+          <span>处方管理</span>
+        </el-button>
+        
+        <el-button type="success" plain @click="$router.push('/admin/posts')" class="quick-action-btn">
+          <el-icon><ChatDotRound /></el-icon>
+          <span>动态广场</span>
+        </el-button>
+        
+        <el-button type="warning" plain @click="$router.push('/admin/heritage')" class="quick-action-btn">
+          <el-icon><Compass /></el-icon>
+          <span>非遗传承</span>
+        </el-button>
+        
+        <el-button type="info" plain @click="$router.push('/admin/statistics')" class="quick-action-btn">
+          <el-icon><DataLine /></el-icon>
+          <span>数据统计</span>
         </el-button>
       </div>
     </el-card>
@@ -121,7 +118,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { statsApi, type DashboardStats } from '@/api/stats'
 import { 
@@ -129,7 +126,12 @@ import {
   UserFilled, 
   VideoCamera, 
   Trophy, 
-  Suitcase 
+  Suitcase,
+  Document,
+  ChatDotRound,
+  Compass,
+  DataLine,
+  Refresh
 } from '@element-plus/icons-vue'
 
 // 统计数据
@@ -143,6 +145,19 @@ const stats = ref<DashboardStats>({
 })
 
 const loading = ref(false)
+
+// 响应式相关
+const isMobile = ref(false)
+
+// 计算桌面端列数
+const desktopColumns = computed(() => {
+  return isMobile.value ? 1 : 2
+})
+
+// 检测移动端
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
 
 // 获取统计数据
 const fetchStats = async () => {
@@ -166,16 +181,46 @@ const refreshStats = () => {
 
 onMounted(() => {
   fetchStats()
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
 })
 </script>
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
+  padding: 16px;
+  min-height: 100vh;
 }
 
-.mt-20 {
-  margin-top: 20px;
+/* 页面标题 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 系统状态卡片 */
+.system-card {
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
 }
 
 .card-header {
@@ -184,82 +229,164 @@ onMounted(() => {
   align-items: center;
 }
 
-.card-header h2, .card-header h3 {
+.card-header h3 {
   margin: 0;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* 快捷操作区域 */
+.quick-actions-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.quick-action-btn {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+  gap: 8px;
   font-weight: 500;
 }
 
-.stat-card {
-  height: 100%;
-  transition: all 0.3s;
-  border: 1px solid #e6f4ff;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.15);
-  border-color: #91d5ff;
-}
-
-.stat-card .el-card__header {
-  background: linear-gradient(135deg, #e6f4ff 0%, #bae7ff 100%);
-  border-bottom: 1px solid #91d5ff;
-}
-
-.header-card {
-  border: 1px solid #e6f4ff;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-}
-
-.card-content {
-  text-align: center;
-  padding: 20px 0;
-}
-
-.card-content h3 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1890ff;
-  text-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
-}
-
-.quick-actions-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.quick-actions-content .el-button {
-  display: flex;
-  flex-direction: column;
-  height: 90px;
-  width: 110px;
-  justify-content: center;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.quick-actions-content .el-button:hover {
+.quick-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.2);
+  box-shadow: var(--shadow-heavy);
 }
 
-.quick-actions-content .el-button .el-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
+.quick-action-btn .el-icon {
+  font-size: 28px;
+  margin: 0;
+}
+
+.quick-action-btn span {
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .quick-actions-content {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 10px;
+    padding: 12px;
   }
   
-  .quick-actions-content .el-button {
-    height: 80px;
-    width: calc(50% - 8px);
+  .page-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    text-align: center;
   }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .quick-actions-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .quick-action-btn {
+    height: 90px;
+    padding: 12px;
+  }
+  
+  .quick-action-btn .el-icon {
+    font-size: 24px;
+  }
+  
+  .quick-action-btn span {
+    font-size: 13px;
+  }
+  
+  .mobile-hide {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+  
+  .page-header {
+    padding: 12px 16px;
+  }
+  
+  .quick-actions-content {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .quick-action-btn {
+    height: 70px;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 12px 16px;
+  }
+  
+  .quick-action-btn .el-icon {
+    font-size: 20px;
+    margin-right: 12px;
+    margin-bottom: 0;
+  }
+  
+  .quick-action-btn span {
+    font-size: 14px;
+    text-align: left;
+  }
+}
+
+/* 加载状态 */
+.dashboard-container.v-loading {
+  position: relative;
+}
+
+/* 描述列表优化 */
+.system-card .el-descriptions {
+  margin: 0;
+}
+
+.system-card .el-descriptions-item__label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.system-card .el-descriptions-item__content {
+  color: var(--text-primary);
+}
+
+/* 标签优化 */
+.system-card .el-tag {
+  border-radius: 16px;
+  font-weight: 500;
+}
+
+/* 按钮响应式 */
+.touch-friendly {
+  min-height: var(--mobile-button-height);
+  padding: 12px 20px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.touch-friendly .el-icon {
+  font-size: 18px;
 }
 </style> 

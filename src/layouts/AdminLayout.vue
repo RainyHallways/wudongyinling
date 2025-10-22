@@ -76,6 +76,13 @@
         </el-menu>
       </el-aside>
       
+      <!-- 移动端遮罩层 -->
+      <div 
+        v-if="showSidebarMask" 
+        class="sidebar-mask" 
+        @click="handleMaskClick"
+      ></div>
+      
       <!-- 主体区域 -->
       <el-container class="main-container">
         <!-- 顶部导航 -->
@@ -89,7 +96,7 @@
             />
             
             <!-- 面包屑导航 -->
-            <el-breadcrumb separator="/">
+            <el-breadcrumb separator="/" class="breadcrumb-container">
               <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
               <el-breadcrumb-item v-if="$route.meta.title">{{ $route.meta.title }}</el-breadcrumb-item>
             </el-breadcrumb>
@@ -97,17 +104,23 @@
           
           <div class="header-right">
             <!-- 用户信息 -->
-            <el-dropdown trigger="click">
+            <el-dropdown trigger="click" class="user-dropdown">
               <div class="user-info">
                 <el-avatar :size="32" :src="userStore.userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" />
-                <span class="username">{{ userStore.nickname }}</span>
+                <span class="username desktop-only">{{ userStore.nickname }}</span>
                 <el-icon><ArrowDown /></el-icon>
               </div>
               
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="toUserProfile">个人信息</el-dropdown-item>
-                  <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+                  <el-dropdown-item @click="toUserProfile">
+                    <el-icon><User /></el-icon>
+                    个人信息
+                  </el-dropdown-item>
+                  <el-dropdown-item divided @click="handleLogout">
+                    <el-icon><SwitchButton /></el-icon>
+                    退出登录
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -141,7 +154,8 @@ import {
   ArrowDown,
   ChatDotRound,
   Compass,
-  Message
+  Message,
+  SwitchButton
 } from '@element-plus/icons-vue'
 
 // 路由和存储
@@ -192,6 +206,18 @@ const handleClickOutside = (event: Event) => {
     if (aside && !aside.contains(target) && toggleBtn && !toggleBtn.contains(target)) {
       isCollapse.value = true
     }
+  }
+}
+
+// 侧边栏遮罩层
+const showSidebarMask = computed(() => {
+  return isMobile.value && !isCollapse.value
+})
+
+// 点击遮罩关闭侧边栏
+const handleMaskClick = () => {
+  if (isMobile.value) {
+    isCollapse.value = true
   }
 }
 
@@ -374,6 +400,52 @@ const handleLogout = async () => {
   font-size: 13px;
 }
 
+/* 遮罩层 */
+.sidebar-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease;
+}
+
+/* 面包屑响应式 */
+.breadcrumb-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.breadcrumb-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.breadcrumb-container::-webkit-scrollbar-track {
+  background: var(--bg-hover);
+}
+
+.breadcrumb-container::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* 用户下拉菜单响应式 */
+.user-dropdown .el-dropdown-menu {
+  min-width: 180px;
+}
+
+.user-dropdown .el-dropdown-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  min-height: 44px;
+}
+
 /* 响应式设计 */
 @media screen and (max-width: 768px) {
   .aside {
@@ -384,7 +456,7 @@ const handleLogout = async () => {
     z-index: 1001;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    width: 240px !important;
+    width: 280px !important;
   }
   
   .aside:not(.is-collapse) {
@@ -401,21 +473,21 @@ const handleLogout = async () => {
     padding: 0 16px;
   }
   
+  .header-left {
+    gap: 12px;
+  }
+  
   .main {
     padding: 12px;
   }
   
-  /* 移动端遮罩 */
-  .aside:not(.is-collapse)::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 240px;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: -1;
-    pointer-events: auto;
+  .username {
+    font-size: 14px;
+  }
+  
+  .toggle-btn {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
