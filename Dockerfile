@@ -3,7 +3,7 @@ FROM node:18-alpine AS frontend-build
 WORKDIR /app
 
 # 1. 先只复制 package.json 和 lock 文件
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 # 2. 现在再安装依赖，这样能正确安装
 RUN npm install
