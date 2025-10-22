@@ -1,7 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError, CancelToken } from 'axios'
 import { ElMessage, ElLoading } from 'element-plus'
-import router from '../router'
-import { useUserStore } from '../stores/user'
 
 // 定义环境变量接口
 interface ViteEnv {
@@ -101,13 +99,14 @@ const retryRequest = async (
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: RequestConfig): RequestConfig => {
+  async (config: RequestConfig): Promise<RequestConfig> => {
     // 显示Loading
     if (config.loading !== false) {
       showLoading(config.headers?.['X-Loading-Text'] as string)
     }
     
     // 添加认证token
+    const { useUserStore } = await import('../stores/user')
     const userStore = useUserStore()
     const token = userStore.token
     
@@ -152,7 +151,7 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse>): any => {
+  async (response: AxiosResponse<ApiResponse>): Promise<any> => {
     // 隐藏Loading
     const config = response.config as RequestConfig
     if (config.loading !== false) {
@@ -177,13 +176,13 @@ service.interceptors.response.use(
       
       // 401: Token失效，需要重新登录
       if (res.code === 401) {
+        const { useUserStore } = await import('../stores/user')
         const userStore = useUserStore()
         userStore.resetState()
         
         // 判断当前路由是否需要登录权限
-        if (router.currentRoute.value.meta.requiresAuth) {
-          router.push('/login')
-        }
+        const { default: router } = await import('../router')
+        if (router.currentRoute.value.meta.requiresAuth) router.push('/login')
       }
       
       return Promise.reject(new Error(res.message || '未知错误'))
@@ -204,6 +203,7 @@ service.interceptors.response.use(
     }
     
     // 如果是演示账号，静默处理所有错误
+    const { useUserStore } = await import('../stores/user')
     const userStore = useUserStore()
     if (userStore.isDemo) {
       return Promise.reject(error)
@@ -227,15 +227,13 @@ service.interceptors.response.use(
       switch (response.status) {
         case 401:
           message = '未授权，请登录'
-          const userStore = useUserStore()
-          userStore.resetState()
+          const userStore401 = useUserStore()
+          userStore401.resetState()
           
           // 判断当前路由是否是管理员路由
-          if (router.currentRoute.value.path.startsWith('/admin')) {
-            router.push('/admin/login')
-          } else if (router.currentRoute.value.meta.requiresAuth) {
-            router.push('/login')
-          }
+          const { default: router } = await import('../router')
+          if (router.currentRoute.value.path.startsWith('/admin')) router.push('/admin/login')
+          else if (router.currentRoute.value.meta.requiresAuth) router.push('/login')
           break
         case 403:
           message = '拒绝访问，权限不足'
