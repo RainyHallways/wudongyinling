@@ -354,6 +354,26 @@ const handleLogout = async () => {
 }
 
 @media (max-width: 640px) {
+  .mobile-nav-container {
+    padding: 6px 0 max(6px, env(safe-area-inset-top));
+  }
+  
+  .nav-item {
+    padding: 6px 2px;
+    max-width: 65px;
+    min-height: 45px;
+  }
+  
+  .nav-icon {
+    font-size: 18px;
+    margin-bottom: 3px;
+  }
+  
+  .nav-label {
+    font-size: 10px;
+    line-height: 12px;
+  }
+  
   .menu-section {
     display: none; /* 小屏幕隐藏顶部菜单，使用底部导航 */
   }
@@ -511,11 +531,13 @@ const handleLogout = async () => {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(212, 175, 55, 0.92);
-  backdrop-filter: blur(10px);
-  border-top: 2px solid rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.95);
+  backdrop-filter: blur(15px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 999;
   display: block;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
 }
 
 @media (min-width: 640px) {
@@ -528,7 +550,8 @@ const handleLogout = async () => {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  min-height: 90px;
+  min-height: 65px;
+  padding: 8px 0 max(8px, env(safe-area-inset-top));
 }
 
 .nav-item {
@@ -536,15 +559,16 @@ const handleLogout = async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 6px;
+  padding: 8px 4px;
   border-radius: 12px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.3s ease;
   min-width: 0;
   flex: 1;
-  max-width: 80px;
-  min-height: 60px;
+  max-width: 70px;
+  min-height: 50px;
+  position: relative;
 }
 
 .nav-item.active {
@@ -560,14 +584,14 @@ const handleLogout = async () => {
 }
 
 .nav-icon {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   transition: all 0.3s ease;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .nav-label {
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 14px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;

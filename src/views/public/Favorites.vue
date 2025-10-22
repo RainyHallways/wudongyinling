@@ -349,14 +349,142 @@ onMounted(() => {
 @media (max-width: 768px) {
   .favorites {
     padding: 10px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+  
+  .page-header {
+    margin-bottom: 30px;
   }
   
   .page-header h1 {
     font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .page-header p {
+    font-size: 14px;
+  }
+  
+  .course-card {
+    margin-bottom: 15px;
+  }
+
+  .course-cover {
+    height: 160px;
+  }
+  
+  .course-info {
+    padding: 0 0;
+  }
+  
+  .course-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  
+  .course-meta {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .meta-item {
+    font-size: 11px;
+  }
+  
+  .course-description {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    -webkit-line-clamp: 3;
+  }
+  
+  .course-stats {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
   }
   
   .course-actions {
     flex-direction: column;
+    gap: 8px;
+  }
+  
+  .course-actions .el-button {
+    font-size: 14px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .favorite-badge {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .favorites {
+    padding: 8px 5px;
+    padding-bottom: 80px;
+  }
+  
+  .page-header h1 {
+    font-size: 20px;
+  }
+  
+  .page-header p {
+    font-size: 13px;
+  }
+  
+  .course-cover {
+    height: 140px;
+  }
+  
+  .course-title {
+    font-size: 14px;
+  }
+  
+  .course-meta {
+    gap: 8px;
+  }
+  
+  .meta-item {
+    font-size: 10px;
+  }
+  
+  .course-description {
+    font-size: 12px;
+    -webkit-line-clamp: 2;
+  }
+  
+  .stat-value {
+    font-size: 13px;
+  }
+  
+  .stat-label {
+    font-size: 9px;
+  }
+  
+  .course-actions .el-button {
+    font-size: 13px;
+    height: 36px;
+    min-height: 36px;
+  }
+
+  .favorite-badge {
+    width: 24px;
+    height: 24px;
+  }
+
+  .favorites-container {
+    min-height: 300px;
   }
 }
 </style> 

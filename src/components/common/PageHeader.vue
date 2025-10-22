@@ -147,11 +147,15 @@ const breadcrumbs = computed(() => {
 
 <style scoped>
 .page-header {
-  @apply py-12 mb-10 bg-gradient-to-r from-blue-50 to-indigo-50;
+  @apply py-8 mb-8 bg-gradient-to-r from-blue-50 to-indigo-50;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
 }
 
 .container {
-  @apply max-w-4xl mx-auto px-4;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  width: 100%;
 }
 
 .breadcrumb-container {
@@ -187,21 +191,26 @@ const breadcrumbs = computed(() => {
 }
 
 .page-title {
-  @apply text-3xl md:text-4xl font-bold text-blue-600 mb-4;
+  @apply text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600 mb-2 sm:mb-4;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .page-subtitle {
-  @apply text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0;
+  @apply text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0;
+  line-height: 1.5;
+  margin-top: 8px;
 }
 
 /* 为大屏幕优化显示 */
 @media (min-width: 1024px) {
   .page-header {
-    @apply py-16;
+    @apply py-12;
+    min-height: 160px;
   }
   
   .page-title {
-    @apply text-5xl;
+    @apply text-4xl lg:text-5xl;
   }
   
   .page-subtitle {
@@ -216,11 +225,17 @@ const breadcrumbs = computed(() => {
 /* 为小屏幕优化显示 */
 @media (max-width: 640px) {
   .page-header {
-    @apply py-8;
+    @apply py-6;
+    min-height: 100px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .container {
+    @apply px-3;
   }
   
   .breadcrumb-container {
-    @apply mb-4;
+    @apply mb-3;
   }
   
   :deep(.el-breadcrumb) {
@@ -228,19 +243,52 @@ const breadcrumbs = computed(() => {
   }
   
   .header-content {
-    @apply gap-4;
+    @apply gap-3;
+  }
+  
+  .page-title {
+    @apply text-xl mb-2;
+  }
+  
+  .page-subtitle {
+    @apply text-sm;
   }
 }
 
 /* 响应式面包屑 */
 @media (max-width: 768px) {
+  .breadcrumb-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .breadcrumb-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  :deep(.el-breadcrumb) {
+    @apply whitespace-nowrap inline-flex;
+  }
+  
+  :deep(.el-breadcrumb__item) {
+    @apply flex-shrink-0;
+  }
+}
+
+@media (max-width: 480px) {
   :deep(.el-breadcrumb__item:not(:first-child):not(:last-child)) {
     @apply hidden;
   }
   
   :deep(.el-breadcrumb__item:nth-last-child(2))::before {
     content: "...";
-    @apply mx-2 text-gray-400;
+    @apply mx-1 text-gray-400;
+  }
+  
+  .page-header {
+    padding-top: env(safe-area-inset-top, 24px);
   }
 }
 </style> 

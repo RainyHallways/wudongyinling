@@ -674,14 +674,40 @@ onMounted(() => {
 }
 
 @media (max-width: 576px) {
+  .dance-courses-page {
+    padding: 15px 10px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+
+  .page-container {
+    padding: 0 10px;
+  }
+
   .search-bar {
     max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .search-bar :deep(.el-input) {
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+
+  .search-bar :deep(.el-input__inner) {
+    height: 44px; /* 最小触摸目标 */
+    font-size: 16px;
+  }
+
+  .search-bar :deep(.el-button) {
+    height: 44px;
+    min-height: 44px;
+    padding: 0 20px;
   }
   
   .course-tabs {
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch; /* iOS 滑动优化 */
   }
   
   .tabs-container {
@@ -693,8 +719,106 @@ onMounted(() => {
   
   .tab-button {
     flex: 0 0 auto;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
+    min-height: 44px;
+    touch-action: manipulation; /* 优化触摸体验 */
+  }
+
+  .course-thumbnail {
+    height: 120px;
+  }
+
+  .course-card {
+    margin-bottom: 20px;
+  }
+
+  .course-card :deep(.el-card__body) {
+    padding: 15px;
+  }
+
+  .course-title {
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .course-meta {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .difficulty-tag {
+    margin-top: 8px;
+  }
+
+  .ai-assistant-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+  }
+
+  /* 优化视频播放器在移动端的显示 */
+  .video-player {
+    margin-bottom: 15px;
+  }
+
+  .video-player :deep(.el-image) {
+    border-radius: 8px;
+  }
+
+  .video-details {
+    padding: 0 15px;
+  }
+
+  .video-details h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .video-details p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .video-actions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .video-actions .el-button {
+    flex: 1;
+    min-width: 100px;
+    height: 44px;
+    font-size: 14px;
+  }
+
+  /* AI对话框优化 */
+  .ai-chat-dialog {
+    width: 95% !important;
+    max-width: 400px !important;
+  }
+
+  .ai-chat-dialog :deep(.el-dialog__body) {
+    padding: 15px;
+  }
+
+  .chat-messages {
+    max-height: 300px;
+  }
+
+  .message {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .message-video {
+    max-width: 100%;
+    height: auto;
   }
 }
 </style> 

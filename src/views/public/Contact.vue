@@ -269,20 +269,225 @@ const submitForm = (): void => {
 }
 
 @media (max-width: 992px) {
+  .contact-page {
+    padding: 20px 15px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+
   .contact-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .contact-item {
+    padding: 25px 15px;
+  }
+
+  .contact-icon .el-icon {
+    font-size: 36px;
+  }
+
+  .contact-item h3 {
+    font-size: 18px;
+  }
+
+  .contact-item p {
+    font-size: 14px;
+  }
+
+  .section h2 {
+    font-size: 20px;
+  }
+
+  .section p {
+    font-size: 15px;
+  }
+
+  .contact-form {
+    max-width: 100%;
+  }
+
+  .contact-form :deep(.el-form-item__label) {
+    font-size: 14px;
+  }
+
+  .contact-form :deep(.el-input__inner) {
+    font-size: 16px; /* 防止iOS缩放 */
+    height: 44px;
+  }
+
+  .contact-form :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  .contact-form :deep(.el-button) {
+    height: 44px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 15px 10px;
+    padding-bottom: 80px;
+  }
+
+  .intro {
+    font-size: 16px;
+    padding: 0 10px;
+    margin-bottom: 25px;
+  }
+
+  .contact-grid {
+    gap: 12px;
+  }
+
+  .contact-item {
+    padding: 20px 12px;
+  }
+
+  .contact-icon .el-icon {
+    font-size: 32px;
+  }
+
+  .contact-item h3 {
+    font-size: 16px;
+  }
+
+  .contact-item p {
+    font-size: 13px;
+  }
+
+  .section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .section p {
+    font-size: 14px;
+  }
+
+  .contact-form :deep(.el-form-item__label) {
+    font-size: 13px;
+  }
+
+  .contact-form :deep(.el-input__inner) {
+    height: 40px;
+  }
+
+  .contact-form :deep(.el-button) {
+    height: 40px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 576px) {
+  .contact-page {
+    padding: 10px 8px;
+    padding-bottom: 80px;
+  }
+
+  .intro {
+    font-size: 15px;
+    padding: 0 5px;
+    margin-bottom: 20px;
+  }
+
   .contact-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
   
+  .contact-item {
+    padding: 20px 10px;
+  }
+
+  .contact-icon .el-icon {
+    font-size: 28px;
+  }
+
+  .contact-item h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .contact-item p {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  .section {
+    margin-bottom: 25px;
+  }
+
+  .section h2 {
+    font-size: 17px;
+    margin-bottom: 12px;
+  }
+
+  .section h2:after {
+    width: 40px;
+    height: 2px;
+  }
+
+  .section p {
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  .contact-form :deep(.el-form-item) {
+    margin-bottom: 18px;
+  }
+
+  .contact-form :deep(.el-form-item__label) {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .contact-form :deep(.el-input__inner),
+  .contact-form :deep(.el-select__wrapper) {
+    height: 40px;
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+
+  .contact-form :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 6px 10px;
+    min-height: 80px;
+  }
+
+  .contact-form :deep(.el-button) {
+    height: 44px;
+    font-size: 15px;
+  }
+
   .social-links {
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .social-link {
+    padding: 15px;
+    border-radius: 12px;
+    min-width: 200px;
+    background-color: var(--el-fill-color-light);
+    transition: transform 0.3s ease;
+  }
+
+  .social-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .social-link .el-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .social-link span {
+    font-size: 14px;
   }
 }
 </style> 

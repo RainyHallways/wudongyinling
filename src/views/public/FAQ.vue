@@ -320,29 +320,118 @@ onMounted(async () => {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .faq-page {
-    padding: 15px;
-    margin-bottom: 40px;
+    padding: 15px 10px;
+    margin-bottom: 80px; /* 为底部导航添加安全区域 */
   }
   
   .intro {
     font-size: 16px;
-    padding: 0 10px;
-    margin-bottom: 20px;
+    padding: 0 15px;
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+  
+  .faq-content {
+    margin-bottom: 30px;
   }
   
   .faq-collapse :deep(.el-collapse-item__header) {
     font-size: 16px;
-    padding: 15px 12px;
+    padding: 18px 15px;
+    border-radius: 8px;
+    margin-bottom: 3px;
   }
   
   .faq-collapse :deep(.el-collapse-item__content) {
     padding: 20px 15px;
     font-size: 15px;
+    line-height: 1.7;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .faq-title {
+    font-size: 16px;
+    line-height: 1.4;
   }
   
   .faq-content ul,
   .faq-content ol {
     padding-left: 20px;
+  }
+
+  .faq-content li {
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .faq-content strong {
+    font-size: 15px;
+  }
+
+  .faq-content a {
+    font-size: 14px;
+  }
+
+  /* 优化折叠面板触摸体验 */
+  .faq-collapse :deep(.el-collapse-item__header) {
+    touch-action: manipulation;
+    min-height: 48px; /* 确保触摸目标足够大 */
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .faq-page {
+    padding: 12px 8px;
+    margin-bottom: 80px;
+  }
+  
+  .intro {
+    font-size: 15px;
+    padding: 0 10px;
+    margin-bottom: 20px;
+  }
+  
+  .faq-content {
+    margin-bottom: 25px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__header) {
+    font-size: 15px;
+    padding: 15px 12px;
+  }
+
+  .faq-collapse :deep(.el-collapse-item__content) {
+    padding: 18px 12px;
+    font-size: 14px;
+  }
+
+  .faq-title {
+    font-size: 15px;
+  }
+  
+  .faq-content ul,
+  .faq-content ol {
+    padding-left: 18px;
+  }
+
+  .faq-content li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .faq-content strong {
+    font-size: 14px;
+  }
+
+  .faq-content a {
+    font-size: 13px;
+  }
+
+  .faq-collapse :deep(.el-collapse-item__header::before) {
+    font-size: 16px;
+    margin-right: 8px;
   }
 }
 

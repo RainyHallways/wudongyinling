@@ -634,13 +634,193 @@ const handleRegister = async () => {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .register-container {
+    padding-top: 50px;
+    padding-bottom: 20px;
+  }
+
   .register-card {
-    width: 90%;
+    width: 600px;
+    padding: 25px 20px;
+    margin: 15px 0;
+  }
+
+  .register-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+  }
+
+  /* 表单输入框优化 */
+  :deep(.el-input__inner),
+  :deep(.el-select__wrapper) {
+    font-size: 16px; /* 防止iOS缩放 */
+    height: 48px;
+  }
+
+  :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  :deep(.el-button) {
+    height: 48px;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+
+  .agreements-section-integrated {
+    margin-left: 0;
+    margin-bottom: 25px;
+  }
+
+  .agreements-section-integrated .agreement-text {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-container {
+    padding-top: 30px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .register-card {
+    width: 95%;
+    max-width: 450px;
+    padding: 20px 15px;
+    margin: 10px 0;
+    border-radius: 16px;
   }
   
   .register-title {
     font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 18px;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-right: 0;
+  }
+
+  :deep(.el-input__inner),
+  :deep(.el-select__wrapper) {
+    font-size: 16px;
+    height: 44px;
+  }
+
+  :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 6px 10px;
+    min-height: 80px;
+  }
+
+  :deep(.el-button) {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .agreements-section-integrated {
+    margin-left: 0;
+    margin-bottom: 20px;
+    padding: 12px;
+  }
+  
+  .agreements-section-integrated .agreement-text {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .login-link {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+
+  .login-link .el-link {
+    font-size: 14px;
+  }
+
+  /* 协议弹窗优化 */
+  .agreement-dialog {
+    width: 95% !important;
+    max-width: 450px !important;
+  }
+
+  .agreement-dialog :deep(.el-dialog__body) {
+    padding: 15px;
+  }
+
+  .agreement-content {
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 60vh;
+  }
+
+  .agreement-content :deep(h3) {
+    font-size: 14px;
+  }
+
+  .agreement-content :deep(p) {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    width: 98%;
+    max-width: none;
+    padding: 15px 12px;
+  }
+  
+  .register-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 13px;
+  }
+
+  :deep(.el-input__inner),
+  :deep(.el-select__wrapper) {
+    font-size: 16px;
+    height: 40px;
+  }
+
+  :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 5px 8px;
+    min-height: 70px;
+  }
+
+  :deep(.el-button) {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .agreements-section-integrated {
+    padding: 10px;
+  }
+  
+  .agreements-section-integrated .agreement-text {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .login-link {
+    font-size: 13px;
+  }
+
+  .login-link .el-link {
+    font-size: 13px;
   }
 }
 

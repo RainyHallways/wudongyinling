@@ -1107,18 +1107,220 @@ const viewProjectDetail = (project: HeritageProject) => {
 }
 
 @media (max-width: 768px) {
-  .post-image {
-    max-height: 300px;
+  .social-platform {
+    padding: 15px 10px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
   }
-  
-  .heritage-card {
-    height: 200px;
-  }
-  
+
   .tab-button {
     flex: 1;
-    padding: 10px 15px;
+    padding: 12px 15px;
     min-width: 100px;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .feed-toolbar {
+    padding: 8px 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toolbar-left {
+    justify-content: center;
+  }
+
+  .toolbar-right {
+    justify-content: center;
+  }
+
+  .create-btn, .filter-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .post-card {
+    margin-bottom: 15px;
+    padding: 15px;
+  }
+
+  .post-header {
+    margin-bottom: 12px;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .username {
+    font-size: 15px;
+  }
+
+  .post-meta {
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .post-text {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .post-image {
+    max-height: 250px;
+  }
+
+  .media-image {
+    height: 180px;
+  }
+
+  .post-actions {
+    padding-top: 10px;
+    gap: 10px;
+  }
+
+  .action-btn {
+    font-size: 13px;
+    height: 36px;
+  }
+
+  .custom-pagination {
+    margin-top: 15px;
+  }
+
+  .challenge-card {
+    margin-bottom: 15px;
+  }
+
+  .challenge-card :deep(.el-card__body) {
+    padding: 15px;
+  }
+
+  .heritage-card {
+    height: 180px;
+    margin-bottom: 15px;
+  }
+
+  .project-actions {
+    top: 8px;
+    right: 8px;
+  }
+
+  .project-actions .el-button {
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .text-center .el-button {
+    height: 44px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .social-platform {
+    padding: 10px 5px;
+    padding-bottom: 80px;
+  }
+
+  .tab-button {
+    padding: 10px 12px;
+    min-width: 80px;
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .feed-toolbar {
+    padding: 6px 10px;
+  }
+
+  .create-btn, .filter-btn {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .post-card {
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  .post-header {
+    margin-bottom: 10px;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .username {
+    font-size: 14px;
+  }
+
+  .post-meta {
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .post-text {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .post-image {
+    max-height: 200px;
+  }
+
+  .media-image {
+    height: 150px;
+  }
+
+  .post-actions {
+    padding-top: 8px;
+    gap: 8px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    height: 32px;
+  }
+
+  .custom-pagination :deep(.el-pagination .el-pager li) {
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 12px;
+  }
+
+  .challenge-card :deep(.el-card__body) {
+    padding: 12px;
+  }
+
+  .heritage-card {
+    height: 160px;
+    margin-bottom: 12px;
+  }
+
+  .project-actions {
+    top: 6px;
+    right: 6px;
+  }
+
+  .project-actions .el-button {
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .text-center .el-button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .tabs-container {
+    margin-bottom: 30px;
+    gap: 6px;
   }
 }
 

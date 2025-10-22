@@ -307,18 +307,125 @@ onMounted(() => {
 @media (max-width: 768px) {
   .course-detail {
     padding: 10px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+  
+  .course-header {
+    margin-bottom: 15px;
+  }
+
+  .course-cover {
+    height: 200px;
   }
   
   .course-title {
-    font-size: 24px;
+    font-size: 22px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  
+  .course-info {
+    padding: 15px 0;
+  }
+  
+  .course-meta {
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .meta-item {
+    font-size: 13px;
+    gap: 3px;
+  }
+  
+  .course-description {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
   }
   
   .course-actions {
     flex-direction: column;
+    gap: 12px;
   }
   
   .course-actions .el-button {
     width: 100%;
+    height: 48px;
+    font-size: 16px;
+    min-height: 48px; /* 确保触摸目标足够大 */
+  }
+}
+
+@media (max-width: 576px) {
+  .course-detail {
+    padding: 8px 5px;
+    padding-bottom: 80px;
+  }
+  
+  .course-header {
+    margin-bottom: 10px;
+  }
+
+  .course-cover {
+    height: 180px;
+  }
+  
+  .course-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .course-info {
+    padding: 10px 0;
+  }
+  
+  .course-meta {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .meta-item {
+    font-size: 12px;
+  }
+  
+  .course-rating {
+    margin-bottom: 15px;
+  }
+  
+  .course-description {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  
+  .course-actions .el-button {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .course-details {
+    margin-bottom: 15px;
+  }
+
+  .course-details :deep(.el-card__body) {
+    padding: 15px;
+  }
+
+  .related-courses {
+    margin-bottom: 15px;
+  }
+
+  .related-courses :deep(.el-card__body) {
+    padding: 15px;
+  }
+
+  .coming-soon {
+    padding: 30px 15px;
+  }
+
+  .coming-soon p {
+    font-size: 14px;
   }
 }
 </style> 

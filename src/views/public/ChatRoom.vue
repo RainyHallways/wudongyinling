@@ -833,24 +833,273 @@ watch(currentChat, () => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .chat-container {
+    height: 100vh;
+    height: 100dvh; /* 使用动态视口高度 */
+    padding-bottom: 0; /* 移除额外padding */
+  }
+
   .chat-header {
     padding: 12px 16px;
-  }
-  
-  .messages {
-    padding: 12px 16px;
-  }
-  
-  .input-area {
-    padding: 12px 16px;
-  }
-  
-  .message-content {
-    max-width: 85%;
+    min-height: 60px;
   }
   
   .chat-info h3 {
     font-size: 16px;
+  }
+
+  .status {
+    font-size: 11px;
+  }
+  
+  .header-actions .el-button {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    max-width: 320px;
+  }
+  
+  .sidebar-header {
+    padding: 12px 16px;
+    min-height: 50px;
+  }
+
+  .sidebar-header h4 {
+    font-size: 16px;
+  }
+  
+  .user-item {
+    padding: 12px 16px;
+    min-height: 60px;
+  }
+  
+  .username {
+    font-size: 14px;
+  }
+  
+  .last-seen {
+    font-size: 11px;
+  }
+  
+  .unread-badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .messages {
+    padding: 12px;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .message-item {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  
+  .message-content {
+    max-width: 75%;
+    padding: 10px 12px;
+  }
+  
+  .message-header {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  
+  .sender-name {
+    font-size: 12px;
+  }
+  
+  .text-message {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  
+  .image-message {
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+  .typing-indicator {
+    padding: 8px 0;
+    font-size: 12px;
+  }
+  
+  .typing-avatar {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .typing-dots span {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    background: white;
+    min-height: 60px;
+  }
+  
+  .input-toolbar {
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+  
+  .input-toolbar .el-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 16px;
+  }
+  
+  .input-box {
+    gap: 8px;
+    align-items: flex-end;
+  }
+  
+  .input-box :deep(.el-textarea__inner) {
+    font-size: 16px; /* 防止iOS缩放 */
+    line-height: 1.4;
+    padding: 8px 12px;
+    min-height: 20px;
+    border-radius: 20px;
+  }
+  
+  .send-button {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .chat-header {
+    padding: 10px 12px;
+    min-height: 56px;
+  }
+
+  .chat-info h3 {
+    font-size: 15px;
+  }
+
+  .header-actions .el-button {
+    height: 36px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+  
+  .sidebar-header {
+    padding: 10px 12px;
+    min-height: 46px;
+  }
+
+  .sidebar-header h4 {
+    font-size: 15px;
+  }
+  
+  .user-item {
+    padding: 10px 12px;
+    min-height: 56px;
+  }
+  
+  .username {
+    font-size: 13px;
+  }
+  
+  .last-seen {
+    font-size: 10px;
+  }
+  
+  .unread-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 8px;
+    padding: 1px 5px;
+  }
+  
+  .messages {
+    padding: 10px;
+  }
+  
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+  
+  .message-content {
+    max-width: 80%;
+    padding: 8px 10px;
+  }
+  
+  .text-message {
+    font-size: 14px;
+  }
+  
+  .image-message {
+    max-width: 180px;
+    max-height: 180px;
+  }
+  
+  .input-area {
+    padding: 10px;
+    min-height: 56px;
+  }
+  
+  .input-toolbar {
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+  
+  .input-toolbar .el-button {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 14px;
+  }
+  
+  .input-box :deep(.el-textarea__inner) {
+    font-size: 16px;
+    padding: 6px 10px;
+    border-radius: 18px;
+  }
+  
+  .send-button {
+    height: 36px;
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 18px;
+  }
+
+  /* 优化侧边栏在小屏幕上的显示 */
+  .sidebar {
+    border-radius: 0;
+  }
+
+  .sidebar.show {
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   }
 }
 </style> 

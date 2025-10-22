@@ -742,9 +742,17 @@ const formatTime = (timestamp: string) => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .challenge-detail {
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+
+  .container {
+    padding: 15px 10px;
+  }
+
   .challenge-hero {
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 15px;
     gap: 20px;
   }
   
@@ -755,6 +763,12 @@ const formatTime = (timestamp: string) => {
   
   .challenge-title {
     font-size: 1.8rem;
+    line-height: 1.3;
+  }
+  
+  .challenge-description {
+    font-size: 14px;
+    line-height: 1.5;
   }
   
   .challenge-stats {
@@ -765,8 +779,251 @@ const formatTime = (timestamp: string) => {
     font-size: 1.5rem;
   }
   
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .challenge-actions {
+    gap: 12px;
+  }
+
+  .challenge-actions .el-button {
+    height: 44px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  .content-card, .sidebar-card {
+    margin-bottom: 20px;
+  }
+
+  .content-card :deep(.el-card__body) {
+    padding: 15px;
+  }
+
+  .sidebar-card :deep(.el-card__body) {
+    padding: 15px;
+  }
+  
   .calendar-grid {
     grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .calendar-day {
+    font-size: 14px;
+    min-height: 50px;
+  }
+
+  .check-icon {
+    font-size: 10px;
+  }
+  
+  .participant-posts {
+    max-height: 300px;
+  }
+
+  .post-item {
+    padding: 12px 0;
+  }
+
+  .post-header {
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .post-user-info .username {
+    font-size: 14px;
+  }
+
+  .post-user-info .post-time {
+    font-size: 11px;
+  }
+
+  .post-content p {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .post-image {
+    max-width: 180px;
+    height: 100px;
+  }
+
+  .post-actions {
+    gap: 12px;
+  }
+
+  .post-actions .el-button {
+    font-size: 13px;
+    height: 32px;
+  }
+
+  .leaderboard {
+    max-height: 250px;
+  }
+
+  .leaderboard-item {
+    padding: 10px 0;
+    gap: 10px;
+  }
+
+  .leaderboard-item .el-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .user-info .username {
+    font-size: 13px;
+  }
+
+  .user-info .checkin-days {
+    font-size: 11px;
+  }
+
+  .related-challenges {
+    max-height: 250px;
+  }
+
+  .related-item {
+    padding: 10px 0;
+    gap: 10px;
+  }
+
+  .related-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .related-title {
+    font-size: 13px;
+  }
+
+  .related-participants {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 576px) {
+  .challenge-detail {
+    padding-bottom: 80px;
+  }
+
+  .container {
+    padding: 10px 5px;
+  }
+
+  .challenge-hero {
+    padding: 15px 10px;
+    gap: 15px;
+  }
+  
+  .hero-image {
+    height: 160px;
+  }
+  
+  .challenge-title {
+    font-size: 1.5rem;
+  }
+  
+  .challenge-description {
+    font-size: 13px;
+  }
+  
+  .challenge-stats {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .challenge-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .challenge-actions .el-button {
+    width: 100%;
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .content-card :deep(.el-card__body) {
+    padding: 12px;
+  }
+
+  .sidebar-card :deep(.el-card__body) {
+    padding: 12px;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .calendar-day {
+    font-size: 12px;
+    min-height: 45px;
+    border-width: 1px;
+  }
+
+  .check-icon {
+    font-size: 9px;
+  }
+
+  .post-item {
+    padding: 10px 0;
+  }
+
+  .post-content p {
+    font-size: 13px;
+  }
+
+  .post-image {
+    max-width: 150px;
+    height: 80px;
+  }
+
+  .post-actions .el-button {
+    font-size: 12px;
+    height: 30px;
+  }
+
+  .leaderboard-item .el-avatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .user-info .username {
+    font-size: 12px;
+  }
+
+  .user-info .checkin-days {
+    font-size: 10px;
+  }
+
+  .related-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .related-title {
+    font-size: 12px;
+  }
+
+  .related-participants {
+    font-size: 10px;
+  }
+
+  .loading-container {
+    min-height: 150px;
   }
 }
 </style> 

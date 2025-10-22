@@ -688,8 +688,10 @@ const maskEmail = (email: string) => {
 <style scoped>
 .user-profile-container {
   padding: 20px;
+  padding-bottom: calc(20px + 65px + env(safe-area-inset-bottom)); /* 为底部导航留出空间 */
   max-width: 1400px;
   margin: 0 auto;
+  min-height: calc(100vh - 64px);
 }
 
 .loading-container {
@@ -966,6 +968,7 @@ const maskEmail = (email: string) => {
 @media (max-width: 768px) {
   .user-profile-container {
     padding: 15px;
+    padding-bottom: calc(15px + 65px + env(safe-area-inset-bottom));
   }
   
   .profile-card {
@@ -998,11 +1001,40 @@ const maskEmail = (email: string) => {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
   }
+  
+  /* 优化选项卡在移动端的显示 */
+  :deep(.el-tabs__nav-wrap) {
+    padding: 0 10px;
+  }
+  
+  :deep(.el-tabs__item) {
+    padding: 0 15px;
+    font-size: 14px;
+  }
+  
+  /* 优化表单在移动端的显示 */
+  :deep(.el-form-item__label) {
+    width: 80px !important;
+    font-size: 14px;
+  }
+  
+  :deep(.el-input__wrapper) {
+    font-size: 16px; /* 防止iOS放大 */
+  }
+  
+  :deep(.el-input__inner) {
+    font-size: 16px;
+  }
+  
+  :deep(.el-textarea__inner) {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
   .user-profile-container {
     padding: 10px;
+    padding-bottom: calc(10px + 65px + env(safe-area-inset-bottom));
   }
   
   .profile-card {
@@ -1016,15 +1048,99 @@ const maskEmail = (email: string) => {
   .user-stats {
     flex-direction: column;
     padding: 10px;
+    gap: 0;
   }
   
   .stat-item {
-    padding: 10px;
+    padding: 15px 10px;
     border-bottom: 1px solid var(--el-border-color-lighter);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .stat-item:last-child {
     border-bottom: none;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+  }
+  
+  .user-level {
+    padding: 12px;
+  }
+  
+  .level-text {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  /* 进一步优化小屏幕选项卡 */
+  :deep(.el-tabs__item) {
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  
+  /* 优化表单布局 */
+  :deep(.el-form) {
+    padding: 0 5px;
+  }
+  
+  :deep(.el-form-item) {
+    margin-bottom: 18px;
+  }
+  
+  :deep(.el-form-item__label) {
+    width: 70px !important;
+    font-size: 13px;
+    line-height: 32px;
+  }
+  
+  :deep(.el-form-item__content) {
+    margin-left: 80px !important;
+  }
+  
+  :deep(.el-button) {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  :deep(.el-button + .el-button) {
+    margin-left: 0;
+  }
+  
+  /* 优化进度条显示 */
+  :deep(.el-progress) {
+    margin-top: 10px;
+  }
+  
+  :deep(.el-progress__text) {
+    font-size: 12px !important;
+  }
+  
+  /* 优化卡片网格 */
+  .course-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  
+  .course-cover {
+    height: 100px;
+  }
+  
+  .course-title {
+    font-size: 14px;
+    margin: 8px 0 4px;
+  }
+  
+  .course-meta {
+    font-size: 11px;
   }
 }
 </style> 

@@ -843,9 +843,102 @@ const updateHealthMetrics = (): void => {
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
+  .health-management {
+    padding: 15px 10px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+  }
+  
+  .health-card {
+    padding: 20px 15px;
+    margin-bottom: 15px;
+  }
+  
+  .health-title {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
+  
   .health-icon {
     margin-bottom: 15px;
+  }
+  
+  .data-value {
+    font-size: 2rem;
+  }
+  
+  .data-label {
+    font-size: 0.9rem;
+  }
+  
+  .health-metric-card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .button-group .el-button {
+    width: 100%;
+    height: 44px;
+    font-size: 15px;
+  }
+  
+  .tab-button {
+    flex: 1;
+    padding: 12px 15px;
+    min-width: 100px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .record-table :deep(.el-table) {
+    font-size: 14px;
+  }
+
+  .record-table :deep(.el-table th) {
+    padding: 8px 4px;
+  }
+
+  .record-table :deep(.el-table td) {
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .health-management {
+    padding: 10px 5px;
+    padding-bottom: 80px;
+  }
+  
+  .health-card {
+    padding: 15px 10px;
+    margin-bottom: 12px;
+  }
+  
+  .health-title {
+    font-size: 1.2rem;
+  }
+  
+  .health-icon {
+    margin-bottom: 12px;
+  }
+  
+  .data-value {
+    font-size: 1.8rem;
+  }
+  
+  .data-label {
+    font-size: 0.85rem;
+  }
+  
+  .health-metric-card {
+    padding: 12px;
+    margin-bottom: 12px;
   }
   
   .plan-header {
@@ -854,15 +947,92 @@ const updateHealthMetrics = (): void => {
     gap: 10px;
   }
   
-  .health-tips .el-timeline {
-    padding-left: 10px;
+  .plan-date {
+    font-size: 1rem;
   }
   
   .tab-button {
-    flex: 1;
-    padding: 10px 15px;
-    min-width: 100px;
-    font-size: 16px;
+    padding: 10px 12px;
+    min-width: 80px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  
+  .health-tips .el-timeline {
+    padding-left: 5px;
+  }
+  
+  .health-tips .el-timeline-item__content {
+    font-size: 13px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .section-subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  .custom-tabs {
+    margin: 30px 0;
+  }
+
+  .tabs-container {
+    margin-bottom: 30px;
+    gap: 8px;
+  }
+
+  /* 表格在移动端的优化 */
+  .record-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .record-table :deep(.el-table) {
+    min-width: 500px;
+    font-size: 12px;
+  }
+
+  .record-table :deep(.el-table th),
+  .record-table :deep(.el-table td) {
+    padding: 6px 4px;
+    white-space: nowrap;
+  }
+
+  /* 描述列表优化 */
+  .record-table :deep(.el-descriptions-item__label) {
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .record-table :deep(.el-descriptions-item__content) {
+    font-size: 12px;
+  }
+
+  /* 时间轴优化 */
+  .health-tips .el-timeline-item__timestamp {
+    font-size: 11px;
+  }
+
+  /* 按钮优化 */
+  .button-group .el-button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  /* 分页器优化 */
+  .custom-pagination :deep(.el-pagination) {
+    justify-content: center;
+  }
+
+  .custom-pagination :deep(.el-pagination .el-pager li) {
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 12px;
   }
 }
 </style>

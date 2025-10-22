@@ -513,24 +513,130 @@ const demoLogin = async () => {
   transform: scale(1.05);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .login-container {
+    padding-top: 50px;
+    padding-bottom: 20px;
+  }
+
   .login-card {
-    width: 320px;
+    width: 400px;
+    padding: 25px 20px;
+    margin: 15px 0;
+  }
+  
+  .login-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+
+  /* 表单输入框优化 */
+  :deep(.el-input__inner) {
+    font-size: 16px; /* 防止iOS缩放 */
+    height: 48px;
+  }
+
+  :deep(.el-button) {
+    height: 48px;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+
+  .agreements-section-integrated {
+    margin-left: 0;
+    margin-bottom: 25px;
+  }
+
+  .agreements-section-integrated .agreement-text {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding-top: 30px;
+    padding-bottom: 80px; /* 为底部导航添加安全区域 */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .login-card {
+    width: 95%;
+    max-width: 350px;
     padding: 20px 15px;
+    margin: 10px 0;
+    border-radius: 16px;
   }
   
   .login-title {
     font-size: 20px;
+    margin-bottom: 20px;
   }
-  
+
+  :deep(.el-input__inner) {
+    font-size: 16px;
+    height: 44px;
+    padding: 0 12px;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  :deep(.el-button) {
+    height: 44px;
+    font-size: 15px;
+  }
+
   .agreements-section-integrated {
     margin-left: 0;
     margin-bottom: 20px;
+    padding: 12px;
   }
   
   .agreements-section-integrated .agreement-text {
     font-size: 12px;
     line-height: 1.5;
+  }
+
+  .demo-login .el-button {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .register-link {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+
+  .register-link .el-link {
+    font-size: 14px;
+  }
+
+  /* 协议弹窗优化 */
+  .agreement-dialog {
+    width: 95% !important;
+    max-width: 400px !important;
+  }
+
+  .agreement-dialog :deep(.el-dialog__body) {
+    padding: 15px;
+  }
+
+  .agreement-content {
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 60vh;
+  }
+
+  .agreement-content :deep(h3) {
+    font-size: 14px;
+  }
+
+  .agreement-content :deep(p) {
+    font-size: 12px;
   }
 }
 
