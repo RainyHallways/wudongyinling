@@ -127,6 +127,85 @@ p, span, div, li, a, button, input, textarea, label,
   min-font-size: var(--min-font-size);
 }
 
+/* 图标样式保护 - 防止被全局字体设置影响 */
+.el-icon {
+  font-size: inherit !important;
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1/1 !important;
+}
+
+/* 确保图标SVG元素不被强制字体大小影响 */
+.el-icon svg {
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  font-size: inherit !important;
+  flex-shrink: 0 !important;
+}
+
+/* 横屏模式下的图标优化 */
+@media screen and (orientation: landscape) {
+  .el-icon {
+    flex-shrink: 0 !important;
+    min-width: 1em !important;
+    min-height: 1em !important;
+    width: 1em !important;
+    height: 1em !important;
+    aspect-ratio: 1/1 !important;
+  }
+  
+  .el-icon svg {
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 1em !important;
+    min-height: 1em !important;
+  }
+  
+  /* 移动端横屏特殊处理 */
+  @media (max-height: 768px) {
+    .el-icon {
+      width: 1em !important;
+      height: 1em !important;
+      min-width: 1em !important;
+      min-height: 1em !important;
+      flex-shrink: 0 !important;
+      aspect-ratio: 1/1 !important;
+    }
+    
+    .el-icon svg {
+      width: 1em !important;
+      height: 1em !important;
+      min-width: 1em !important;
+      min-height: 1em !important;
+    }
+  }
+  
+  /* 移动端超宽横屏处理 */
+  @media (max-height: 500px) {
+    .el-icon {
+      width: 1.2em !important;
+      height: 1.2em !important;
+      min-width: 1.2em !important;
+      min-height: 1.2em !important;
+      flex-shrink: 0 !important;
+      aspect-ratio: 1/1 !important;
+    }
+    
+    .el-icon svg {
+      width: 1em !important;
+      height: 1em !important;
+    }
+  }
+}
+
 /* 链接适老化 */
 a {
   color: var(--primary-color);
@@ -441,9 +520,29 @@ a:hover {
   z-index: 9999 !important;
 }
 
-/* 管理后台小字体覆盖 */
+/* 管理后台小字体覆盖 - 排除图标 */
 .admin-layout * {
   font-size: 13px !important;
+}
+
+/* 管理后台图标保护 */
+.admin-layout .el-icon {
+  font-size: inherit !important;
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1/1 !important;
+}
+
+.admin-layout .el-icon svg {
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  font-size: inherit !important;
+  flex-shrink: 0 !important;
 }
 
 .admin-layout h1 {

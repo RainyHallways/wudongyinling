@@ -593,6 +593,15 @@ const handleLogout = async () => {
   margin-bottom: 4px;
   transition: all 0.3s ease;
   font-size: 20px;
+  flex-shrink: 0 !important;
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  aspect-ratio: 1/1 !important;
 }
 
 .nav-label {
@@ -865,6 +874,21 @@ const handleLogout = async () => {
   border-bottom: none !important;
 }
 
+/* 主菜单图标保护 */
+:deep(.el-menu--horizontal > .el-menu-item .el-icon) {
+  font-size: inherit !important;
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em !important;
+  min-height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin-right: 8px !important;
+  aspect-ratio: 1/1 !important;
+}
+
 :deep(.el-menu--horizontal > .el-menu-item:hover) {
   background: rgba(255, 255, 255, 0.2) !important;
   color: white !important;
@@ -912,5 +936,40 @@ const handleLogout = async () => {
 :deep(.user-menu-drawer .el-drawer__close-btn:hover) {
   background: rgba(255, 255, 255, 0.3) !important;
   transform: scale(1.1) !important;
+}
+
+/* 横屏模式图标保护 */
+@media screen and (orientation: landscape) {
+  .nav-icon {
+    flex-shrink: 0 !important;
+    min-width: 1.2em !important;
+    min-height: 1.2em !important;
+    aspect-ratio: 1/1 !important;
+  }
+  
+  .nav-icon svg {
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 1em !important;
+    min-height: 1em !important;
+  }
+  
+  /* 超低高度横屏 */
+  @media (max-height: 500px) {
+    .nav-icon {
+      font-size: 18px !important;
+      min-width: 1.3em !important;
+      min-height: 1.3em !important;
+    }
+  }
+}
+
+/* 所有图标的全局保护 */
+:deep(.el-icon) {
+  aspect-ratio: 1/1 !important;
+}
+
+:deep(.el-icon svg) {
+  aspect-ratio: 1/1 !important;
 }
 </style> 
