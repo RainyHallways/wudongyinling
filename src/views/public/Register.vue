@@ -494,11 +494,83 @@ const handleRegister = async () => {
 
 .register-button {
   width: 100%;
+  height: 45px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.register-button:active {
+  transform: translateY(0);
 }
 
 .login-link {
-  margin-top: 15px;
+  margin-top: 20px;
   text-align: center;
+  font-size: 15px;
+  color: var(--el-text-color-regular);
+}
+
+.login-link .el-link {
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.login-link .el-link:hover {
+  transform: scale(1.05);
+}
+
+/* 表单输入框优化 */
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4);
+}
+
+/* 下拉框优化 */
+:deep(.el-select .el-input__wrapper) {
+  border-radius: 8px;
+}
+
+/* 日期选择器优化 */
+:deep(.el-date-editor.el-input__wrapper) {
+  border-radius: 8px;
+}
+
+/* 复选框优化 */
+:deep(.el-checkbox__inner) {
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-checkbox__inner:hover) {
+  border-color: var(--el-color-primary);
+}
+
+/* 错误状态优化 */
+:deep(.el-form-item.is-error .el-input__wrapper) {
+  box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 /* 整合后的协议样式 */
@@ -506,6 +578,10 @@ const handleRegister = async () => {
   /* 调整外边距以适应表单布局 */
   margin-left: 100px; 
   margin-bottom: 22px;
+  padding: 15px;
+  background: var(--el-fill-color-lighter);
+  border-radius: 8px;
+  border-left: 3px solid var(--el-color-primary);
 }
 
 .agreements-section-integrated :deep(.el-checkbox) {
@@ -525,25 +601,62 @@ const handleRegister = async () => {
 
 .agreements-section-integrated :deep(.el-link) {
   vertical-align: baseline;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.agreements-section-integrated :deep(.el-link:hover) {
+  color: var(--el-color-primary-dark-2);
+  transform: scale(1.05);
 }
 
 
 @media (max-width: 480px) {
   .register-card {
     width: 95%;
+    padding: 20px 15px;
   }
+  
+  .register-title {
+    font-size: 20px;
+  }
+  
   /* 在小屏幕上取消左边距，让其与上方表单项对齐 */
   .agreements-section-integrated {
     margin-left: 0;
+    margin-bottom: 20px;
+    padding: 12px;
+  }
+  
+  .agreements-section-integrated .agreement-text {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-card {
+    width: 90%;
+  }
+  
+  .register-title {
+    font-size: 22px;
   }
 }
 
 /* 协议弹窗样式 */
+.agreement-dialog :deep(.el-dialog) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .agreement-content {
   max-height: 400px;
   overflow-y: auto;
-  padding: 10px;
+  padding: 20px;
   line-height: 1.8;
+  background: var(--el-fill-color-lighter);
+  border-radius: 8px;
 }
 
 .agreement-content :deep(h3) {
@@ -551,6 +664,8 @@ const handleRegister = async () => {
   font-weight: 600;
   color: #303133;
   margin: 20px 0 10px 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--el-color-primary);
 }
 
 .agreement-content :deep(h3:first-child) {
@@ -561,5 +676,35 @@ const handleRegister = async () => {
   margin: 8px 0;
   color: #606266;
   text-indent: 0;
+}
+
+.agreement-content :deep(ul) {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.agreement-content :deep(li) {
+  margin: 5px 0;
+  color: #606266;
+}
+
+/* 滚动条美化 */
+.agreement-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.agreement-content::-webkit-scrollbar-track {
+  background: var(--el-fill-color-lighter);
+  border-radius: 3px;
+}
+
+.agreement-content::-webkit-scrollbar-thumb {
+  background: var(--el-border-color-darker);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.agreement-content::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-dark);
 }
 </style>

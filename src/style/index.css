@@ -181,12 +181,12 @@ a:hover {
 
 /* 通用页面导航栏间距类 */
 .page-with-nav {
-  padding-top: 80px; /* 增加到80px确保不被遮挡 */
+  padding-top: 84px; /* 导航栏高度64px + 20px间距 = 84px */
 }
 
 @media (max-width: 640px) {
   .page-with-nav {
-    padding-top: 20px; /* 移动端稍微增加一点间距 */
+    padding-top: 70px; /* 移动端也需要足够的间距避开固定导航栏 */
   }
 }
 

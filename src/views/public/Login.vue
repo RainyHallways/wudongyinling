@@ -434,6 +434,20 @@ const demoLogin = async () => {
 
 .login-button {
   width: 100%;
+  height: 45px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.login-button:active {
+  transform: translateY(0);
 }
 
 .agreements-section-integrated {
@@ -470,23 +484,105 @@ const demoLogin = async () => {
   text-align: center;
 }
 
+.demo-login .el-button {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  height: 40px;
+  font-weight: 500;
+}
+
+.demo-login .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
+}
+
 .register-link {
-  margin-top: 15px;
+  margin-top: 20px;
   text-align: center;
+  font-size: 15px;
+  color: var(--el-text-color-regular);
+}
+
+.register-link .el-link {
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.register-link .el-link:hover {
+  transform: scale(1.05);
 }
 
 @media (max-width: 480px) {
   .login-card {
     width: 320px;
+    padding: 20px 15px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+  
+  .agreements-section-integrated {
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+  
+  .agreements-section-integrated .agreement-text {
+    font-size: 12px;
+    line-height: 1.5;
   }
 }
 
+/* 表单输入框优化 */
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4);
+}
+
+/* 复选框优化 */
+:deep(.el-checkbox__inner) {
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-checkbox__inner:hover) {
+  border-color: var(--el-color-primary);
+}
+
+/* 错误状态优化 */
+:deep(.el-form-item.is-error .el-input__wrapper) {
+  box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 /* 协议弹窗样式 */
+.agreement-dialog :deep(.el-dialog) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .agreement-content {
   max-height: 400px;
   overflow-y: auto;
-  padding: 10px;
+  padding: 20px;
   line-height: 1.8;
+  background: var(--el-fill-color-lighter);
+  border-radius: 8px;
 }
 
 .agreement-content :deep(h3) {
@@ -494,6 +590,8 @@ const demoLogin = async () => {
   font-weight: 600;
   color: #303133;
   margin: 20px 0 10px 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--el-color-primary);
 }
 
 .agreement-content :deep(h3:first-child) {
@@ -504,5 +602,35 @@ const demoLogin = async () => {
   margin: 8px 0;
   color: #606266;
   text-indent: 0;
+}
+
+.agreement-content :deep(ul) {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.agreement-content :deep(li) {
+  margin: 5px 0;
+  color: #606266;
+}
+
+/* 滚动条美化 */
+.agreement-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.agreement-content::-webkit-scrollbar-track {
+  background: var(--el-fill-color-lighter);
+  border-radius: 3px;
+}
+
+.agreement-content::-webkit-scrollbar-thumb {
+  background: var(--el-border-color-darker);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.agreement-content::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-dark);
 }
 </style>

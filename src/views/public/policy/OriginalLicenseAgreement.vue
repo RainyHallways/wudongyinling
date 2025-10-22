@@ -1,9 +1,9 @@
 <template>
-  <div class="page-with-nav">
-    <el-scrollbar height="100vh" class="py-8 px-4">
-      <el-card class="mx-auto max-w-4xl">
-        <h1 class="text-center text-2xl font-bold mb-6">原创作品授权协议</h1>
-        <div class="space-y-4 leading-7">
+  <div class="policy-page page-with-nav">
+    <page-header title="原创作品授权协议" subtitle="了解作品授权的详细条款与条件"></page-header>
+    
+    <el-card class="policy-content">
+      <div class="policy-document space-y-4 leading-7">
           <p>甲方（网站提供者）：舞动银龄</p>
           <p>乙方（原创作品作者）：__________________</p>
           <h2 class="text-xl font-semibold">一、协议目的</h2>
@@ -39,35 +39,93 @@
           <p>联系人：______________________________</p>
           <p>联系电话：______________________________</p>
           <p>电子邮箱：______________________________</p>
-        </div>
-      </el-card>
-    </el-scrollbar>
+      </div>
+      
+      <!-- 操作按钮 -->
+      <div class="policy-actions">
+        <el-button type="primary" @click="printPolicy">
+          <el-icon><Printer /></el-icon> 打印协议
+        </el-button>
+        <el-button @click="downloadPolicy">
+          <el-icon><Download /></el-icon> 下载协议
+        </el-button>
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-// 页面逻辑
+import { Printer, Download } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import { ElMessage } from 'element-plus'
+
+const printPolicy = () => {
+  window.print()
+  ElMessage.success('正在准备打印...')
+}
+
+const downloadPolicy = () => {
+  // 模拟下载功能
+  ElMessage.success('正在准备下载...')
+}
 </script>
 
 <style scoped>
+.policy-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.policy-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.policy-content:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.policy-document {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .space-y-4 > * + * {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .leading-7 {
-  line-height: 1.75;
+  line-height: 1.8;
+  font-size: 16px;
+  color: var(--el-text-color-regular);
 }
 
 .text-xl {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  color: var(--el-text-color-primary);
+  margin: 2rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--el-color-primary-light-7);
+  position: relative;
+}
+
+.text-xl::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 60px;
+  height: 2px;
+  background: var(--el-color-primary);
 }
 
 .font-semibold {
   font-weight: 600;
-}
-
-.text-2xl {
-  font-size: 1.5rem;
 }
 
 .font-bold {
@@ -79,29 +137,109 @@
 }
 
 .mb-6 {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .mt-4 {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
-.mx-auto {
-  margin-left: auto;
-  margin-right: auto;
+.policy-actions {
+  padding: 20px 40px;
+  background: var(--el-fill-color-lighter);
+  border-top: 1px solid var(--el-border-color-light);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }
 
-.max-w-4xl {
-  max-width: 56rem;
+.policy-actions .el-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.py-8 {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+.policy-actions .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
-.px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .policy-page {
+    padding: 15px;
+  }
+  
+  .policy-document {
+    padding: 25px 20px;
+  }
+  
+  .leading-7 {
+    font-size: 15px;
+  }
+  
+  .text-xl {
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.8rem 0;
+  }
+  
+  .policy-actions {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .policy-actions .el-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .policy-page {
+    padding: 10px;
+  }
+  
+  .policy-document {
+    padding: 20px 15px;
+  }
+  
+  .leading-7 {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  
+  .text-xl {
+    font-size: 1.1rem;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .policy-page {
+    padding: 0;
+  }
+  
+  .policy-content {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .policy-document {
+    padding: 20px;
+    max-width: none;
+  }
+  
+  .policy-actions {
+    display: none;
+  }
+  
+  .text-xl {
+    color: #000 !important;
+    border-bottom-color: #000 !important;
+  }
+  
+  .text-xl::before {
+    background: #000 !important;
+  }
 }
 </style> 

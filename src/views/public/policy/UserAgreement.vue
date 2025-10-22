@@ -1,9 +1,9 @@
 <template>
-  <div class="page-with-nav">
-    <el-scrollbar height="100vh" class="py-8 px-4">
-      <el-card class="mx-auto max-w-4xl">
-        <h1 class="text-center text-2xl font-bold mb-6">网站协议</h1>
-        <div class="space-y-4 leading-7">
+  <div class="policy-page page-with-nav">
+    <page-header title="网站协议" subtitle="了解平台使用规则与用户权益"></page-header>
+    
+    <el-card class="policy-content">
+      <div class="policy-document space-y-4 leading-7">
           <p>尊敬的用户，欢迎您使用本网站。在使用本网站前，请仔细阅读以下协议内容。如果您同意以下条款，请点击“同意并继续”按钮，进入本网站。如果您不同意以下条款，请勿使用本网站。</p>
           <h2 class="text-xl font-semibold">一、协议概述</h2>
           <p>1. 本协议是您与网站开发商（以下简称“我们”）之间关于您使用本网站所达成的协议。</p>
@@ -29,16 +29,254 @@
           <p>3. 我们有权在必要时终止本协议，届时您应停止使用本网站。</p>
           <p class="mt-6 text-center font-semibold">请您仔细阅读本协议，点击“同意并继续”按钮表示您已充分了解并接受本协议的全部内容。感谢您的使用！</p>
           <div class="flex justify-center gap-6 mt-4">
-            <el-button type="danger">拒绝</el-button>
-            <el-button type="primary">同意并继续</el-button>
+            <el-button type="danger" @click="rejectAgreement">拒绝</el-button>
+            <el-button type="primary" @click="acceptAgreement">同意并继续</el-button>
           </div>
         </div>
-      </el-card>
-    </el-scrollbar>
+        
+        <!-- 操作按钮 -->
+        <div class="policy-actions">
+          <el-button type="primary" @click="printPolicy">
+            <el-icon><Printer /></el-icon> 打印协议
+          </el-button>
+          <el-button @click="downloadPolicy">
+            <el-icon><Download /></el-icon> 下载协议
+          </el-button>
+        </div>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Printer, Download } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
+
 useTitle('网站协议 - 舞动银龄')
-</script> 
+
+const router = useRouter()
+
+const printPolicy = () => {
+  window.print()
+  ElMessage.success('正在准备打印...')
+}
+
+const downloadPolicy = () => {
+  // 模拟下载功能
+  ElMessage.success('正在准备下载...')
+}
+
+const acceptAgreement = () => {
+  ElMessageBox.confirm(
+    '您确定同意本网站协议吗？',
+    '确认同意',
+    {
+      confirmButtonText: '确认同意',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  ).then(() => {
+    ElMessage.success('感谢您的同意！')
+    router.push('/')
+  }).catch(() => {
+    // 用户取消
+  })
+}
+
+const rejectAgreement = () => {
+  ElMessageBox.confirm(
+    '如果您不同意本网站协议，将无法使用本平台服务。确定要拒绝吗？',
+    '确认拒绝',
+    {
+      confirmButtonText: '确认拒绝',
+      cancelButtonText: '重新考虑',
+      type: 'warning'
+    }
+  ).then(() => {
+    ElMessage.info('感谢您的关注，期待您的下次访问！')
+    router.push('/')
+  }).catch(() => {
+    // 用户取消
+  })
+}
+</script>
+
+<style scoped>
+.policy-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.policy-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.policy-content:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.policy-document {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1.5rem;
+}
+
+.leading-7 {
+  line-height: 1.8;
+  font-size: 16px;
+  color: var(--el-text-color-regular);
+}
+
+.text-xl {
+  font-size: 1.3rem;
+  color: var(--el-text-color-primary);
+  margin: 2rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--el-color-primary-light-7);
+  position: relative;
+}
+
+.text-xl::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 60px;
+  height: 2px;
+  background: var(--el-color-primary);
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-6 {
+  margin-bottom: 2rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.policy-actions {
+  padding: 20px 40px;
+  background: var(--el-fill-color-lighter);
+  border-top: 1px solid var(--el-border-color-light);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.policy-actions .el-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.policy-actions .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .policy-page {
+    padding: 15px;
+  }
+  
+  .policy-document {
+    padding: 25px 20px;
+  }
+  
+  .leading-7 {
+    font-size: 15px;
+  }
+  
+  .text-xl {
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.8rem 0;
+  }
+  
+  .policy-actions {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .policy-actions .el-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .policy-page {
+    padding: 10px;
+  }
+  
+  .policy-document {
+    padding: 20px 15px;
+  }
+  
+  .leading-7 {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  
+  .text-xl {
+    font-size: 1.1rem;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .policy-page {
+    padding: 0;
+  }
+  
+  .policy-content {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .policy-document {
+    padding: 20px;
+    max-width: none;
+  }
+  
+  .policy-actions {
+    display: none;
+  }
+  
+  .text-xl {
+    color: #000 !important;
+    border-bottom-color: #000 !important;
+  }
+  
+  .text-xl::before {
+    background: #000 !important;
+  }
+}
+</style> 

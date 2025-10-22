@@ -1,11 +1,18 @@
 <template>
   <div class="user-profile-container page-with-nav">
-    <page-header title="个人中心" subtitle="管理您的账户信息和舞蹈历程"></page-header>
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <el-skeleton :rows="5" animated />
+    </div>
     
-    <el-row :gutter="20">
-      <!-- 左侧信息卡 -->
-      <el-col :xs="24" :md="8">
-        <el-card class="profile-card" shadow="hover">
+    <!-- 主要内容 -->
+    <div v-else>
+      <page-header title="个人中心" subtitle="管理您的账户信息和舞蹈历程"></page-header>
+    
+      <el-row :gutter="20">
+        <!-- 左侧信息卡 -->
+        <el-col :xs="24" :md="8">
+          <el-card class="profile-card" shadow="hover">
           <div class="user-avatar-wrapper">
             <el-avatar :size="120" :src="userInfo.avatar || defaultAvatar"></el-avatar>
             <div class="edit-avatar">
@@ -42,11 +49,11 @@
             </div>
             <el-progress :percentage="userLevel.progress || 0" :format="() => `${userLevel.currentExp || 0}/${userLevel.nextLevelExp || 100}`"></el-progress>
           </div>
-        </el-card>
-      </el-col>
-      
-      <!-- 右侧选项卡 -->
-      <el-col :xs="24" :md="16">
+          </el-card>
+        </el-col>
+        
+        <!-- 右侧选项卡 -->
+        <el-col :xs="24" :md="16">
         <el-card shadow="hover">
           <el-tabs v-model="activeTab" @tab-change="handleTabChange">
             <el-tab-pane label="基本信息" name="profile">
@@ -212,12 +219,13 @@
               </el-form>
             </el-tab-pane>
           </el-tabs>
-        </el-card>
-      </el-col>
-    </el-row>
-    
-    <!-- 修改密码对话框（保留作为备用） -->
-    <el-dialog
+            </el-card>
+          </el-col>
+          </el-row>
+      
+      
+      <!-- 修改密码对话框（保留作为备用） -->
+      <el-dialog
       v-model="changePasswordDialog"
       title="修改密码"
       width="500px"
@@ -262,7 +270,8 @@
           </el-button>
         </span>
       </template>
-    </el-dialog>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -437,9 +446,15 @@ watch(() => route.query.tab, (newTab) => {
   }
 }, { immediate: true })
 
+// 加载状态
+const loading = ref(true)
+
 // 页面加载时获取用户数据
-onMounted(() => {
-  fetchUserData()
+onMounted(async () => {
+  // 模拟数据加载
+  await new Promise(resolve => setTimeout(resolve, 800))
+  await fetchUserData()
+  loading.value = false
   
   // 检查路由参数中的tab
   if (route.query.tab) {
@@ -473,11 +488,26 @@ const fetchUserData = async () => {
       })
     }
     
+    // 模拟获取用户统计数据
+    userStats.value = {
+      danceHours: Math.floor(Math.random() * 100) + 10,
+      completedCourses: Math.floor(Math.random() * 20) + 1,
+      achievements: Math.floor(Math.random() * 15) + 1
+    }
+    
+    userLevel.value = {
+      name: '舞蹈新手',
+      currentExp: Math.floor(Math.random() * 100),
+      nextLevelExp: 100,
+      progress: Math.floor(Math.random() * 100)
+    }
+    
     // 获取用户详细信息的API调用可以在这里添加
     // const response = await request.get(`/users/${userStore.userInfo.id}`)
     // userInfo.value = response
   } catch (error) {
     console.error('获取用户数据失败:', error)
+    ElMessage.error('获取用户数据失败，请稍后重试')
   }
 }
 
@@ -658,11 +688,45 @@ const maskEmail = (email: string) => {
 <style scoped>
 .user-profile-container {
   padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .profile-card {
   text-align: center;
-  padding: 20px;
+  padding: 25px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-success));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.profile-card:hover::before {
+  transform: scaleX(1);
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .user-avatar-wrapper {
@@ -675,59 +739,103 @@ const maskEmail = (email: string) => {
   position: absolute;
   right: 0;
   bottom: 0;
+  transition: all 0.3s ease;
+}
+
+.edit-avatar .el-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--el-color-primary);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.edit-avatar .el-button:hover {
+  transform: scale(1.1);
+  background: var(--el-color-primary-dark-2);
 }
 
 .user-name {
-  margin: 10px 0 5px 0;
-  font-size: 24px;
-  font-weight: bold;
+  margin: 15px 0 8px 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .user-email {
-  color: #909399;
-  margin-bottom: 20px;
+  color: var(--el-text-color-secondary);
+  margin-bottom: 25px;
+  font-size: 15px;
 }
 
 .user-stats {
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  margin: 25px 0;
+  padding: 20px;
+  background: var(--el-fill-color-lighter);
+  border-radius: 12px;
+  gap: 10px;
 }
 
 .stat-item {
-  padding: 0 20px;
+  flex: 1;
   text-align: center;
+  padding: 15px 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: white;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #409EFF;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--el-color-primary);
+  margin-bottom: 5px;
+  display: block;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
+  font-weight: 500;
 }
 
 .user-level {
-  margin: 20px 0;
+  margin: 25px 0;
   text-align: left;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--el-fill-color-lighter), white);
+  border-radius: 12px;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .level-text {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .level-label {
-  color: #909399;
+  color: var(--el-text-color-secondary);
+  font-weight: 500;
 }
 
 .level-value {
-  font-weight: bold;
-  color: #67C23A;
+  font-weight: 700;
+  color: var(--el-color-success);
+  font-size: 16px;
+  background: var(--el-color-success-light-9);
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 .course-grid {
@@ -785,15 +893,138 @@ const maskEmail = (email: string) => {
   align-items: center;
 }
 
+/* 选项卡优化 */
+:deep(.el-tabs__header) {
+  margin-bottom: 25px;
+}
+
+:deep(.el-tabs__nav-wrap::after) {
+  height: 2px;
+  background: var(--el-border-color-light);
+}
+
+:deep(.el-tabs__item) {
+  font-weight: 500;
+  font-size: 15px;
+  padding: 0 25px;
+  height: 45px;
+  line-height: 45px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-tabs__item:hover) {
+  color: var(--el-color-primary);
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: var(--el-color-primary);
+  font-weight: 600;
+}
+
+:deep(.el-tabs__active-bar) {
+  background: var(--el-color-primary);
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* 表单优化 */
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4);
+}
+
+:deep(.el-textarea__inner) {
+  border-radius: 8px;
+}
+
+/* 按钮优化 */
+:deep(.el-button--primary) {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-button--primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .user-profile-container {
-    padding: 10px;
+    padding: 15px;
+  }
+  
+  .profile-card {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+  }
+  
+  .user-name {
+    font-size: 22px;
+  }
+  
+  .user-stats {
+    padding: 15px;
+    gap: 5px;
+  }
+  
+  .stat-item {
+    padding: 12px 8px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .user-level {
+    padding: 15px;
   }
   
   .course-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-profile-container {
+    padding: 10px;
+  }
+  
+  .profile-card {
+    padding: 15px 10px;
+  }
+  
+  .user-name {
+    font-size: 20px;
+  }
+  
+  .user-stats {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .stat-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
   }
 }
 </style> 

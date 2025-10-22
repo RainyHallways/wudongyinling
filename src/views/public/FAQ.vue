@@ -1,16 +1,33 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageHeader from '@/components/common/PageHeader.vue'
+
+const loading = ref(true)
+const faqData = ref([])
+const activeNames = ref<string[]>([])
+
+onMounted(async () => {
+  // 模拟数据加载
+  await new Promise(resolve => setTimeout(resolve, 500))
+  loading.value = false
+})
 </script>
 
 <template>
   <div class="faq-page page-with-nav">
     <PageHeader title="常见问题" subtitle="帮助您更好地使用舞动银龄平台" />
     
-    <ElCard class="faq-content">
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <el-skeleton :rows="5" animated />
+    </div>
+    
+    <!-- 内容区域 -->
+    <ElCard v-else class="faq-content">
       <p class="intro">在这里，我们整理了用户经常提出的问题和相应的解答，希望能够帮助您更好地使用舞动银龄平台。如果您没有找到想要的答案，欢迎通过<RouterLink to="/contact">联系我们</RouterLink>页面与我们取得联系。</p>
       
-      <ElCollapse accordion class="faq-collapse">
+      <ElCollapse v-model="activeNames" accordion class="faq-collapse">
         <ElCollapseItem>
           <template #title>
             <div class="faq-title">什么是舞动银龄平台？</div>
@@ -187,71 +204,170 @@ import PageHeader from '@/components/common/PageHeader.vue'
   margin: 0 auto 60px;
 }
 
+.loading-container {
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
 .faq-content {
   margin-bottom: 40px;
 }
 
 .intro {
   font-size: 18px;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-bottom: 30px;
   color: var(--el-text-color-secondary);
   text-align: center;
+  padding: 0 20px;
 }
 
 .faq-collapse {
   margin-top: 20px;
 }
 
+.faq-collapse :deep(.el-collapse-item) {
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  transition: all 0.3s ease;
+}
+
+.faq-collapse :deep(.el-collapse-item:hover) {
+  background-color: var(--el-fill-color-lighter);
+}
+
 .faq-collapse :deep(.el-collapse-item__header) {
   font-size: 18px;
-  padding: 15px;
+  padding: 20px 15px;
   background-color: var(--el-fill-color-light);
-  border-radius: 4px;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.faq-collapse :deep(.el-collapse-item__header:hover) {
+  background-color: var(--el-color-primary-light-9);
+  transform: translateX(5px);
+}
+
+.faq-collapse :deep(.el-collapse-item__header::before) {
+  content: '🤔';
+  margin-right: 10px;
+  font-size: 20px;
 }
 
 .faq-collapse :deep(.el-collapse-item__content) {
-  padding: 20px;
+  padding: 25px 20px;
   background-color: #fff;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 8px 8px;
+  line-height: 1.8;
+  font-size: 16px;
 }
 
 .faq-title {
   font-weight: 600;
   color: var(--el-text-color-primary);
+  display: flex;
+  align-items: center;
 }
 
 .faq-content {
   color: var(--el-text-color-regular);
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
 .faq-content p,
 .faq-content ul,
 .faq-content ol {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .faq-content ul,
 .faq-content ol {
-  padding-left: 20px;
+  padding-left: 25px;
 }
 
 .faq-content li {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  line-height: 1.7;
 }
 
 .faq-content strong {
   font-weight: 600;
   color: var(--el-text-color-primary);
+  background: linear-gradient(120deg, var(--el-color-primary-light-8) 0%, transparent 100%);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .faq-content a {
   color: var(--el-color-primary);
   text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
 }
 
 .faq-content a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom-color: var(--el-color-primary);
+  color: var(--el-color-primary-dark-2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .faq-page {
+    padding: 15px;
+    margin-bottom: 40px;
+  }
+  
+  .intro {
+    font-size: 16px;
+    padding: 0 10px;
+    margin-bottom: 20px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__header) {
+    font-size: 16px;
+    padding: 15px 12px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__content) {
+    padding: 20px 15px;
+    font-size: 15px;
+  }
+  
+  .faq-content ul,
+  .faq-content ol {
+    padding-left: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .faq-page {
+    padding: 10px;
+  }
+  
+  .intro {
+    font-size: 15px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__header) {
+    font-size: 15px;
+    padding: 12px 10px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__header::before) {
+    font-size: 18px;
+    margin-right: 8px;
+  }
+  
+  .faq-collapse :deep(.el-collapse-item__content) {
+    padding: 15px 12px;
+    font-size: 14px;
+  }
 }
 </style> 
