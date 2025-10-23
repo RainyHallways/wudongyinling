@@ -59,16 +59,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // 将大型第三方库单独分包
+          // 避免Element Plus和Vue分开打包导致的初始化顺序问题
           if (id.includes('node_modules')) {
-            if (id.includes('vue')) {
-              return 'vendor-vue'
-            } else if (id.includes('element-plus')) {
-              return 'vendor-element'
+            // 将Vue和核心依赖打包在一起
+            if (id.includes('vue') || id.includes('element-plus')) {
+              return 'vendor-core'
             } else if (id.includes('axios')) {
               return 'vendor-axios'
-            } else if (id.includes('router')) {
-              return 'vendor-router'
+            } else if (id.includes('router') || id.includes('pinia')) {
+              return 'vendor-state'
             } else {
               return 'vendor-other'
             }
@@ -79,4 +78,4 @@ export default defineConfig({
     // 提高大文件警告阈值
     chunkSizeWarningLimit: 1000
   }
-}) 
+})
